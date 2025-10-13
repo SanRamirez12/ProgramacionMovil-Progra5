@@ -60,6 +60,15 @@ dependencies {
     // Navigation Compose
     implementation("androidx.navigation:navigation-compose:2.8.0")
 
-    // Íconos de Material (para la BottomBar)
-    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+    // Íconos Material
+    implementation("androidx.compose.material:material-icons-extended")
+
+    // ViewModel ↔ Compose (para viewModel())
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+
+    // Necesarias para teclado/acciones de texto en Compose
+    implementation("androidx.compose.ui:ui-text")          // KeyboardOptions, ImeAction
+    implementation("androidx.compose.foundation:foundation") // KeyboardActions
+
+
 }
