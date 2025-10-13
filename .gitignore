@@ -1,51 +1,46 @@
-# === Android/Gradle básicos ===
-# Builds y artefactos
-**/build/
-**/out/
-captures/
-
-# Gradle cache por proyecto
-.gradle/
-**/gradle/build/
-
-# Config local (rutas del SDK/NDK, etc.)
-local.properties
-
-# === Android Studio / IntelliJ ===
+# === IDE (IntelliJ / Android Studio) ===
 .idea/
 *.iml
 
-# === APK/AAB y mapeos ===
+# === Gradle / builds (todos los módulos) ===
+.gradle/
+**/build/
+**/out/
+
+# === Android artifacts ===
+captures/
+.externalNativeBuild/
+.cxx/
+obj/
 *.apk
 *.ap_
 *.aab
 mapping.txt
 **/mapping/
 
-# === NDK / CMake / LLDB ===
-.externalNativeBuild/
-.cxx/
-obj/
+# === Config locales / sensibles ===
+local.properties
+*.jks
+*.keystore
+*.keystore.properties
+keystore.properties
+
+# === NDK / CMake ===
 *.o
 *.so
 
-# === Firebase / Google Services (no subas credenciales) ===
+# === Firebase / Google Services (si lo usas) ===
 app/google-services.json
 app/src/**/google-services.json
 **/GoogleService-Info.plist
 .firebase/
 crashlytics-build.properties
 
-# === Keystores (¡nunca públicos!) ===
-*.jks
-*.keystore
-*.keystore.properties
-keystore.properties
-
-# === Kotlin KAPT/KSP generados ===
+# === KAPT/KSP generados ===
 **/kapt*/
 **/ksp*/
 **/kotlin/**/classes/
+.kotlin/
 
 # === Lint / cobertura / reportes ===
 **/reports/
@@ -60,7 +55,7 @@ lint/tmp/
 *.ec
 *.sarif
 
-# === Fastlane (si lo usas) ===
+# === Fastlane (opcional) ===
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
@@ -70,3 +65,5 @@ fastlane/test_output
 .DS_Store
 Thumbs.db
 .vscode/
+*.log
+*.tmp

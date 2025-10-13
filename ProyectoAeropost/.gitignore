@@ -1,0 +1,32 @@
+# === IDE (IntelliJ / Android Studio) ===
+.idea/
+*.iml
+
+# === Gradle / builds (todos los módulos) ===
+.gradle/
+**/build/
+**/out/
+
+# === Android artifacts ===
+captures/
+.externalNativeBuild/
+.cxx/
+obj/
+*.apk
+*.ap_
+*.aab
+mapping.txt
+**/mapping/
+
+# === Config locales / sensibles (no versionar) ===
+local.properties
+*.keystore
+*.jks
+
+# === SO files ===
+.DS_Store
+Thumbs.db
+
+# === Otros útiles ===
+*.log
+.kotlin/          # sesiones temporales de Kotlin
