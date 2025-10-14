@@ -2,44 +2,55 @@ package com.example.appaeropost
 // ↑ Paquete (namespace) donde vive esta clase.
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity          // Activity base “ligera” para apps Compose.
-import androidx.activity.compose.setContent        // Permite definir la UI con Jetpack Compose.
-import androidx.activity.enableEdgeToEdge         // Extiende la UI bajo status/navigation bars.
+import androidx.activity.ComponentActivity                     // Activity base “ligera” para apps Compose.
+import androidx.activity.compose.setContent                   // Define la UI con Jetpack Compose.
+import androidx.activity.enableEdgeToEdge                    // Extiende la UI bajo status/navigation bars.
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*                // Componentes Material 3 (Scaffold, TopBar, etc.)
-import androidx.compose.runtime.getValue           // Delegado 'by' para leer estados Compose.
+import androidx.compose.material3.*                           // Componentes Material 3 (Scaffold, Bars, etc.)
+import androidx.compose.runtime.getValue                      // Delegado 'by' para leer estados Compose.
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost         // Contenedor de destinos de navegación.
-import androidx.navigation.compose.composable      // Conecta una ruta con un @Composable.
+import androidx.navigation.compose.NavHost                    // Contenedor de destinos de navegación.
+import androidx.navigation.compose.composable                 // Conecta una ruta con un @Composable.
 import androidx.navigation.compose.currentBackStackEntryAsState // Lee la ruta actual (reactivo).
-import androidx.navigation.compose.rememberNavController        // Crea/recuerda un NavController.
-import com.example.appaeropost.navigation.Screen  // Rutas tipadas (sealed class).
-import com.example.appaeropost.navigation.bottomDestinations   // Lista de pestañas de la BottomBar.
+import androidx.navigation.compose.rememberNavController      // Crea/recuerda un NavController.
+
+// Rutas tipadas y pestañas inferiores
+import com.example.appaeropost.navigation.Screen
+import com.example.appaeropost.navigation.bottomDestinations
+
+// Pantallas (modules). Si alguna aún no existe, créala como placeholder.
 import com.example.appaeropost.ui.home.HomeScreen
 import com.example.appaeropost.ui.clientes.ClientesScreen
 import com.example.appaeropost.ui.paquetes.PaquetesScreen
 import com.example.appaeropost.ui.facturacion.FacturacionScreen
 import com.example.appaeropost.ui.more.MoreScreen
-import com.example.appaeropost.ui.theme.AppAeropostTheme       // Tema Material 3 de la app.
+import com.example.appaeropost.ui.usuarios.UsuariosScreen
+import com.example.appaeropost.ui.bitacora.BitacoraScreen
+import com.example.appaeropost.ui.acercade.AcercaDeScreen
+import com.example.appaeropost.ui.tracking.TrackingScreen
+import com.example.appaeropost.ui.analisis.AnalisisScreen
+import com.example.appaeropost.ui.reportes.ReportesScreen
 
-class MainActivity : ComponentActivity() {         // Una Activity = “contenedor” de pantalla.
+import com.example.appaeropost.ui.theme.AppAeropostTheme      // Tema Material 3 de la app.
+
+class MainActivity : ComponentActivity() {                    // Activity = “contenedor” de pantalla.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()                         // Pinta contenido hasta los bordes del sistema.
+        enableEdgeToEdge()                                    // Pinta contenido hasta los bordes del sistema.
 
         // Define la interfaz con Compose (reemplaza setContentView de XML).
         setContent {
-            AppAeropostTheme {                     // Aplica colores/tipografías/forma (M3).
+            AppAeropostTheme {                                // Aplica colores/tipografías/forma (M3).
                 // Controlador de navegación para cambiar de pantalla por rutas.
                 val navController = rememberNavController()
 
                 // Scaffold = layout base con slots (topBar, bottomBar, FAB…)
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    bottomBar = {                   // Slot de barra inferior persistente.
-                        NavigationBar {             // Barra de navegación Material 3.
+                    bottomBar = {                              // Slot de barra inferior persistente.
+                        NavigationBar {                        // Barra de navegación Material 3.
                             // Observa reactivamente la entrada del back stack
                             // para saber qué ruta está activa y marcar el tab.
                             val backStackEntry by navController.currentBackStackEntryAsState()
@@ -59,8 +70,8 @@ class MainActivity : ComponentActivity() {         // Una Activity = “contened
                                                 popUpTo(navController.graph.startDestinationId) {
                                                     saveState = true
                                                 }
-                                                launchSingleTop = true  // evita “apilar” la misma ruta
-                                                restoreState = true     // restaura el estado guardado
+                                                launchSingleTop = true   // evita “apilar” la misma ruta
+                                                restoreState = true      // restaura el estado guardado
                                             }
                                         }
                                     },
@@ -75,15 +86,23 @@ class MainActivity : ComponentActivity() {         // Una Activity = “contened
                     // NavHost: mapea cada ruta -> Composable (pantalla) y gestiona el back stack.
                     NavHost(
                         navController = navController,
-                        startDestination = Screen.Home.route, // Ruta inicial al abrir la app.
-                        modifier = Modifier.padding(inner)    // Respeta el espacio de la BottomBar.
+                        startDestination = Screen.Home.route,  // Ruta inicial al abrir la app.
+                        modifier = Modifier.padding(inner)
                     ) {
-                        // Por cada ruta declaramos qué UI se muestra.
-                        composable(Screen.Home.route) { HomeScreen() }
-                        composable(Screen.Clientes.route) { ClientesScreen() }
-                        composable(Screen.Paquetes.route) { PaquetesScreen() }
+                        // Tabs principales (BottomBar)
+                        composable(Screen.Home.route)        { HomeScreen(navController) }
+                        composable(Screen.Clientes.route)    { ClientesScreen() }
+                        composable(Screen.Paquetes.route)    { PaquetesScreen() }
                         composable(Screen.Facturacion.route) { FacturacionScreen() }
-                        composable(Screen.More.route) { MoreScreen() }
+                        composable(Screen.More.route)        { MoreScreen(navController) }
+
+                        // Destinos secundarios
+                        composable(Screen.Usuarios.route)    { UsuariosScreen() }
+                        composable(Screen.Bitacora.route)    { BitacoraScreen() }
+                        composable(Screen.AcercaDe.route)    { AcercaDeScreen() }
+                        composable(Screen.Tracking.route)    { TrackingScreen() }
+                        composable(Screen.Analisis.route)    { AnalisisScreen() }
+                        composable(Screen.Reportes.route)    { ReportesScreen() }
                     }
                 }
             }

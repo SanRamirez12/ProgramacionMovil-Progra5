@@ -1,18 +1,14 @@
 package com.example.appaeropost.ui.paquetes
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.appaeropost.ui.components.ModuleScaffold
 
 @Composable
 fun PaquetesScreen(modifier: Modifier = Modifier) {
-    Text(
-        "Paquetes",
-        modifier = modifier
-            .fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-    )
+    ModuleScaffold(title = "Paquetes") {
+        // TODO: aquí va la lista/CRUD de paquetes (visual por ahora)
+        Text("Pantalla de Paquetes", modifier = modifier)
+    }
 }
