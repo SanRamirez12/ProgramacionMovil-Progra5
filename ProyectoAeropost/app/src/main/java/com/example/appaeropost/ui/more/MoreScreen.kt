@@ -14,18 +14,28 @@ import com.example.appaeropost.ui.components.ModuleScaffold
 fun MoreScreen(nav: NavController? = null, modifier: Modifier = Modifier) {
     val items = listOf(
         Screen.Usuarios to "Usuarios",
-        Screen.Bitacora to "Bitácora",
-        Screen.Analisis to "Análisis",
-        Screen.Reportes to "Reportes",
-        Screen.AcercaDe to "Acerca de"
+        Screen.Bitacora to "Bitácora y Auditoría",
+        Screen.Tracking to "Tracking geográfico",
+        Screen.Reportes to "Análisis y reportes",
+        Screen.AcercaDe to "Acerca de / Configuración"
     )
     ModuleScaffold(title = "Más") {
-        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             items.forEach { (dest, label) ->
-                Card(Modifier.fillMaxWidth().clickable { nav?.navigate(dest.route) }) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { nav?.navigate(dest.route) }
+                ) {
                     ListItem(headlineContent = { Text(label) })
                 }
             }
         }
     }
 }
+

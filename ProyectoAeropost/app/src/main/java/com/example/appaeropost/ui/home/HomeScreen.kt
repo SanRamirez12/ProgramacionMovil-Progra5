@@ -12,8 +12,21 @@ import com.example.appaeropost.ui.components.ModuleScaffold
 @Composable
 fun HomeScreen(nav: NavController? = null, modifier: Modifier = Modifier) {
     ModuleScaffold(title = "Menú principal") {
-        // Grid simple de atajos a módulos frecuentes
-        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Bienvenida / descripción
+            Text(
+                "Bienvenido a Aeropost App.\n" +
+                        "Aquí puedes gestionar clientes, paquetes y facturación; " +
+                        "además de acceso a módulos avanzados desde la sección 'Más'.",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            // Accesos rápidos a módulos principales
             Button(onClick = { nav?.navigate(Screen.Clientes.route) }, modifier = Modifier.fillMaxWidth()) {
                 Text("Clientes")
             }
@@ -23,9 +36,10 @@ fun HomeScreen(nav: NavController? = null, modifier: Modifier = Modifier) {
             Button(onClick = { nav?.navigate(Screen.Facturacion.route) }, modifier = Modifier.fillMaxWidth()) {
                 Text("Facturación")
             }
-            Button(onClick = { nav?.navigate(Screen.Tracking.route) }, modifier = Modifier.fillMaxWidth()) {
-                Text("Tracking geográfico")
+            Button(onClick = { nav?.navigate(Screen.More.route) }, modifier = Modifier.fillMaxWidth()) {
+                Text("Más módulos")
             }
         }
     }
 }
+
