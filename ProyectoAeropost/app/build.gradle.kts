@@ -70,5 +70,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-text")          // KeyboardOptions, ImeAction
     implementation("androidx.compose.foundation:foundation") // KeyboardActions
 
-
+    //SplashScreen API (Android 12+) con retrocompatibilidad a versiones anteriores.
+    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("com.google.android.material:material:1.12.0")
 }

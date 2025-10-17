@@ -11,25 +11,29 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 
+// ★ imports para shapes
+import androidx.compose.material3.Shapes
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.unit.dp
+
 // ===== Esquema CLARO (Light) =====
-// Nota: on* = color del texto/ícono encima de la superficie correspondiente.
 private val LightColorScheme = lightColorScheme(
     primary            = AeropostBlue,
     onPrimary          = Color.White,
     primaryContainer   = AeropostBlueLight,
     onPrimaryContainer = Color.White,
 
-    secondary          = AeropostBlueLight,
-    onSecondary        = Color.White,
-    secondaryContainer = Color(0xFFE9EEFF),
+    secondary            = AeropostBlueLight,
+    onSecondary          = Color.White,
+    secondaryContainer   = Color(0xFFE9EEFF),
     onSecondaryContainer = AeropostBlue,
 
-    background         = BackgroundLight,
-    onBackground       = OnSurfaceLight,
-    surface            = SurfaceLight,
-    onSurface          = OnSurfaceLight,
+    background   = BackgroundLight,
+    onBackground = OnSurfaceLight,
+    surface      = SurfaceLight,
+    onSurface    = OnSurfaceLight,
 
-    outline            = OutlineLight
+    outline = OutlineLight
 )
 
 // ===== Esquema OSCURO (Dark) =====
@@ -39,28 +43,35 @@ private val DarkColorScheme = darkColorScheme(
     primaryContainer   = AeropostBlueDark,
     onPrimaryContainer = Color.White,
 
-    secondary          = AeropostBlue,
-    onSecondary        = Color.White,
-    secondaryContainer = AeropostBlueDark,
+    secondary            = AeropostBlue,
+    onSecondary          = Color.White,
+    secondaryContainer   = AeropostBlueDark,
     onSecondaryContainer = Color.White,
 
-    background         = BackgroundDark,
-    onBackground       = OnSurfaceDark,
-    surface            = SurfaceDark,
-    onSurface          = OnSurfaceDark,
+    background   = BackgroundDark,
+    onBackground = OnSurfaceDark,
+    surface      = SurfaceDark,
+    onSurface    = OnSurfaceDark,
 
-    outline            = OutlineDark
+    outline = OutlineDark
+)
+
+// ★ Shapes globales (curvatura por defecto en la app)
+private val AppShapes = Shapes(
+    extraSmall = RoundedCornerShape(4.dp),
+    small      = RoundedCornerShape(8.dp),
+    medium     = RoundedCornerShape(16.dp),
+    large      = RoundedCornerShape(24.dp),   // ← el que usarán Cards grandes, etc.
+    extraLarge = RoundedCornerShape(28.dp)
 )
 
 /**
  * Tema global de la app.
- * - Por defecto **NO** usa colores dinámicos para mantener la marca (puedes cambiarlo con dynamicColor = true).
- * - Si activas dynamicColor en Android 12+, se respetará el modo claro/oscuro pero con tonos del sistema.
  */
 @Composable
 fun AppAeropostTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // ← mantenemos branding por defecto
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme =
@@ -73,7 +84,8 @@ fun AppAeropostTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        typography  = Typography,
+        shapes      = AppShapes,     // ★ aplica las shapes
+        content     = content
     )
 }

@@ -7,7 +7,7 @@ import com.example.appaeropost.ui.components.ModuleScaffold
 
 @Composable
 fun FacturacionScreen(modifier: Modifier = Modifier) {
-    ModuleScaffold(title = "Facturacion") {
+    ModuleScaffold(title = "Facturación") {
         // TODO: aquí va la lista/CRUD de facturacion (visual por ahora)
         Text("Pantalla de Facturacion", modifier = modifier)
     }

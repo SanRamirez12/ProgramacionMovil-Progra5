@@ -41,21 +41,21 @@ fun ClienteForm(
         OutlinedTextField(
             value = state.nombre,
             onValueChange = { state = state.copy(nombre = it) },
-            label = { Text("Nombre completo") },
+            label = { Text("Nombre completo*") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
         OutlinedTextField(
             value = state.identificacion,
             onValueChange = { state = state.copy(identificacion = it) },
-            label = { Text("Cédula / Identificación") },
+            label = { Text("Cédula / Identificación*") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
         OutlinedTextField(
             value = state.telefono,
             onValueChange = { state = state.copy(telefono = it) },
-            label = { Text("Teléfono") },
+            label = { Text("Teléfono*") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
@@ -63,7 +63,7 @@ fun ClienteForm(
         OutlinedTextField(
             value = state.correo,
             onValueChange = { state = state.copy(correo = it) },
-            label = { Text("Correo electrónico") },
+            label = { Text("Correo electrónico*") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
@@ -78,7 +78,7 @@ fun ClienteForm(
                 readOnly = true,
                 value = state.tipo.name.lowercase().replaceFirstChar { it.titlecase() },
                 onValueChange = {},
-                label = { Text("Tipo de cliente") },
+                label = { Text("Tipo de cliente*") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = tipoExpanded) },
                 modifier = Modifier
                     .menuAnchor()
@@ -103,7 +103,7 @@ fun ClienteForm(
                 readOnly = true,
                 value = if (state.estado == EstadoCliente.HABILITADO) "Habilitado" else "Deshabilitado",
                 onValueChange = {},
-                label = { Text("Estado") },
+                label = { Text("Estado*") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = estadoExpanded) },
                 modifier = Modifier
                     .menuAnchor()
@@ -122,7 +122,7 @@ fun ClienteForm(
         OutlinedTextField(
             value = state.direccionEntrega,
             onValueChange = { state = state.copy(direccionEntrega = it) },
-            label = { Text("Dirección de entrega") },
+            label = { Text("Dirección de entrega*") },
             modifier = Modifier.fillMaxWidth(),
             minLines = 3
         )

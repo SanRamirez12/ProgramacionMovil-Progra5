@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 private fun SimpleAppBar(
@@ -36,8 +37,11 @@ private fun SimpleAppBar(
                 }
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = titleColor
+                    // Estilo deseado: displaySmall + SemiBold + primary
+                    style = MaterialTheme.typography.displaySmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 )
             }
             Row(content = actions)

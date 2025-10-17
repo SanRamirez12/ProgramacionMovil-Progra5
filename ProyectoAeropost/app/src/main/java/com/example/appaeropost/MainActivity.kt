@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 // Rutas tipadas y pestañas inferiores
 import com.example.appaeropost.navigation.Screen
@@ -39,9 +41,14 @@ import com.example.appaeropost.ui.clientes.ClienteEditarScreen
 
 class MainActivity : ComponentActivity() { // Activity = “contenedor” de la app
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // 1) Instalar splash (Android 12+ y compat)
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // 2) Ya puedes hacer setContent con tu tema normal
         setContent {
             AppAeropostTheme {
                 val navController = rememberNavController()
@@ -51,31 +58,34 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
                 val currentRoute = backStackEntry?.destination?.route
                 val showBottomBar = bottomDestinations.any { it.route == currentRoute }
 
-
-
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         if (showBottomBar) {
-                            NavigationBar {
+                            NavigationBar(
+                                containerColor = Color(0xFF2F3136) // gris oscuro similar al de la app real
+                            ) {
                                 bottomDestinations.forEach { dest ->
                                     NavigationBarItem(
                                         selected = currentRoute == dest.route,
                                         onClick = {
                                             if (currentRoute != dest.route) {
                                                 navController.navigate(dest.route) {
-                                                    // Volver al inicio del grafo y guardar/restaurar estado
-                                                    popUpTo(navController.graph.startDestinationId) {
-                                                        saveState = true
-                                                    }
+                                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
                                                     launchSingleTop = true
                                                     restoreState = true
                                                 }
                                             }
                                         },
-                                        // Solo las tabs tienen icon (en Screen el icon es nullable)
                                         icon = { dest.icon?.let { Icon(it, contentDescription = dest.label) } },
-                                        label = { Text(dest.label) }
+                                        label = { Text(dest.label) },
+                                        colors = NavigationBarItemDefaults.colors(
+                                            selectedIconColor = Color.White,
+                                            selectedTextColor = Color.White,
+                                            unselectedIconColor = Color(0xFFBEC3CF),
+                                            unselectedTextColor = Color(0xFFBEC3CF),
+                                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.20f)
+                                        )
                                     )
                                 }
                             }
