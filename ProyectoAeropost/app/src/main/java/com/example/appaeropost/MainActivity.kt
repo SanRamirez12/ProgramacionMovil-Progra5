@@ -14,6 +14,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 
 // Rutas tipadas y pestañas inferiores
 import com.example.appaeropost.navigation.Screen
@@ -32,6 +34,8 @@ import com.example.appaeropost.ui.acercade.AcercaDeScreen
 import com.example.appaeropost.ui.tracking.TrackingScreen
 import com.example.appaeropost.ui.reportes.ReportesScreen
 import com.example.appaeropost.ui.theme.AppAeropostTheme
+import com.example.appaeropost.ui.clientes.ClienteNuevoScreen
+import com.example.appaeropost.ui.clientes.ClienteEditarScreen
 
 class MainActivity : ComponentActivity() { // Activity = “contenedor” de la app
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +49,9 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
                 // Ruta actual para decidir si mostramos la BottomBar
                 val backStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = backStackEntry?.destination?.route
-                val showBottomBar = currentRoute != Screen.Login.route
+                val showBottomBar = bottomDestinations.any { it.route == currentRoute }
+
+
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -79,14 +85,13 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
                     // Grafo de navegación
                     NavHost(
                         navController = navController,
-                        startDestination = Screen.Login.route, // ← Login primero
+                        startDestination = Screen.Login.route,
                         modifier = Modifier.padding(inner)
                     ) {
-                        // --------- Login (sin BottomBar) ----------
+                        // --------- Login ----------
                         composable(Screen.Login.route) {
                             LoginScreen(
                                 onLoginOk = {
-                                    // Ir a Home y quitar Login del back stack
                                     navController.navigate(Screen.Home.route) {
                                         popUpTo(Screen.Login.route) { inclusive = true }
                                         launchSingleTop = true
@@ -95,19 +100,46 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
                             )
                         }
 
-                        // --------- Tabs principales ----------
+
+                        // --------- Tabs ----------
                         composable(Screen.Home.route)        { HomeScreen(navController) }
-                        composable(Screen.Clientes.route)    { ClientesScreen() }
+
+                        composable(Screen.Clientes.route) {
+                            ClientesScreen(
+                                onNuevoClick = { navController.navigate(Screen.ClienteNuevo.route) },
+                                onEditarClick = { id -> navController.navigate("clienteEditar/$id") }
+                                // o: navController.navigate(clienteEditarRoute(id))
+                            )
+                        }
+
                         composable(Screen.Paquetes.route)    { PaquetesScreen() }
                         composable(Screen.Facturacion.route) { FacturacionScreen() }
                         composable(Screen.More.route)        { MoreScreen(navController) }
 
-                        // --------- Destinos de “Más” ----------
+                        // --------- Más ----------
                         composable(Screen.Usuarios.route)    { UsuariosScreen() }
                         composable(Screen.Bitacora.route)    { BitacoraScreen() }
                         composable(Screen.Tracking.route)    { TrackingScreen() }
                         composable(Screen.Reportes.route)    { ReportesScreen() }
                         composable(Screen.AcercaDe.route)    { AcercaDeScreen() }
+
+                        // --------- Clientes: Nuevo / Editar ----------
+                        composable(Screen.ClienteNuevo.route) {
+                            ClienteNuevoScreen(onBack = { navController.popBackStack() })
+                        }
+
+                        composable(
+                            route = Screen.ClienteEditar.route,
+                            arguments = listOf(navArgument("id") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id").orEmpty()
+                            val idInt = id.toIntOrNull() ?: 0
+                            ClienteEditarScreen(
+                                clienteId = idInt,
+                                onBack = { navController.popBackStack() }
+                            )
+                        }
+
                     }
                 }
             }

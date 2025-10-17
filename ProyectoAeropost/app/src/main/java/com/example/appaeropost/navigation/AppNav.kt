@@ -23,6 +23,14 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector?
     data object Tracking    : Screen("tracking",    "Tracking",     Icons.Filled.Map)
     data object Reportes    : Screen("reportes",    "Reportes",     Icons.Filled.Assessment)
     data object AcercaDe    : Screen("acercade",    "Acerca de",    Icons.Filled.Info)
+
+
+
+    //——— Destinos dentro de “Clientes”
+    data object ClienteNuevo  : Screen("clienteNuevo", "Nuevo cliente")
+    data object ClienteEditar : Screen("clienteEditar/{id}", "Editar cliente")
+    // (opcional) helper para construir la ruta con id:
+    fun clienteEditarRoute(id: String) = "clienteEditar/$id"
 }
 
 // Pestañas de la BottomBar (las 5 principales)

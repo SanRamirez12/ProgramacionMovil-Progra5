@@ -8,19 +8,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-/**
- * App bar estable (no usa APIs experimentales de Material3).
- * Muestra un título a la izquierda y un área de acciones a la derecha.
- */
 @Composable
 private fun SimpleAppBar(
     title: String,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    leading: (@Composable RowScope.() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    Surface(tonalElevation = 1.dp) {
-        // Respetamos la barra de estado y damos altura típica de 56.dp
+    // Fondo del appbar = surface (blanco, según tu Theme)
+    Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -30,39 +29,52 @@ private fun SimpleAppBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (leading != null) {
+                    Row(content = leading)
+                    Spacer(Modifier.width(8.dp))
+                }
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = titleColor
+                )
+            }
             Row(content = actions)
         }
     }
 }
 
-/**
- * Scaffold base para módulos:
- * - App bar estable con título y acciones opcionales
- * - Slot para FloatingActionButton opcional
- * - Contenido que respeta el padding del Scaffold
- */
+/** Scaffold base para módulos */
 @Composable
 fun ModuleScaffold(
-    title: String,
+    title: String? = null, // si es null, no se muestra TopBar
+    showTopBar: Boolean = true,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    leading: (@Composable RowScope.() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     floating: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     Scaffold(
-        topBar = { SimpleAppBar(title = title, actions = actions) },
+        topBar = {
+            if (showTopBar && title != null) {
+                SimpleAppBar(
+                    title = title,
+                    titleColor = titleColor,
+                    leading = leading,
+                    actions = actions
+                )
+            }
+        },
         floatingActionButton = floating,
-        contentWindowInsets = WindowInsets.systemBars // ajusta automáticamente insets del sistema
+        contentWindowInsets = WindowInsets.systemBars
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-        ) {
-            content()
-        }
+        ) { content() }
     }
 }
+
