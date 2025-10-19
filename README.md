@@ -18,12 +18,12 @@ El proyecto busca replicar, optimizar y extender los procesos de **registro de c
 
 El proyecto sigue una **arquitectura limpia y modular** basada en **MVVM**, estructurada en capas:
 
-- **/data → Repositorios, DAOs y fuentes de datos (Room / Retrofit)
-- **/domain → Modelos, entidades y lógica de negocio
-- **/ui → Pantallas Jetpack Compose, ViewModels y eventos de UI
-- **/navigation → AppNav y rutas con BottomBar
-- **/components → Reutilizables de interfaz (botones, inputs, scaffold)
-- **/theme → Colores, tipografía y estilos globales Aeropost
+- /data → Repositorios, DAOs y fuentes de datos (Room / Retrofit)
+- /domain → Modelos, entidades y lógica de negocio
+- /ui → Pantallas Jetpack Compose, ViewModels y eventos de UI
+- /navigation → AppNav y rutas con BottomBar
+- /components → Reutilizables de interfaz (botones, inputs, scaffold)
+- /theme → Colores, tipografía y estilos globales Aeropost
 
 
 **Stack técnico principal:**
