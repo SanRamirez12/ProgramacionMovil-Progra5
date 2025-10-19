@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,10 +43,8 @@ fun PaquetesScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Header azul (igual estilo a Clientes)
             HeaderPaquetes()
 
-            // Buscador + botón Nuevo
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -72,13 +71,11 @@ fun PaquetesScreen(
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
 
-            // Tabla
             PaquetesTable(
                 rows = state.items.map { it.toUi() },
                 onEditarClick = onEditarClick
             )
 
-            // Error
             state.error?.let {
                 Text(
                     text = "Error: $it",
@@ -87,13 +84,10 @@ fun PaquetesScreen(
                 )
             }
 
-            // Hint cuando no hay búsqueda (igual UX que Clientes)
             if (state.items.isEmpty() && state.cedulaQuery.isBlank() && !state.isLoading) {
                 Text(
                     text = "Escribe una cédula para buscar paquetes",
-                    modifier = Modifier
-                        .padding(top = 18.dp)
-                        .alpha(0.8f),
+                    modifier = Modifier.padding(top = 18.dp).alpha(0.8f),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -110,15 +104,12 @@ private fun HeaderPaquetes() {
         )
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
+            modifier = Modifier.fillMaxWidth().padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Usa un drawable temporal si aún no hay logo de paquetes
             Image(
-                painter = painterResource(id = R.drawable.logo_paquetes), // reemplázalo por un logo de paquetes si lo tienes
+                painter = painterResource(id = R.drawable.logo_paquetes),
                 contentDescription = "Logo",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(40.dp)
@@ -130,32 +121,22 @@ private fun HeaderPaquetes() {
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.background
                 )
-                Text(
-                    "Buscar, registrar y editar paquetes",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Text("Buscar, registrar y editar paquetes", style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
 }
 
-/** Tabla con columnas: Fecha | Cliente | Cédula | Tracking | (Editar) */
+/** Tabla: Fecha | Cliente | Cédula | Tracking | (lápiz) */
 @Composable
 private fun PaquetesTable(
     rows: List<PaqueteUi>,
     onEditarClick: (String) -> Unit
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize()) {
         TableHeader()
         Divider()
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
             items(rows, key = { it.id }) { p ->
                 TableRow(
                     fecha = p.fecha,
@@ -173,37 +154,14 @@ private fun PaquetesTable(
 @Composable
 private fun TableHeader() {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 6.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            "Fecha",
-            modifier = Modifier.weight(0.26f),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            "Cliente",
-            modifier = Modifier.weight(0.34f),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            "Cédula",
-            modifier = Modifier.weight(0.22f),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            "Tracking",
-            modifier = Modifier.weight(0.18f),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        // espacio para el botón editar
-        Spacer(Modifier.width(4.dp))
+        Text("Fecha",   modifier = Modifier.weight(0.26f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text("Cliente", modifier = Modifier.weight(0.34f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text("Cédula",  modifier = Modifier.weight(0.22f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text("Tracking",modifier = Modifier.weight(0.14f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.weight(0.04f)) // espacio para lapicito
     }
 }
 
@@ -216,30 +174,20 @@ private fun TableRow(
     onEdit: () -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 10.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(fecha, modifier = Modifier.weight(0.26f), style = MaterialTheme.typography.bodyMedium)
-        Text(
-            cliente,
-            modifier = Modifier.weight(0.34f),
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(cedula, modifier = Modifier.weight(0.22f), style = MaterialTheme.typography.bodyMedium)
-        Text(tracking, modifier = Modifier.weight(0.18f), style = MaterialTheme.typography.bodyMedium)
-        Box(modifier = Modifier.width(4.dp))
-        OutlinedButton(onClick = onEdit, shape = MaterialTheme.shapes.large) {
-            Text("Editar")
+        Text(cliente, modifier = Modifier.weight(0.34f), style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(cedula,  modifier = Modifier.weight(0.22f), style = MaterialTheme.typography.bodyMedium)
+        Text(tracking,modifier = Modifier.weight(0.14f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Box(modifier = Modifier.weight(0.04f), contentAlignment = Alignment.CenterEnd) {
+            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar") }
         }
     }
 }
 
 /* --------- Mappers UI --------- */
-
 private data class PaqueteUi(
     val id: String,
     val fecha: String,
@@ -258,5 +206,6 @@ private fun com.example.appaeropost.domain.paquetes.Paquete.toUi(): PaqueteUi {
         tracking = tracking
     )
 }
+
 
 

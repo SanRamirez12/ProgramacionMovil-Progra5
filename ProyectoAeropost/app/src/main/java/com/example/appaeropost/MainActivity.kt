@@ -40,6 +40,9 @@ import com.example.appaeropost.ui.clientes.ClienteNuevoScreen
 import com.example.appaeropost.ui.clientes.ClienteEditarScreen
 import com.example.appaeropost.ui.paquetes.PaqueteNuevoScreen
 import com.example.appaeropost.ui.paquetes.PaqueteEditarScreen
+import com.example.appaeropost.ui.facturacion.FacturacionNuevaScreen
+import com.example.appaeropost.ui.facturacion.FacturacionEditarScreen
+
 
 class MainActivity : ComponentActivity() { // Activity = “contenedor” de la app
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,15 +131,12 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
 
                         //Tabs paquetes
                         // Listado de Paquetes
-                        // Listado de Paquetes
                         composable(Screen.Paquetes.route) {
                             PaquetesScreen(
                                 onNuevoClick = { navController.navigate(Screen.PaqueteNuevo.route) },
                                 onEditarClick = { id -> navController.navigate(Screen.PaqueteEditar.route(id)) } // <-- aquí
                             )
                         }
-
-
                         // Registrar nuevo paquete
                         composable(Screen.PaqueteNuevo.route) {
                             PaqueteNuevoScreen(
@@ -144,7 +144,6 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
                                 onSaved  = { navController.popBackStack() }  // luego puedes disparar un refresh vía VM/SharedViewModel
                             )
                         }
-
                         // Editar paquete
                         composable(
                             route = Screen.PaqueteEditar.route,
@@ -158,7 +157,34 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
                             )
                         }
 
-                        composable(Screen.Facturacion.route) { FacturacionScreen() }
+                        // --------- Tab Facturación (lista) ----------
+                        composable(Screen.Facturacion.route) {
+                            FacturacionScreen(
+                                onNuevoClick = { navController.navigate(Screen.FacturaNueva.route) },
+                                onEditarClick = { id -> navController.navigate(Screen.FacturaEditar.route(id)) },
+                                onFacturarPendientes = { /* TODO: abrir pantalla/reporte futuro */ }
+                            )
+                        }
+                        // --------- Registrar factura ----------
+                        composable(Screen.FacturaNueva.route) {
+                            FacturacionNuevaScreen(
+                                onCancel = { navController.popBackStack() },
+                                onSaved  = { navController.popBackStack() }
+                            )
+                        }
+                        // --------- Editar factura ----------
+                        composable(
+                            route = Screen.FacturaEditar.route,
+                            arguments = listOf(navArgument(Screen.FacturaEditar.ARG_ID) { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val facturaId = backStackEntry.arguments?.getString(Screen.FacturaEditar.ARG_ID).orEmpty()
+                            FacturacionEditarScreen(
+                                facturaId = facturaId,
+                                onCancel = { navController.popBackStack() },
+                                onSaved  = { navController.popBackStack() }
+                            )
+                        }
+
                         composable(Screen.More.route)        { MoreScreen(navController) }
 
                         // --------- Más ----------
