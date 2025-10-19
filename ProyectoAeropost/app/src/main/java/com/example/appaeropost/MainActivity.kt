@@ -222,6 +222,7 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
                         composable(Screen.Bitacora.route)    { BitacoraScreen() }
                         composable(Screen.Tracking.route)    { TrackingScreen() }
                         composable(Screen.Reportes.route)    { ReportesScreen() }
+
                         composable(Screen.AcercaDe.route)    { AcercaDeScreen() }
 
                         // --------- Clientes: Nuevo / Editar ----------
