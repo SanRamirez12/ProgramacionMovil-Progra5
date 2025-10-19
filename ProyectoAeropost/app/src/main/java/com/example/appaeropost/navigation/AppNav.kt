@@ -31,6 +31,17 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector?
     data object ClienteEditar : Screen("clienteEditar/{id}", "Editar cliente")
     // (opcional) helper para construir la ruta con id:
     fun clienteEditarRoute(id: String) = "clienteEditar/$id"
+
+    // ——— Destinos dentro de “Paquetes”
+    data object PaqueteNuevo  : Screen("paqueteNuevo", "Registrar paquete")
+    data object PaqueteEditar : Screen("paqueteEditar/{id}", "Editar paquete") {
+        const val ARG_ID = "id"
+        fun route(id: String) = "paqueteEditar/$id"
+    }
+
+
+
+
 }
 
 // Pestañas de la BottomBar (las 5 principales)

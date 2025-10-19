@@ -125,7 +125,7 @@ private fun HeaderWithLogo() {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.background // ← fondo blanco
+            containerColor = MaterialTheme.colorScheme.primary // ← fondo blanco
         )
     ) {
         Row(
@@ -148,7 +148,7 @@ private fun HeaderWithLogo() {
                     "Clientes",
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.background
                 )
                 Text(
                     "Buscar, crear y editar clientes",

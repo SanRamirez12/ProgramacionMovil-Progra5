@@ -9,12 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.appaeropost.data.clientes.ClientesRepository
+import com.example.appaeropost.data.clientes.FakeClientesRepository
 import com.example.appaeropost.ui.components.ModuleScaffold
 
 @Composable
 fun ClienteEditarScreen(
     clienteId: Int,
-    repo: ClientesRepository = ClientesRepository(), // luego DI
+    repo: ClientesRepository = FakeClientesRepository(),   // ← antes era la clase concreta
     onBack: () -> Unit = {},
     onGuardarClick: () -> Unit = {}
 ) {

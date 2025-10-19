@@ -14,7 +14,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,20 +26,20 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
+        // Habilita desugaring para usar java.time en API < 26
+        isCoreLibraryDesugaringEnabled = true
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
-    }
+    kotlinOptions { jvmTarget = "11" }
+
+    buildFeatures { compose = true }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -63,14 +62,17 @@ dependencies {
     // Íconos Material
     implementation("androidx.compose.material:material-icons-extended")
 
-    // ViewModel ↔ Compose (para viewModel())
+    // ViewModel ↔ Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
 
     // Necesarias para teclado/acciones de texto en Compose
-    implementation("androidx.compose.ui:ui-text")          // KeyboardOptions, ImeAction
-    implementation("androidx.compose.foundation:foundation") // KeyboardActions
+    implementation("androidx.compose.ui:ui-text")
+    implementation("androidx.compose.foundation:foundation")
 
-    //SplashScreen API (Android 12+) con retrocompatibilidad a versiones anteriores.
+    // Splash
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.material:material:1.12.0")
+
+    // Dependencia de desugaring (clave)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
