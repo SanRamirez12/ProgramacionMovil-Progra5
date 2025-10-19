@@ -42,6 +42,8 @@ import com.example.appaeropost.ui.paquetes.PaqueteNuevoScreen
 import com.example.appaeropost.ui.paquetes.PaqueteEditarScreen
 import com.example.appaeropost.ui.facturacion.FacturacionNuevaScreen
 import com.example.appaeropost.ui.facturacion.FacturacionEditarScreen
+import com.example.appaeropost.ui.usuarios.UsuarioNuevoScreen
+import com.example.appaeropost.ui.usuarios.UsuarioEditarScreen
 
 
 class MainActivity : ComponentActivity() { // Activity = “contenedor” de la app
@@ -188,7 +190,35 @@ class MainActivity : ComponentActivity() { // Activity = “contenedor” de la 
                         composable(Screen.More.route)        { MoreScreen(navController) }
 
                         // --------- Más ----------
-                        composable(Screen.Usuarios.route)    { UsuariosScreen() }
+                        // --------- Más ----------
+                        composable(Screen.Usuarios.route) {
+                            UsuariosScreen(
+                                onNuevoClick = { navController.navigate(Screen.UsuarioNuevo.route) },
+                                onEditarClick = { username -> navController.navigate(Screen.UsuarioEditar.route(username)) }
+                            )
+                        }
+
+                        // --------- Usuarios: Nuevo ----------
+                        composable(Screen.UsuarioNuevo.route) {
+                            UsuarioNuevoScreen(
+                                onCancel = { navController.popBackStack() },
+                                onSaved  = { navController.popBackStack() } // luego puedes disparar refresh si usas shared VM
+                            )
+                        }
+
+                        // --------- Usuarios: Editar ----------
+                        composable(
+                            route = Screen.UsuarioEditar.route,
+                            arguments = listOf(navArgument(Screen.UsuarioEditar.ARG_USERNAME) { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val username = backStackEntry.arguments?.getString(Screen.UsuarioEditar.ARG_USERNAME).orEmpty()
+                            UsuarioEditarScreen(
+                                username = username,
+                                onCancel  = { navController.popBackStack() },
+                                onSaved   = { navController.popBackStack() }
+                            )
+                        }
+
                         composable(Screen.Bitacora.route)    { BitacoraScreen() }
                         composable(Screen.Tracking.route)    { TrackingScreen() }
                         composable(Screen.Reportes.route)    { ReportesScreen() }

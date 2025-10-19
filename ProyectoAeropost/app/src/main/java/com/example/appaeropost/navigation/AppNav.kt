@@ -46,6 +46,14 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector?
         fun route(id: String) = "facturaEditar/$id"
     }
 
+    // ——— Destinos dentro de “Usuarios”
+    data object UsuarioNuevo  : Screen("usuarioNuevo", "Nuevo usuario")
+    data object UsuarioEditar : Screen("usuarioEditar/{username}", "Editar usuario") {
+        const val ARG_USERNAME = "username"
+        fun route(username: String) = "usuarioEditar/$username"
+    }
+
+
 
 }
 
