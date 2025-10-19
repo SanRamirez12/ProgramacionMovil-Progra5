@@ -17,6 +17,7 @@ El proyecto busca replicar, optimizar y extender los procesos de **registro de c
 ## 🏗️ Arquitectura
 
 El proyecto sigue una **arquitectura limpia y modular** basada en **MVVM**, estructurada en capas:
+
 /data → Repositorios, DAOs y fuentes de datos (Room / Retrofit)
 /domain → Modelos, entidades y lógica de negocio
 /ui → Pantallas Jetpack Compose, ViewModels y eventos de UI
