@@ -90,7 +90,7 @@ El proyecto sigue una **arquitectura limpia y modular** basada en **MVVM**, estr
 
 El avance del proyecto se gestiona mediante **Notion** en el siguiente tablero:  
 
-🔗 **Notion Roadmap:** [Abrir tablero de progreso]([https://www.notion.so/291122423059802c9e65ea98ea9b89b8?v=2911224230598043a304000ccefd6ead&source=copy_link]
+🔗 **Notion Roadmap:** [Abrir tablero de progreso](https://www.notion.so/291122423059802c9e65ea98ea9b89b8?v=2911224230598043a304000ccefd6ead&source=copy_link)
 
 El tablero incluye:
 - Checklist por módulo  
