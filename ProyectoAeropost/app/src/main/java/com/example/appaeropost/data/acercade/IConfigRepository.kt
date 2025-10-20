@@ -1,4 +1,4 @@
-package com.example.appaeropost.data.config
+package com.example.appaeropost.data.acercade
 
 import com.example.appaeropost.domain.config.AppConfig
 import kotlinx.coroutines.flow.StateFlow

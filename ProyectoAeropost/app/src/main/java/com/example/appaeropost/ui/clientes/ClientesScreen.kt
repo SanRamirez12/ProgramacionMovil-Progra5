@@ -7,16 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,23 +19,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appaeropost.R
 import com.example.appaeropost.ui.components.ModuleScaffold
 
 @Composable
 fun ClientesScreen(
-    vm: ClientesViewModel = viewModel(),
-    onNuevoClick: () -> Unit = {},
-    onEditarClick: (String) -> Unit = {},
+    vm: ClientesViewModel,              // ← inyectado desde arriba
+    onNuevoClick: () -> Unit,
+    onEditarClick: (Int) -> Unit        // ← usa Int (id de dominio)
 ) {
     val state by vm.state.collectAsState()
 
     ModuleScaffold(
-        title = null,              // o showTopBar = false
-        showTopBar = false,        // ← oculta la appbar
+        title = null,
+        showTopBar = false,
         actions = {},
-        floating = { /* si usas FAB aquí */ }
+        floating = {}
     ) {
         Column(
             modifier = Modifier
@@ -52,10 +42,8 @@ fun ClientesScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Encabezado con loguito + título (el AppBar ya muestra el title, esto es visual opcional)
             HeaderWithLogo()
 
-            // Buscador + botón Nuevo
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -78,18 +66,16 @@ fun ClientesScreen(
                 }
             }
 
-            // Feedback de carga
             if (state.isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
 
-            // Tabla
             ClientesTable(
                 rows = state.rows,
-                onEditarClick = onEditarClick
+                onEditarClick = onEditarClick   // ← pasa el Int directo
             )
 
-            // Mostrar más (paginación simple)
+
             if (state.canLoadMore) {
                 Button(
                     onClick = vm::loadMore,
@@ -97,22 +83,18 @@ fun ClientesScreen(
                 ) { Text("Mostrar más") }
             }
 
-            // Error
-            if (state.error != null) {
+            state.error?.let {
                 Text(
-                    text = "Error: ${state.error}",
+                    text = "Error: $it",
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
-            // Hint cuando no hay búsqueda
             if (state.rows.isEmpty() && state.query.isBlank() && !state.isLoading) {
                 Text(
                     text = "Empieza buscando por nombre o cédula.",
-                    modifier = Modifier
-                        .padding(top = 18.dp)
-                        .alpha(0.8f),
+                    modifier = Modifier.padding(top = 18.dp).alpha(0.8f),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -125,7 +107,7 @@ private fun HeaderWithLogo() {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.primary // ← fondo blanco
+            containerColor = MaterialTheme.colorScheme.primary
         )
     ) {
         Row(
@@ -135,8 +117,6 @@ private fun HeaderWithLogo() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Si no tienes aún el logo en /res/drawable, usa un ícono temporal
-            // y luego reemplázalo por el asset oficial.
             Image(
                 painter = painterResource(id = R.drawable.logo_clientes),
                 contentDescription = "Logo",
@@ -159,20 +139,17 @@ private fun HeaderWithLogo() {
     }
 }
 
-/** Tabla con columnas: Nombre | Cédula | Estado | (Editar) */
 @Composable
 private fun ClientesTable(
     rows: List<ClienteUi>,
-    onEditarClick: (String) -> Unit
+    onEditarClick: (Int) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         TableHeader()
-
         Divider()
-
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(0.dp)
@@ -182,7 +159,7 @@ private fun ClientesTable(
                     nombre = c.nombre,
                     cedula = c.cedula,
                     estado = if (c.habilitado) "Habilitado" else "Deshabilitado",
-                    onEdit = { onEditarClick(c.id) }
+                    onEdit = { onEditarClick(c.id) }    // c.id es Int
                 )
                 Divider()
             }
@@ -198,25 +175,16 @@ private fun TableHeader() {
             .padding(horizontal = 4.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            "Nombre",
-            modifier = Modifier.weight(0.42f),
+        Text("Nombre", modifier = Modifier.weight(0.42f),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            "Cédula",
-            modifier = Modifier.weight(0.30f),
+            color = MaterialTheme.colorScheme.primary)
+        Text("Cédula", modifier = Modifier.weight(0.30f),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            "Estado",
-            modifier = Modifier.weight(0.18f),
+            color = MaterialTheme.colorScheme.primary)
+        Text("Estado", modifier = Modifier.weight(0.18f),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(Modifier.weight(0.10f)) // espacio para el botón Editar
+            color = MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.weight(0.10f))
     }
 }
 
@@ -234,22 +202,17 @@ private fun TableRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            nombre,
-            modifier = Modifier.weight(0.42f),
+            nombre, modifier = Modifier.weight(0.42f),
             style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            maxLines = 1, overflow = TextOverflow.Ellipsis
         )
         Text(
-            cedula,
-            modifier = Modifier.weight(0.30f),
+            cedula, modifier = Modifier.weight(0.30f),
             style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            maxLines = 1, overflow = TextOverflow.Ellipsis
         )
         Text(
-            estado,
-            modifier = Modifier.weight(0.18f),
+            estado, modifier = Modifier.weight(0.18f),
             style = MaterialTheme.typography.bodyMedium,
             color = if (estado == "Habilitado") MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.error

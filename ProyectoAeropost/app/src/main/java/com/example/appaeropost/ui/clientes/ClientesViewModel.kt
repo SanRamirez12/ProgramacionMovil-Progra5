@@ -2,6 +2,9 @@ package com.example.appaeropost.ui.clientes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appaeropost.data.clientes.ClientesRepository
+import com.example.appaeropost.domain.clientes.Cliente
+import com.example.appaeropost.domain.clientes.EstadoCliente
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,44 +12,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Locale
-import kotlin.math.min
 
 data class ClienteUi(
-    val id: String,
+    val id: Int,
     val nombre: String,
     val cedula: String,
     val habilitado: Boolean
 )
 
-interface ClientesRepository {
-    suspend fun buscar(query: String, limit: Int, offset: Int): List<ClienteUi>
-}
 
-/** Mock temporal. Luego lo reemplazamos por Room o Firebase */
-class InMemoryClientesRepo : ClientesRepository {
-    private val data = (1..120).map {
-        val enabled = it % 7 != 0
-        ClienteUi(
-            id = it.toString(),
-            nombre = listOf("Ana Morales", "Beto Jiménez", "Carlos Pérez", "Diana Gómez", "Esteban Vega", "María López", "Juan Pérez")[it % 7] + " $it",
-            cedula = "${(1..3).random()}-${(1000..9999).random()}-${(1000..9999).random()}",
-            habilitado = enabled
-        )
-    }
+private fun Cliente.toUi(): ClienteUi = ClienteUi(
+    id = id,                       // ← Int directo
+    nombre = nombre,
+    cedula = identificacion,
+    habilitado = (estado == EstadoCliente.HABILITADO)
+)
 
-    override suspend fun buscar(query: String, limit: Int, offset: Int): List<ClienteUi> {
-        val q = query.trim().lowercase(Locale.getDefault())
-        val base = if (q.isEmpty()) emptyList() else data.filter {
-            it.nombre.lowercase().contains(q) || it.cedula.lowercase().contains(q)
-        }
-        val end = min(offset + limit, base.size)
-        return if (offset >= base.size) emptyList() else base.subList(offset, end)
-    }
-}
 
 class ClientesViewModel(
-    private val repo: ClientesRepository = InMemoryClientesRepo()
+    private val repo: ClientesRepository
 ) : ViewModel() {
 
     data class State(
@@ -67,7 +51,6 @@ class ClientesViewModel(
 
     fun onQueryChange(newValue: String) {
         _state.update { it.copy(query = newValue) }
-        // Debounce pequeño para no disparar búsqueda en cada tecla
         debounceJob?.cancel()
         debounceJob = viewModelScope.launch {
             delay(300)
@@ -81,7 +64,16 @@ class ClientesViewModel(
             val offset = if (reset) 0 else st0.currentOffset + st0.pageSize
             _state.update { it.copy(isLoading = true, error = null) }
             try {
-                val result = repo.buscar(st0.query, st0.pageSize, offset)
+                val clientes: List<Cliente> = if (st0.query.isBlank()) {
+                    repo.getClientes(limit = st0.pageSize, offset = offset)
+                } else {
+                    repo.searchClientes(
+                        query = st0.query.trim(),
+                        limit = st0.pageSize,
+                        offset = offset
+                    )
+                }
+                val result = clientes.map { it.toUi() }
                 val merged = if (reset) result else st0.rows + result
                 _state.update {
                     it.copy(
@@ -96,6 +88,54 @@ class ClientesViewModel(
             }
         }
     }
+    init {
+        // Carga inicial para que la tabla no se vea vacía
+        search(reset = true)
+    }
 
     fun loadMore() = search(reset = false)
+
+    // --------- CRUD para pantallas ---------
+
+    private fun fromForm(state: ClienteFormState, id: Int = 0): Cliente =
+        Cliente(
+            id = id,
+            nombre = state.nombre,
+            identificacion = state.identificacion,
+            telefono = state.telefono,
+            correo = state.correo,
+            tipo = state.tipo,
+            estado = state.estado,
+            direccionEntrega = state.direccionEntrega
+        )
+
+    fun crearCliente(state: ClienteFormState, onDone: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                repo.create(fromForm(state))
+                onDone()
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message ?: "Error al crear cliente") }
+            }
+        }
+    }
+
+    suspend fun cargarClienteById(id: Int): Cliente? =
+        try { repo.getById(id) } catch (_: Exception) { null }
+
+    fun actualizarCliente(id: Int, state: ClienteFormState, onDone: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val ok = repo.update(fromForm(state, id))
+                onDone(ok)
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message ?: "Error al actualizar cliente") }
+                onDone(false)
+            }
+        }
+    }
+
+
 }
+
+

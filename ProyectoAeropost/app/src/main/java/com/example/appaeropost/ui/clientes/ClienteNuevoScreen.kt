@@ -4,25 +4,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.example.appaeropost.ui.components.ModuleScaffold
-import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun ClienteNuevoScreen(
+    vm: ClientesViewModel,
     onBack: () -> Unit = {},
-    onGuardarClick: () -> Unit = {}
+    onGuardado: () -> Unit = {}
 ) {
     ModuleScaffold(
         title = "Nuevo cliente",
-        titleColor = MaterialTheme.colorScheme.primary,        // ← azul corporativo
+        titleColor = MaterialTheme.colorScheme.primary,
         leading = {
             IconButton(onClick = onBack) {
                 Icon(Icons.Filled.ArrowBack, contentDescription = "Volver")
             }
         }
     ) {
-        ClienteForm(initial = ClienteFormState(), onSubmit = { onGuardarClick() })
+        ClienteForm(
+            initial = ClienteFormState(),
+            onSubmit = { formState ->
+                vm.crearCliente(formState) { onGuardado() }
+            }
+        )
     }
 }
+
+
 

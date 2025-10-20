@@ -1,5 +1,6 @@
-package com.example.appaeropost.data.config
+package com.example.appaeropost.data.acercade
 
+import com.example.appaeropost.data.acercade.IConfigRepository
 import com.example.appaeropost.domain.config.AppConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,8 @@ class InMemoryConfigRepository(initial: AppConfig = AppConfig()) : IConfigReposi
     override fun setApiKey(key: String, value: String) =
         _config.update { it.copy(apiKeys = it.apiKeys + (key to value)) }
 
-    override fun resetDefaults() { _config.value = AppConfig() }
+    override fun resetDefaults() { _config.value = AppConfig()
+    }
 
     override fun snapshot(): AppConfig = _config.value
 }

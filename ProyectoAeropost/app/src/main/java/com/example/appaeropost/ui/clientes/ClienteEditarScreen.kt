@@ -8,23 +8,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.appaeropost.data.clientes.ClientesRepository
-import com.example.appaeropost.data.clientes.FakeClientesRepository
 import com.example.appaeropost.ui.components.ModuleScaffold
 
 @Composable
 fun ClienteEditarScreen(
     clienteId: Int,
-    repo: ClientesRepository = FakeClientesRepository(),   // ← antes era la clase concreta
+    vm: ClientesViewModel,
     onBack: () -> Unit = {},
-    onGuardarClick: () -> Unit = {}
+    onGuardado: () -> Unit = {}
 ) {
     var loaded by remember { mutableStateOf<ClienteFormState?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(clienteId) {
         isLoading = true
-        val c = repo.getById(clienteId)
+        val c = vm.cargarClienteById(clienteId)
         loaded = c?.let {
             ClienteFormState(
                 nombre = it.nombre,
@@ -41,7 +39,7 @@ fun ClienteEditarScreen(
 
     ModuleScaffold(
         title = "Editar cliente",
-        titleColor = MaterialTheme.colorScheme.primary,           // ← azul
+        titleColor = MaterialTheme.colorScheme.primary,
         leading = {
             IconButton(onClick = onBack) {
                 Icon(Icons.Filled.ArrowBack, contentDescription = "Volver")
@@ -57,8 +55,14 @@ fun ClienteEditarScreen(
         } else {
             ClienteForm(
                 initial = loaded ?: ClienteFormState(),
-                onSubmit = { /* repo.update(...) más adelante */ onGuardarClick() }
+                onSubmit = { formState ->
+                    vm.actualizarCliente(clienteId, formState) { ok ->
+                        if (ok) onGuardado()
+                    }
+                }
             )
         }
     }
 }
+
+

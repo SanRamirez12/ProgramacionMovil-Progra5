@@ -19,7 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import com.example.appaeropost.R
-import com.example.appaeropost.data.config.InMemoryConfigRepository
+import com.example.appaeropost.data.acercade.InMemoryConfigRepository
 import com.example.appaeropost.domain.config.SystemInfo
 import com.example.appaeropost.ui.components.ModuleScaffold
 

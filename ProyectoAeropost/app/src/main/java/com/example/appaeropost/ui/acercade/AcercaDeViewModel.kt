@@ -3,7 +3,7 @@ package com.example.appaeropost.ui.acercade
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appaeropost.data.config.IConfigRepository
+import com.example.appaeropost.data.acercade.IConfigRepository
 import com.example.appaeropost.domain.config.AppConfig
 import com.example.appaeropost.domain.config.SystemInfo
 import kotlinx.coroutines.flow.*
