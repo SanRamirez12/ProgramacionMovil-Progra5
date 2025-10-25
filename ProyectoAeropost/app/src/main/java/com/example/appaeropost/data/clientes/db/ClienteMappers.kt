@@ -1,9 +1,6 @@
 package com.example.appaeropost.data.clientes.db
 //Archivo .kt que traduce entre ClienteEntity (DB) ↔ Cliente (tu modelo de dominio en domain/clientes/Cliente.kt)
 
-
-
-
 import com.example.appaeropost.domain.clientes.Cliente
 
 fun ClienteEntity.toDomain() = Cliente(

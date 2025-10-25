@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    // KSP (no kapt). Si el IDE aún no reconoce 'ksp', igual funcionará en build.
     id("com.google.devtools.ksp") version "2.0.0-1.0.24"
 }
 
@@ -16,29 +15,33 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
+        // (Solo si usaras KAPT; con KSP no hace falta)
+        // javaCompileOptions {
+        //   annotationProcessorOptions {
+        //       arguments += mapOf("room.schemaLocation" to "$projectDir/schemas")
+        //   }
+        // }
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-        // java.time en API < 26
         isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions { jvmTarget = "11" }
 
     buildFeatures { compose = true }
 }
+
+// ⬇ ESTA SECCIÓN ES CLAVE PARA EL ERROR DEL SCHEMA
+ksp {
+    // carpeta donde Room exportará los esquemas (crea /app/schemas en el proyecto)
+    arg("room.schemaLocation", "$projectDir/schemas")
+    // opcional pero útil
+    arg("room.generateKotlin", "true")
+}
+
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -75,13 +78,12 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.material:material:1.12.0")
 
-    // Desugaring
+    // Desugaring (java.time en API < 26)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-    // ===== Room (con KSP, sin kapt) =====
+    // Room (con KSP)
     val room = "2.6.1"
     implementation("androidx.room:room-runtime:$room")
     implementation("androidx.room:room-ktx:$room")
-    // Si Android Studio marca 'ksp' como unresolved, usa la forma con string del config:
-    "ksp"("androidx.room:room-compiler:$room")
+    ksp("androidx.room:room-compiler:$room")
 }

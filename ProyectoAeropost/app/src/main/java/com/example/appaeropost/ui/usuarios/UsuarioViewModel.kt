@@ -1,8 +1,9 @@
 package com.example.appaeropost.ui.usuarios
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appaeropost.data.repository.FakeUsuariosRepository
+import com.example.appaeropost.data.config.ServiceLocator
 import com.example.appaeropost.data.repository.UsuariosRepository
 import com.example.appaeropost.domain.Usuario
 import kotlinx.coroutines.Job
@@ -23,8 +24,13 @@ data class UsuarioUi(
 )
 
 class UsuarioViewModel(
-    private val repo: UsuariosRepository = FakeUsuariosRepository()
-) : ViewModel() {
+    app: Application
+) : AndroidViewModel(app) {
+
+    // Usa el ServiceLocator (repositorio real con Room)
+    private val repo: UsuariosRepository by lazy {
+        ServiceLocator.usuariosRepository(app.applicationContext)
+    }
 
     data class State(
         val title: String = "Usuarios",
@@ -59,9 +65,7 @@ class UsuarioViewModel(
 
             _state.update { it.copy(isLoading = true, error = null) }
             try {
-                // FakeRepo no pagina; aquí realizamos un “slice” local para emular paginado
                 val all = if (q.isEmpty()) {
-                    // Para mantener la UX de Clientes: sin query → lista vacía hasta que busquen
                     emptyList()
                 } else {
                     repo.buscar(q).map { it.toUi() }
@@ -88,11 +92,11 @@ class UsuarioViewModel(
     fun loadMore() = search(reset = false)
 }
 
-/* -------- Extensiones -------- */
-
+/* -------- Extensión -------- */
 private fun Usuario.toUi() = UsuarioUi(
     id = username,
     nombre = nombre,
     cedula = cedula,
-    rol = rol.name.lowercase(Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }
+    rol = rol.name.lowercase(Locale.getDefault())
+        .replaceFirstChar { it.titlecase(Locale.getDefault()) }
 )

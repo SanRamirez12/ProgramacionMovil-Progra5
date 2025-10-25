@@ -7,20 +7,21 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.appaeropost.data.clientes.db.ClienteEntity
 import com.example.appaeropost.data.clientes.db.ClientesDao
+import com.example.appaeropost.data.usuarios.db.UsuariosEntity
+import com.example.appaeropost.data.usuarios.db.UsuariosDao
 
 //Singleton de Room que registra las entidades y da los DAO.
 @Database(
-    entities = [ClienteEntity::class],
-    version = 1,
+    entities = [ClienteEntity::class, UsuariosEntity::class],
+    version = 2,                 // súbela si agregaste la tabla
     exportSchema = true
 )
-@TypeConverters(RoomConverters::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun clientesDao(): ClientesDao
+    abstract fun clientesDao(): com.example.appaeropost.data.clientes.db.ClientesDao
+    abstract fun usuariosDao(): com.example.appaeropost.data.usuarios.db.UsuariosDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
-
         fun get(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -28,10 +29,12 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "aeropost.db"
                 )
-                    // Para desarrollo: destruye si cambia schema. En prod crea Migrations.
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()  // en dev, recrea al cambiar versión
                     .build()
                     .also { INSTANCE = it }
             }
     }
 }
+
+
+

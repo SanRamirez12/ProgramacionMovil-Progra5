@@ -12,15 +12,15 @@ data class Usuario(
     val cedula: String,
     val genero: Genero,
     val fechaRegistro: LocalDate,
-    val estado: EstadoUsuario,
+    val estadoUsuario: EstadoUsuario,
     val rol: Rol,
     val correo: String,
     val username: String,
     val password: String
 ) {
-    val estaHabilitado: Boolean get() = estado == EstadoUsuario.HABILITADO
+    val estaHabilitado: Boolean get() = estadoUsuario == EstadoUsuario.HABILITADO
 
-    fun conEstado(nuevo: EstadoUsuario) = copy(estado = nuevo)
+    fun conEstado(nuevo: EstadoUsuario) = copy(estadoUsuario = nuevo)
     fun conPassword(nuevoPassword: String) = copy(password = nuevoPassword)
 }
 

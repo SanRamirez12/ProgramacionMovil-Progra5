@@ -23,7 +23,7 @@ data class UsuarioFormState(
     val cedula: String = "",
     val genero: Genero = Genero.NO_DECLARA,
     val fechaRegistro: LocalDate = LocalDate.now(),
-    val estado: EstadoUsuario = EstadoUsuario.HABILITADO,
+    val estadoUsuario: EstadoUsuario = EstadoUsuario.HABILITADO,
     val rol: Rol = Rol.OPERADOR,
     val correo: String = "",
     val username: String = "",
@@ -109,7 +109,7 @@ fun UsuarioForm(
         ) {
             OutlinedTextField(
                 readOnly = true,
-                value = if (state.estado == EstadoUsuario.HABILITADO) "Habilitado" else "Deshabilitado",
+                value = if (state.estadoUsuario == EstadoUsuario.HABILITADO) "Habilitado" else "Deshabilitado",
                 onValueChange = {},
                 label = { Text("Estado*") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = estadoExpanded) },
@@ -121,7 +121,7 @@ fun UsuarioForm(
                 listOf(EstadoUsuario.HABILITADO, EstadoUsuario.DESHABILITADO).forEach { e ->
                     DropdownMenuItem(
                         text = { Text(if (e == EstadoUsuario.HABILITADO) "Habilitado" else "Deshabilitado") },
-                        onClick = { state = state.copy(estado = e); estadoExpanded = false }
+                        onClick = { state = state.copy(estadoUsuario = e); estadoExpanded = false }
                     )
                 }
             }
