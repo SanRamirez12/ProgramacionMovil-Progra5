@@ -7,10 +7,9 @@ import com.example.appaeropost.domain.clientes.TipoCliente
 import java.time.LocalDate
 
 class RoomConverters {
-    // LocalDate
-    @TypeConverter fun fromLocalDate(d: LocalDate?): Long? = d?.toEpochDay()
-    @TypeConverter fun toLocalDate(epochDay: Long?): LocalDate? =
-        epochDay?.let(LocalDate::ofEpochDay)
+    // LocalDate (no-null)
+    @TypeConverter fun fromLocalDate(d: LocalDate): Long = d.toEpochDay()
+    @TypeConverter fun toLocalDate(epochDay: Long): LocalDate = LocalDate.ofEpochDay(epochDay)
 
     // Clientes
     @TypeConverter fun toTipoCliente(s: String): TipoCliente = enumValueOf(s)
