@@ -48,6 +48,8 @@ import com.example.appaeropost.ui.clientes.ClienteEditarScreen
 import com.example.appaeropost.ui.clientes.ClienteNuevoScreen
 import com.example.appaeropost.ui.clientes.ClientesScreen
 import com.example.appaeropost.ui.clientes.ClientesViewModel
+import com.example.appaeropost.ui.paquetes.PaquetesCanceladosScreen
+import com.example.appaeropost.ui.paquetes.PaquetesCancelarScreen
 import com.example.appaeropost.ui.theme.AppAeropostTheme
 
 // ---------- Factory sencillo para el ViewModel de Clientes ----------
@@ -194,6 +196,28 @@ class MainActivity : ComponentActivity() {
                                 onSaved = { navController.popBackStack() }
                             )
                         }
+                        // Paquetes — cancelar (con argumento id)
+                        composable(
+                            route = Screen.PaquetesCancelar.route,
+                            arguments = listOf(navArgument(Screen.PaquetesCancelar.ARG_ID) { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString(Screen.PaquetesCancelar.ARG_ID)!!
+                            PaquetesCancelarScreen(
+                                paqueteId = id,
+                                onCancelDone = { navController.popBackStack() },
+                                onCancelAbort = { navController.popBackStack() }
+                            )
+                        }
+
+                        // Paquetes — cancelados (listado)
+                        composable(
+                            route = Screen.PaquetesCancelados.route
+                        ) {
+                            PaquetesCanceladosScreen(onRestaurado = {
+                                // opcional: notificar o navegar, por ahora nada
+                            })
+                        }
+
 
                         // --------- Facturación ----------
                         composable(Screen.Facturacion.route) {

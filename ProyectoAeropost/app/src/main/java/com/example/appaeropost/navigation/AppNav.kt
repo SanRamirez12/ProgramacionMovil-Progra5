@@ -40,6 +40,15 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector?
         fun route(id: String) = "paqueteEditar/$id"
     }
 
+    // ——— Paquetes (subrutas)
+    data object PaquetesCancelados : Screen("paquetes/cancelados", "Cancelados", Icons.Filled.Inventory2)
+
+    data object PaquetesCancelar : Screen("paquetes/cancelar/{id}", "Cancelar", Icons.Filled.Inventory2) {
+        const val ARG_ID = "id"
+        fun route(id: String) = "paquetes/cancelar/$id"
+    }
+
+
     // ——— Destinos dentro de “Facturación”
     data object FacturaNueva  : Screen("facturaNueva", "Nueva factura")
     data object FacturaEditar : Screen("facturaEditar/{id}", "Editar factura") {
