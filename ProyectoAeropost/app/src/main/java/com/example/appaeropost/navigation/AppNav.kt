@@ -24,8 +24,6 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector?
     data object Reportes    : Screen("reportes",    "Reportes",     Icons.Filled.Assessment)
     data object AcercaDe    : Screen("acercade",    "Acerca de",    Icons.Filled.Info)
 
-
-
     //——— Destinos dentro de “Clientes”
     data object ClienteNuevo  : Screen("clienteNuevo", "Nuevo cliente")
     data object ClienteEditar : Screen("clienteEditar/{id}", "Editar cliente") {
@@ -40,14 +38,13 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector?
         fun route(id: String) = "paqueteEditar/$id"
     }
 
-    // ——— Paquetes (subrutas)
+    // ——— Paquetes (subrutas) — fuera de BottomBar
     data object PaquetesCancelados : Screen("paquetes/cancelados", "Cancelados", Icons.Filled.Inventory2)
 
     data object PaquetesCancelar : Screen("paquetes/cancelar/{id}", "Cancelar", Icons.Filled.Inventory2) {
         const val ARG_ID = "id"
         fun route(id: String) = "paquetes/cancelar/$id"
     }
-
 
     // ——— Destinos dentro de “Facturación”
     data object FacturaNueva  : Screen("facturaNueva", "Nueva factura")
@@ -62,14 +59,9 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector?
         const val ARG_USERNAME = "username"
         fun route(username: String) = "usuarioEditar/$username"
     }
-
-
-
 }
 
 // Pestañas de la BottomBar (las 5 principales)
 val bottomDestinations = listOf(
     Screen.Home, Screen.Clientes, Screen.Paquetes, Screen.Facturacion, Screen.More
 )
-
-

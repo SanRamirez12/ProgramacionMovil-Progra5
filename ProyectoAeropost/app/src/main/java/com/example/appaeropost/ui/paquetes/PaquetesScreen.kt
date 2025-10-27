@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +28,8 @@ import java.util.Locale
 fun PaquetesScreen(
     vm: PaquetesViewModel = viewModel(),
     onNuevoClick: () -> Unit = {},
-    onEditarClick: (String) -> Unit = {}
+    onEditarClick: (String) -> Unit = {},
+    onCancelarClick: (String) -> Unit = {} // ⬅️ nuevo callback para navegar a cancelar
 ) {
     val state by vm.ui.collectAsState()
 
@@ -73,7 +75,8 @@ fun PaquetesScreen(
 
             PaquetesTable(
                 rows = state.items.map { it.toUi() },
-                onEditarClick = onEditarClick
+                onEditarClick = onEditarClick,
+                onCancelarClick = onCancelarClick // ⬅️ propagamos
             )
 
             state.error?.let {
@@ -104,7 +107,9 @@ private fun HeaderPaquetes() {
         )
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(14.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -127,23 +132,28 @@ private fun HeaderPaquetes() {
     }
 }
 
-/** Tabla: Fecha | Cliente | Cédula | Tracking | (lápiz) */
+/** Tabla: Fecha | Cliente | Cédula | Tracking | Acciones (editar / cancelar) */
 @Composable
 private fun PaquetesTable(
     rows: List<PaqueteUi>,
-    onEditarClick: (String) -> Unit
+    onEditarClick: (String) -> Unit,
+    onCancelarClick: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize()) {
         TableHeader()
         Divider()
-        LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
             items(rows, key = { it.id }) { p ->
                 TableRow(
                     fecha = p.fecha,
                     cliente = p.cliente,
                     cedula = p.cedula,
                     tracking = p.tracking,
-                    onEdit = { onEditarClick(p.id) }
+                    onEdit = { onEditarClick(p.id) },
+                    onCancel = { onCancelarClick(p.id) } // ⬅️ nuevo
                 )
                 Divider()
             }
@@ -154,14 +164,16 @@ private fun PaquetesTable(
 @Composable
 private fun TableHeader() {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Fecha",   modifier = Modifier.weight(0.26f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text("Fecha",   modifier = Modifier.weight(0.24f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
         Text("Cliente", modifier = Modifier.weight(0.34f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        Text("Cédula",  modifier = Modifier.weight(0.22f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        Text("Tracking",modifier = Modifier.weight(0.14f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.weight(0.04f)) // espacio para lapicito
+        Text("Cédula",  modifier = Modifier.weight(0.20f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text("Tracking",modifier = Modifier.weight(0.16f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text("Acciones",modifier = Modifier.weight(0.06f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
     }
 }
 
@@ -171,18 +183,22 @@ private fun TableRow(
     cliente: String,
     cedula: String,
     tracking: String,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onCancel: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(fecha, modifier = Modifier.weight(0.26f), style = MaterialTheme.typography.bodyMedium)
-        Text(cliente, modifier = Modifier.weight(0.34f), style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(cedula,  modifier = Modifier.weight(0.22f), style = MaterialTheme.typography.bodyMedium)
-        Text(tracking,modifier = Modifier.weight(0.14f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Box(modifier = Modifier.weight(0.04f), contentAlignment = Alignment.CenterEnd) {
-            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar") }
+        Text(fecha,    modifier = Modifier.weight(0.24f), style = MaterialTheme.typography.bodyMedium)
+        Text(cliente,  modifier = Modifier.weight(0.34f), style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(cedula,   modifier = Modifier.weight(0.20f), style = MaterialTheme.typography.bodyMedium)
+        Text(tracking, modifier = Modifier.weight(0.16f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Row(modifier = Modifier.weight(0.06f), horizontalArrangement = Arrangement.End) {
+            IconButton(onClick = onEdit)   { Icon(Icons.Default.Edit,  contentDescription = "Editar") }
+            IconButton(onClick = onCancel) { Icon(Icons.Default.Close, contentDescription = "Cancelar") }
         }
     }
 }
@@ -206,6 +222,3 @@ private fun com.example.appaeropost.domain.paquetes.Paquete.toUi(): PaqueteUi {
         tracking = tracking
     )
 }
-
-
-

@@ -169,14 +169,12 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-
-
-
                         // --------- Paquetes ----------
                         composable(Screen.Paquetes.route) {
                             PaquetesScreen(
                                 onNuevoClick = { navController.navigate(Screen.PaqueteNuevo.route) },
-                                onEditarClick = { id -> navController.navigate(Screen.PaqueteEditar.route(id)) }
+                                onEditarClick = { id -> navController.navigate(Screen.PaqueteEditar.route(id)) },
+                                onCancelarClick = { id -> navController.navigate(Screen.PaquetesCancelar.route(id)) } // ⬅️ NUEVO
                             )
                         }
                         composable(Screen.PaqueteNuevo.route) {
@@ -196,6 +194,7 @@ class MainActivity : ComponentActivity() {
                                 onSaved = { navController.popBackStack() }
                             )
                         }
+
                         // Paquetes — cancelar (con argumento id)
                         composable(
                             route = Screen.PaquetesCancelar.route,
@@ -210,14 +209,11 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // Paquetes — cancelados (listado)
-                        composable(
-                            route = Screen.PaquetesCancelados.route
-                        ) {
+                        composable(route = Screen.PaquetesCancelados.route) {
                             PaquetesCanceladosScreen(onRestaurado = {
                                 // opcional: notificar o navegar, por ahora nada
                             })
                         }
-
 
                         // --------- Facturación ----------
                         composable(Screen.Facturacion.route) {
@@ -269,14 +265,11 @@ class MainActivity : ComponentActivity() {
                                 onSaved = { navController.popBackStack() }
                             )
                         }
-
-
                     }
                 }
             }
         }
     }
 }
-
 
 
