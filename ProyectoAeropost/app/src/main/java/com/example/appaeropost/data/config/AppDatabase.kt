@@ -20,7 +20,7 @@ import com.example.appaeropost.data.usuarios.db.UsuariosEntity
         PaquetesEntity::class,
         PaquetesCanceladoEntity::class
     ],
-    version = 4,              // ⬅️ subimos versión
+    version = 4,              // ⬅ subimos versión
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
