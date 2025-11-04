@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Entrada de latitud -->
+    <EditText
+        android:id="@+id/etLat"
+        android:hint="@string/hint_latitud"
+        android:inputType="numberDecimal|numberSigned"
+        android:minHeight="48dp"
+        android:padding="8dp"
+        android:importantForAutofill="no"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Entrada de longitud -->
+    <EditText
+        android:id="@+id/etLng"
+        android:hint="@string/hint_longitud"
+        android:inputType="numberDecimal|numberSigned"
+        android:minHeight="48dp"
+        android:padding="8dp"
+        android:importantForAutofill="no"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Botones: usar mi ubicación (FLP) y calcular -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btnMyLocation"
+            style="?attr/borderlessButtonStyle"
+            android:text="@string/btn_my_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnCalcular"
+            style="?attr/borderlessButtonStyle"
+            android:text="@string/btn_calcular"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <!-- Resultado: nombre/provincia del centro más cercano -->
+    <TextView
+        android:id="@+id/tvNearestTitle"
+        android:text="@string/tv_nearest_title"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:id="@+id/tvNearest"
+        android:text="—"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp" />
+
+    <!-- Distancia calculada -->
+    <TextView
+        android:id="@+id/tvDist"
+        android:text="@string/tv_dist_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp" />
+
+</LinearLayout>
+

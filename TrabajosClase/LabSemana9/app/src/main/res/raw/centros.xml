@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<centros_comerciales_paises>
+    <pais nombre="Costa Rica" iso="CR">
+        <centros_comerciales>
+            <centro id="multiplaza_escazu">
+                <nombre>Multiplaza Escazú</nombre>
+                <provincia>San José (Escazú)</provincia>
+                <latitud>9.94433</latitud>
+                <longitud>-84.15049</longitud>
+                <comentario>Cadena Multiplaza, uno de los malls más visitados del país.</comentario>
+            </centro>
+            <centro id="avenida_escazu">
+                <nombre>Avenida Escazú</nombre>
+                <provincia>San José (Escazú)</provincia>
+                <latitud>9.938068</latitud>
+                <longitud>-84.142638</longitud>
+                <comentario>Complejo de uso mixto (comercio, oficinas, restaurantes).</comentario>
+            </centro>
+            <centro id="city_mall_alajuela">
+                <nombre>City Mall (Alajuela)</nombre>
+                <provincia>Alajuela (Alajuela)</provincia>
+                <latitud>10.005844</latitud>
+                <longitud>-84.211447</longitud>
+                <comentario>Gran centro comercial en el área de Alajuela / aeropuerto Juan Santamaría (zona).</comentario>
+            </centro>
+            <centro id="paseo_de_las_flores">
+                <nombre>Paseo de las Flores</nombre>
+                <provincia>Heredia (Heredia)</provincia>
+                <latitud>9.9850063</latitud>
+                <longitud>-84.1113177</longitud>
+                <comentario>Mall importante en Heredia, con tiendas y restaurantes.</comentario>
+            </centro>
+            <centro id="oxigeno_heredia">
+                <nombre>Oxígeno (Human Playground)</nombre>
+                <provincia>Heredia (San Francisco)</provincia>
+                <latitud>9.99385175</latitud>
+                <longitud>-84.131132438</longitud>
+                <comentario>Espacio comercial / experiencia en Heredia (Oxígeno).</comentario>
+            </centro>
+            <centro id="plaza_del_sol_curridabat">
+                <nombre>Plaza del Sol</nombre>
+                <provincia>San José (Curridabat)</provincia>
+                <latitud>9.92876</latitud>
+                <longitud>-84.04161</longitud>
+                <comentario>Centro comercial histórico en Curridabat.</comentario>
+            </centro>
+            <centro id="mall_san_pedro">
+                <nombre>Mall San Pedro</nombre>
+                <provincia>San José (Montes de Oca / San Pedro)</provincia>
+                <latitud>9.9342</latitud>
+                <longitud>-84.0565</longitud>
+                <comentario>Mall tradicional frente a la Universidad de Costa Rica.</comentario>
+            </centro>
+            <centro id="centro_plaza_liberia">
+                <nombre>Mall Centro Plaza Liberia</nombre>
+                <provincia>Guanacaste (Liberia)</provincia>
+                <latitud>10.61828</latitud>
+                <longitud>-85.43708</longitud>
+                <comentario>Principal centro comercial de la región Pacífico Norte (Liberia).</comentario>
+            </centro>
+        </centros_comerciales>
+    </pais>
+</centros_comerciales_paises>

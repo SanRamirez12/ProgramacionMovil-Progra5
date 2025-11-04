@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">PracticaGeolocalizador</string>
+
+    <string name="hint_latitud">Latitud (ej. 9.93)</string>
+    <string name="hint_longitud">Longitud (ej. -84.05)</string>
+
+    <string name="btn_my_location">Usar mi ubicación</string>
+    <string name="btn_calcular">Calcular centro más cercano</string>
+
+    <string name="tv_nearest_title">Centro más cercano:</string>
+    <string name="tv_dist_placeholder">Distancia: —</string>
+</resources>

@@ -1,0 +1,67 @@
+# ==== Archivos locales de IDE (Android Studio / IntelliJ) ====
+.idea/
+*.iml
+*.iws
+out/
+
+# Ajustes locales (SDK paths, firmas, etc.)
+local.properties
+
+# ==== Gradle ====
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+gradle-app.setting
+
+# Cachés y logs
+.gradle/
+**/.gradle/
+*.log
+
+# ==== Android / NDK ====
+.cxx/
+.externalNativeBuild/
+captures/
+navigation.json
+
+# ==== Binaries generados ====
+*.apk
+*.ap_
+*.aab
+*.aar
+*.so
+*.dll
+*.dylib
+*.jar
+*.keystore
+*.jks
+
+# (Opcional) Si quieres versionar un artefacto específico, descomenta y permite esa ruta:
+# !app/release/app-release.apk
+
+# ==== Kotlin / Java ====
+*.class
+*.kt.metadata
+
+# ==== Tests / Coverage ====
+**/test-results/
+**/outputs/code-coverage/
+**/outputs/androidTest-results/
+coverage/
+*.ec
+*.exec
+
+# ==== Sistema operativo ====
+.DS_Store
+Thumbs.db
+
+# ==== IDE alternativos ====
+.vscode/
+*.swp
+
+# ==== Otros temporales ====
+*.tmp
+*.temp
+*.orig
+*.bak
