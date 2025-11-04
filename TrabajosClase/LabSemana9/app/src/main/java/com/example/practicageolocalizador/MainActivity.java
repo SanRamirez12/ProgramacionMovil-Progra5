@@ -18,20 +18,22 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Referencias a la UI
     private EditText etLat, etLng;
     private TextView tvNearest, tvDist;
     private Button btnMyLocation, btnCalcular;
 
+    // Helper para ubicación (permisos + FLP) y lista de centros
     private LocationHelper locationHelper;
     private List<ShoppingCenter> centers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        EdgeToEdge.enable(this);              // Habilita contenido de borde a borde
         setContentView(R.layout.activity_main);
 
-        // Views
+        // Obtener vistas del layout
         etLat = findViewById(R.id.etLat);
         etLng = findViewById(R.id.etLng);
         tvNearest = findViewById(R.id.tvNearest);
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         btnMyLocation = findViewById(R.id.btnMyLocation);
         btnCalcular = findViewById(R.id.btnCalcular);
 
-        // Cargar centros
+        // Cargar centros desde XML (parser propio)
         try {
             centers = CentersParser.parse(this);
         } catch (Exception e) {
@@ -47,13 +49,14 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Error leyendo XML de centros: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        // Helper de ubicación
+        // Inicializar helper de ubicación
         locationHelper = new LocationHelper(this);
 
-        btnMyLocation.setOnClickListener(v -> useMyLocation());
-        btnCalcular.setOnClickListener(v -> calculateNearestFromInputs());
+        // Listeners de botones
+        btnMyLocation.setOnClickListener(v -> useMyLocation());           // Rellena lat/lng con la última ubicación
+        btnCalcular.setOnClickListener(v -> calculateNearestFromInputs()); // Usa los valores escritos para calcular
 
-        // Permisos al iniciar
+        // Solicitar permisos si faltan; si ya están, verificar/solicitar ajustes de ubicación (GPS, etc.)
         if (!locationHelper.hasLocationPermission()) {
             locationHelper.requestPermissions();
         } else {
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Botón "Usar mi ubicación": pide última ubicación y calcula el centro más cercano
     private void useMyLocation() {
         if (!locationHelper.hasLocationPermission()) {
             locationHelper.requestPermissions();
@@ -70,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         locationHelper.getLastLocation(new LocationHelper.LastLocationCallback() {
             @Override
             public void onLocation(double lat, double lng) {
+                // Pone la ubicación en los EditText y dispara el cálculo
                 etLat.setText(String.valueOf(lat));
                 etLng.setText(String.valueOf(lng));
                 calculateNearest(lat, lng);
@@ -81,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Botón "Calcular": lee lat/lng del usuario, valida y calcula
     private void calculateNearestFromInputs() {
         String sLat = etLat.getText() != null ? etLat.getText().toString().trim() : "";
         String sLng = etLng.getText() != null ? etLng.getText().toString().trim() : "";
@@ -97,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Lógica central: recorre la lista y encuentra el ShoppingCenter más cercano a (lat, lng)
     private void calculateNearest(double lat, double lng) {
         if (centers == null || centers.isEmpty()) {
             tvNearest.setText("No hay centros cargados");
@@ -106,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         ShoppingCenter nearest = null;
         double bestKm = Double.MAX_VALUE;
 
+        // Calcula distancia Haversine a cada centro y se queda con la menor
         for (ShoppingCenter c : centers) {
             double km = DistanceUtil.haversineKm(lat, lng, c.lat, c.lng);
             if (km < bestKm) {
@@ -113,13 +121,15 @@ public class MainActivity extends AppCompatActivity {
                 nearest = c;
             }
         }
+
+        // Muestra resultado si encontró alguno
         if (nearest != null) {
             tvNearest.setText(nearest.nombre + " — " + nearest.provincia);
             tvDist.setText(String.format("Distancia: %.2f km", bestKm));
         }
     }
 
-    // Permisos
+    // Callback de permisos en tiempo de ejecución
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -130,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 if (r == PackageManager.PERMISSION_GRANTED) { granted = true; break; }
             }
             if (granted) {
+                // Si concedieron, volvemos a chequear/solicitar ajustes de ubicación
                 locationHelper.ensureSettingsOrResolve();
                 Toast.makeText(this, "Permisos concedidos", Toast.LENGTH_SHORT).show();
             } else {
@@ -138,11 +149,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Resolución de ajustes de ubicación (si el sistema abre un diálogo)
+    // Resultado del diálogo del sistema que intenta resolver ajustes de ubicación (GPS, etc.)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // No es necesario manejar nada específico; si el usuario activó ubicación,
-        // los siguientes intentos funcionarán.
+        // No hay manejo adicional aquí; si el usuario activó la ubicación, próximos intentos funcionarán.
     }
 }
