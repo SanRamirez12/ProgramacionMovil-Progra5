@@ -90,7 +90,7 @@ El proyecto sigue una **arquitectura limpia y modular** basada en **MVVM**, estr
 
 El avance del proyecto se gestiona mediante **Notion** en el siguiente tablero:  
 
-🔗 **Notion Roadmap:** [Abrir tablero de progreso][https://www.notion.so/Proyecto-AeropostApp-Roadmap-29112242305980c397f2d7f6d587ea5a?source=copy_link]
+🔗 **Notion Roadmap:** [Abrir tablero de progreso](https://www.notion.so/Proyecto-AeropostApp-Roadmap-29112242305980c397f2d7f6d587ea5a?source=copy_link)
 
 El tablero incluye:
 - Checklist por módulo  
