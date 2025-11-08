@@ -1,54 +1,70 @@
-// data/db/RoomConverters.kt
-package com.example.appaeropostv2.data.db
+package com.example.appaeropostv2.data.local.db
 
 import androidx.room.TypeConverter
 import com.example.appaeropostv2.domain.enums.*
 import java.math.BigDecimal
-import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
+/**
+ * Converters centralizados para Room.
+ * - LocalDate  <-> Long (epochDay)      → robusto para rangos/orden.
+ * - BigDecimal <-> String               → sin pérdida de precisión.
+ * - Enums      <-> String (name)        → legible y estable.
+ */
 class RoomConverters {
 
-    // ---------- java.time ----------
+    // -------- LocalDate --------
     @TypeConverter
-    fun fromLocalDate(value: LocalDate?): Long? = value?.toEpochDay()
+    fun fromLocalDate(d: LocalDate?): Long? = d?.toEpochDay()
 
     @TypeConverter
     fun toLocalDate(epochDay: Long?): LocalDate? = epochDay?.let(LocalDate::ofEpochDay)
 
+    // -------- BigDecimal --------
     @TypeConverter
-    fun fromLocalDateTime(value: LocalDateTime?): Long? =
-        value?.toInstant(ZoneOffset.UTC)?.toEpochMilli()
-
-    @TypeConverter
-    fun toLocalDateTime(epochMillis: Long?): LocalDateTime? =
-        epochMillis?.let { LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneOffset.UTC) }
-
-    // ---------- BigDecimal ----------
-    @TypeConverter
-    fun fromBigDecimal(value: BigDecimal?): String? = value?.toPlainString()
+    fun fromBigDecimal(bd: BigDecimal?): String? = bd?.toPlainString()
 
     @TypeConverter
-    fun toBigDecimal(str: String?): BigDecimal? = str?.let { BigDecimal(it) }
+    fun toBigDecimal(txt: String?): BigDecimal? = txt?.let { BigDecimal(it) }
 
-    // ---------- Enums (guarda el name para robustez) ----------
-    @TypeConverter fun fromEstados(v: Estados?): String? = v?.name
-    @TypeConverter fun toEstados(name: String?): Estados? = name?.let { enumValueOf<Estados>(it) }
+    // -------- Enums: Usuarios --------
+    @TypeConverter
+    fun fromGenero(value: Genero?): String? = value?.name
 
-    @TypeConverter fun fromRolesClientes(v: RolesClientes?): String? = v?.name
-    @TypeConverter fun toRolesClientes(name: String?): RolesClientes? = name?.let { enumValueOf<RolesClientes>(it) }
+    @TypeConverter
+    fun toGenero(name: String?): Genero? = name?.let { enumValueOf<Genero>(it) }
 
-    @TypeConverter fun fromRolesUsuarios(v: RolesUsuarios?): String? = v?.name
-    @TypeConverter fun toRolesUsuarios(name: String?): RolesUsuarios? = name?.let { enumValueOf<RolesUsuarios>(it) }
+    @TypeConverter
+    fun fromRolesUsuarios(value: RolesUsuarios?): String? = value?.name
 
-    @TypeConverter fun fromTiendas(v: Tiendas?): String? = v?.name
-    @TypeConverter fun toTiendas(name: String?): Tiendas? = name?.let { enumValueOf<Tiendas>(it) }
+    @TypeConverter
+    fun toRolesUsuarios(name: String?): RolesUsuarios? = name?.let { enumValueOf<RolesUsuarios>(it) }
 
-    @TypeConverter fun fromMonedas(v: Monedas?): String? = v?.name
-    @TypeConverter fun toMonedas(name: String?): Monedas? = name?.let { enumValueOf<Monedas>(it) }
+    // -------- Enums: Clientes --------
+    @TypeConverter
+    fun fromRolesClientes(value: RolesClientes?): String? = value?.name
 
-    @TypeConverter fun fromGenero(v: Genero?): String? = v?.name
-    @TypeConverter fun toGenero(name: String?): Genero? = name?.let { enumValueOf<Genero>(it) }
+    @TypeConverter
+    fun toRolesClientes(name: String?): RolesClientes? = name?.let { enumValueOf<RolesClientes>(it) }
+
+    // -------- Enums: Estado genérico --------
+    @TypeConverter
+    fun fromEstados(value: Estados?): String? = value?.name
+
+    @TypeConverter
+    fun toEstados(name: String?): Estados? = name?.let { enumValueOf<Estados>(it) }
+
+    // -------- Enums: Paquetes --------
+    @TypeConverter
+    fun fromMonedas(value: Monedas?): String? = value?.name
+
+    @TypeConverter
+    fun toMonedas(name: String?): Monedas? = name?.let { enumValueOf<Monedas>(it) }
+
+    @TypeConverter
+    fun fromTiendas(value: Tiendas?): String? = value?.name
+
+    @TypeConverter
+    fun toTiendas(name: String?): Tiendas? = name?.let { enumValueOf<Tiendas>(it) }
 }
+

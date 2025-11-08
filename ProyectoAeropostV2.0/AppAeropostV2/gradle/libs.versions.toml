@@ -30,7 +30,9 @@ androidx-compose-foundation = { module = "androidx.compose.foundation:foundation
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 androidx-compose-ui-text = { module = "androidx.compose.ui:ui-text" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:test-manifest" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }   # ← FIX
+androidx-compose-ui-test-junit4   = { module = "androidx.compose.ui:ui-test-junit4" }    # opcional útil
+
 
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
@@ -50,5 +52,6 @@ espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref =
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose      = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

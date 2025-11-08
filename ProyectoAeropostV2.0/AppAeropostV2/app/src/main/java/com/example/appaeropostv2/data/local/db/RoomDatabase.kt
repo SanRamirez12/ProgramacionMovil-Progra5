@@ -37,7 +37,7 @@ import com.example.appaeropostv2.data.local.entity.EntityUsuario
     exportSchema = true // genera JSON de esquema (útil para migraciones)
 )
 
-@TypeConverters(TypeConverters::class)
+@TypeConverters(RoomConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     // DAOs expuestos por la DB

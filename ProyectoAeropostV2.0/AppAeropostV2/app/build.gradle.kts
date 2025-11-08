@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp) // ← KSP desde el catalog
-    // Si usas el plugin Compose separado:
-    // id("org.jetbrains.kotlin.plugin.compose") version libs.versions.kotlin.get()
 }
 
 android {
@@ -44,10 +43,12 @@ ksp {
 }
 
 dependencies {
-    // Compose BOM
+    // BOM en todos los classpaths relevantes
     implementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    debugImplementation(platform(libs.androidx.compose.bom))
 
-    // AndroidX base
+    // Base
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,31 +60,34 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui.text)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    // Navigation Compose
-    implementation(libs.androidx.navigation.compose)
-
-    // Material Icons (opcional)
     implementation(libs.compose.material.icons)
 
-    // Splash + Material
-    implementation(libs.splash)
-    implementation(libs.material)
+    // Herramientas/debug
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)   // ← usa el alias del TOML (ya corregido)
 
-    // Desugaring (java.time en API < 26)
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Material & Splash
+    implementation(libs.material)
+    implementation(libs.splash)
+
+    // Desugaring
     coreLibraryDesugaring(libs.desugar)
 
-    // Room (con KSP)
+    // Room (KSP)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
     // Tests
     testImplementation(libs.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
+    // androidTestImplementation(libs.androidx.compose.ui.test.junit4) // cuando hagas tests UI
 }
+
+
+
 
