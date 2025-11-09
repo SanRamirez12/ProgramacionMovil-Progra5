@@ -3,18 +3,19 @@ package com.example.appaeropostv2.presentation.home
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.appaeropostv2.core.designsystem.theme.Dimens
-import com.example.appaeropostv2.presentation.common.components.GradientHeader
-import com.example.appaeropostv2.presentation.common.components.InfoCard
+import com.example.appaeropostv2.presentation.common.components.InfoBlurbCard
 import com.example.appaeropostv2.presentation.common.components.ModuleCard
+import com.example.appaeropostv2.presentation.common.components.SectionTitle
 import com.example.appaeropostv2.presentation.common.layout.AppScaffold
+import com.example.appaeropostv2.presentation.common.sections.ParallaxHeader
+import com.example.appaeropostv2.presentation.common.components.GradientHeader
 
 @Composable
 fun HomeScreen(
@@ -38,19 +39,41 @@ fun HomeScreen(
         Triple(Icons.Filled.LocationOn,  "Tracking",     onOpenTracking),
     )
 
+    val listState = rememberLazyListState()
+
     AppScaffold(
-        header = { GradientHeader(title = "Bienvenido a", subtitle = "Aeropost") }
-    ) { _ ->
+        topBar = {},
+        bottomBar = {} // o tu BottomBar global desde Main
+    ) {
         LazyColumn(
-            contentPadding = PaddingValues(horizontal = Dimens.ScreenPadding, vertical = 16.dp),
+            state = listState,
+            contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
+            // — Header con parallax + fade
             item {
-                InfoCard("Tu solución completa para gestión de envíos internacionales. Administra paquetes, clientes, facturas y más desde una sola plataforma.")
+                ParallaxHeader(listState = listState) {
+                    GradientHeader(title = "Bienvenido a", subtitle = "Aeropost")
+                }
             }
-            item { Text("Módulos", style = MaterialTheme.typography.titleMedium) }
-            items(modules) { (icon, title, action) ->
+            // — Info card con borde amarillo (blanca)
+            item {
+                InfoBlurbCard(
+                    text = "Tu solución completa para gestión de envíos internacionales. Administra paquetes, clientes, facturas y más desde una sola plataforma.",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+            }
+            // — Título de sección en AZUL
+            item {
+                Row(Modifier.padding(horizontal = 16.dp)) {
+                    SectionTitle("Módulos")
+                }
+            }
+            // — Módulos (cards BLANCAS con sombra)
+            items(modules) { (icon, title, onClick) ->
                 ModuleCard(
                     icon = icon,
                     title = title,
@@ -65,10 +88,11 @@ fun HomeScreen(
                         "Tracking"    -> "Rastreo en tiempo real de tus paquetes"
                         else -> ""
                     },
-                    onClick = action
+                    onClick = onClick
                 )
+                Spacer(Modifier.height(4.dp))
             }
-            item { Spacer(Modifier.height(24.dp)) }
+            item { Spacer(Modifier.height(16.dp)) }
         }
     }
 }

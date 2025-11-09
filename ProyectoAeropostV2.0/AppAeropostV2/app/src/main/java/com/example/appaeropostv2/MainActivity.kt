@@ -27,7 +27,6 @@ fun RootApp() {
             topBar = { /* Top bar global si la necesitas */ },
             bottomBar = { AppBottomBar(navController) }
         ) {
-            // El AppScaffold ya aplica el innerPadding; no lo repitas aquí.
             AppNavGraph(navController = navController)
         }
     }
