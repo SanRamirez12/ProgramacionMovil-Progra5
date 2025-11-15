@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -34,7 +35,7 @@ fun HomeScreen(
         Triple(Icons.Filled.Book,        "Bitácora",     onOpenBitacora),
         Triple(Icons.Filled.Person,      "Clientes",     onOpenClientes),
         Triple(Icons.Filled.Inventory,   "Paquete",      onOpenPaquetes),
-        Triple(Icons.Filled.ReceiptLong, "Facturación",  onOpenFacturacion),
+        Triple(Icons.AutoMirrored.Filled.ReceiptLong, "Facturación",  onOpenFacturacion),
         Triple(Icons.Filled.BarChart,    "Reportes",     onOpenReportes),
         Triple(Icons.Filled.LocationOn,  "Tracking",     onOpenTracking),
     )

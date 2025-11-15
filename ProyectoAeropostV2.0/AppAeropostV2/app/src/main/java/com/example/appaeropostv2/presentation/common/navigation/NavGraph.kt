@@ -6,6 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.appaeropostv2.presentation.home.HomeScreen
+import com.example.appaeropostv2.presentation.login.LoginScreen
+
+
 
 @Composable
 fun AppNavGraph(
@@ -14,9 +17,22 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route,
+        startDestination = Screen.Login.route,   // <--- ahora inicia en Login
         modifier = modifier
     ) {
+        // ---------- Login ----------
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(Screen.Home.route) {
+                        // quitamos Login del back stack para que no se pueda volver atrás
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // ---------- Home ----------
         composable(Screen.Home.route) {
             HomeScreen(
                 onOpenAcercaDe    = { navController.navigate(Screen.AcercaDe.route) },
@@ -30,17 +46,18 @@ fun AppNavGraph(
             )
         }
 
-        // De momento solo declaramos rutas vacías para que no truene la navegación
-        composable(Screen.AcercaDe.route)   { /* TODO: Acerca De */ }
-        composable(Screen.Usuarios.route)   { /* TODO: Usuarios */ }
-        composable(Screen.Bitacora.route)   { /* TODO: Bitácora */ }
-        composable(Screen.Clientes.route)   { /* TODO: Clientes */ }
-        composable(Screen.Paquetes.route)   { /* TODO: Paquetes */ }
-        composable(Screen.Facturacion.route){ /* TODO: Facturación */ }
-        composable(Screen.Reportes.route)   { /* TODO: Reportes */ }
-        composable(Screen.Tracking.route)   { /* TODO: Tracking */ }
+        // ---------- Rutas vacías por ahora ----------
+        composable(Screen.AcercaDe.route)    { /* TODO: Acerca De */ }
+        composable(Screen.Usuarios.route)    { /* TODO: Usuarios */ }
+        composable(Screen.Bitacora.route)    { /* TODO: Bitácora */ }
+        composable(Screen.Clientes.route)    { /* TODO: Clientes */ }
+        composable(Screen.Paquetes.route)    { /* TODO: Paquetes */ }
+        composable(Screen.Facturacion.route) { /* TODO: Facturación */ }
+        composable(Screen.Reportes.route)    { /* TODO: Reportes */ }
+        composable(Screen.Tracking.route)    { /* TODO: Tracking */ }
 
         // Futuro: Search, Alerts, Profile (si quieres rutas internas)
     }
 }
+
 
