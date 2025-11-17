@@ -7,6 +7,20 @@ import com.example.appaeropostv2.domain.enums.Estados
 import com.example.appaeropostv2.domain.model.Usuario
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModelProvider
+
+class UsuarioViewModelFactory(
+    private val repositoryUsuario: RepositoryUsuario
+) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(UsuarioViewModel::class.java)) {
+            return UsuarioViewModel(repositoryUsuario) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+    }
+}
 
 data class UsuarioUiState(
     val isLoading: Boolean = false,

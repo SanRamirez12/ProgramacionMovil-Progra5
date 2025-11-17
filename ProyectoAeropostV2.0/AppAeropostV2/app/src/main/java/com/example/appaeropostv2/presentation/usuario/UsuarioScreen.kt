@@ -131,7 +131,7 @@ fun UsuarioScreen(
                     modifier = Modifier.weight(1f),
                     shape = MaterialTheme.shapes.large
                 ) {
-                    Text("Editar usuario") // Lleva a CrearUsuarioScreen por ahora
+                    Text("Crear usuario") // Lleva a CrearUsuarioScreen por ahora
                 }
 
                 OutlinedButton(
