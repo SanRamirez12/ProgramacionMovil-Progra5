@@ -161,9 +161,9 @@ fun LoginScreen(
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = if (passwordVisible)
-                                    Icons.Outlined.VisibilityOff
+                                    Icons.Outlined.Visibility
                                 else
-                                    Icons.Outlined.Visibility,
+                                    Icons.Outlined.VisibilityOff,
                                 contentDescription = null,
                                 tint = colors.primary
                             )
