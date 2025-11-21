@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,22 +34,18 @@ data class TableColumn<T>(
     val value: (T) -> String
 )
 
-/**
- * Tabla genérica para los módulos de la app.
- *
- * - Muestra un header con los nombres de las columnas.
- * - Cada fila muestra las columnas + dos acciones al final:
- *      ✏ Editar (lleva a EditarModuloScreen)
- *      ℹ Detalles (lleva a DetallesModuloScreen)
- */
 @Composable
 fun <T> ModuleTable(
     items: List<T>,
     columns: List<TableColumn<T>>,
     modifier: Modifier = Modifier,
     onEditClick: (T) -> Unit,
-    onDetailsClick: (T) -> Unit
+    onDetailsClick: (T) -> Unit,
+    onDisableClick: (T) -> Unit
 ) {
+    // ancho reservado para la columna de acciones
+    val actionsWeight = 0.8f
+
     Surface(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
@@ -59,7 +56,7 @@ fun <T> ModuleTable(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            // Encabezado
+            // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,19 +77,20 @@ fun <T> ModuleTable(
                     )
                 }
 
-                // Encabezado de acciones
                 Text(
                     text = "Acciones",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 4.dp)
+                    modifier = Modifier
+                        .weight(actionsWeight)
+                        .padding(start = 4.dp)
                 )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
             Divider()
 
-            // Filas
+            // Rows
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.padding(top = 4.dp)
@@ -117,19 +115,23 @@ fun <T> ModuleTable(
                         }
 
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(0.dp),
+                            modifier = Modifier
+                                .weight(actionsWeight)
+                                .padding(start = 4.dp),
+                            horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { onEditClick(item) }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Edit,
-                                    contentDescription = "Editar"
-                                )
+                                Icon(Icons.Filled.Edit, contentDescription = "Editar")
                             }
                             IconButton(onClick = { onDetailsClick(item) }) {
+                                Icon(Icons.Filled.Info, contentDescription = "Detalles")
+                            }
+                            IconButton(onClick = { onDisableClick(item) }) {
                                 Icon(
-                                    imageVector = Icons.Filled.Info,
-                                    contentDescription = "Ver detalles"
+                                    Icons.Filled.Close,
+                                    contentDescription = "Deshabilitar",
+                                    tint = MaterialTheme.colorScheme.error
                                 )
                             }
                         }
@@ -140,3 +142,4 @@ fun <T> ModuleTable(
         }
     }
 }
+

@@ -13,10 +13,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,22 +37,15 @@ import com.example.appaeropostv2.presentation.common.layout.AppScaffold
 
 /**
  * Pantalla principal del módulo de Usuarios.
- *
- * - Título grande "Usuarios" en azul.
- * - Barra de búsqueda (cédula, username o nombre).
- * - Botones: Editar usuario / Deshabilitar usuario.
- * - Tabla con 3 columnas: Nombre usuario, Cédula, Rol.
- * - Cada fila tiene acciones de Editar y Detalles que navegan
- *   hacia EditarUsuarioScreen y DetallesUsuarioScreen respectivamente.
  */
 @Composable
 fun UsuarioScreen(
     usuarios: List<Usuario>,
     modifier: Modifier = Modifier,
-    onIrCrearUsuario: () -> Unit,          // Navega a CrearUsuarioScreen
-    onIrDeshabilitarUsuario: () -> Unit,   // Navega a DeshabilitarUsuarioScreen
-    onEditarUsuario: (Usuario) -> Unit,    // Navega a EditarUsuarioScreen
-    onVerDetallesUsuario: (Usuario) -> Unit // Navega a DetallesUsuarioScreen
+    onIrCrearUsuario: () -> Unit,              // Navega a CrearUsuarioScreen
+    onEditarUsuario: (Usuario) -> Unit,        // Navega a EditarUsuarioScreen
+    onVerDetallesUsuario: (Usuario) -> Unit,   // Navega a DetallesUsuarioScreen
+    onDeshabilitarUsuario: (Usuario) -> Unit   // Navega a DeshabilitarUsuarioScreen
 ) {
     var query by rememberSaveable { mutableStateOf("") }
 
@@ -78,7 +69,6 @@ fun UsuarioScreen(
         topBar = {},
         bottomBar = {},
         header = {
-            // Header degradado con el branding Aeropost
             GradientHeader(
                 title = "Módulo",
                 subtitle = "Usuarios"
@@ -91,14 +81,14 @@ fun UsuarioScreen(
                 .padding(innerPadding)
                 .padding(horizontal = Dimens.ScreenPadding, vertical = 16.dp)
         ) {
-            // Título principal en azul
+            // Título principal
             Text(
                 text = "Usuarios",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // Barra de búsqueda
             OutlinedTextField(
@@ -115,13 +105,13 @@ fun UsuarioScreen(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
-                    onSearch = { /* Aquí podrías ocultar teclado si quieres */ }
+                    onSearch = { /* ocultar teclado si quieres */ }
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botones superiores: Editar / Deshabilitar usuario
+            // Botón Crear usuario
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -131,18 +121,7 @@ fun UsuarioScreen(
                     modifier = Modifier.weight(1f),
                     shape = MaterialTheme.shapes.large
                 ) {
-                    Text("Crear usuario") // Lleva a CrearUsuarioScreen por ahora
-                }
-
-                OutlinedButton(
-                    onClick = onIrDeshabilitarUsuario,
-                    modifier = Modifier.weight(1f),
-                    shape = MaterialTheme.shapes.large,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("Deshabilitar usuario")
+                    Text("Crear usuario")
                 }
             }
 
@@ -150,7 +129,6 @@ fun UsuarioScreen(
 
             // Tabla de usuarios
             if (usuariosFiltrados.isEmpty()) {
-                // Aquí luego puedes usar tu EmptyState de StateKits
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -191,9 +169,11 @@ fun UsuarioScreen(
                     ),
                     onEditClick = onEditarUsuario,
                     onDetailsClick = onVerDetallesUsuario,
+                    onDisableClick = onDeshabilitarUsuario,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         }
     }
 }
+
