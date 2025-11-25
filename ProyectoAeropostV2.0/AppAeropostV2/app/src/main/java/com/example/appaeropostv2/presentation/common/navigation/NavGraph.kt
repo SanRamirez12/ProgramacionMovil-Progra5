@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.appaeropostv2.data.local.db.AppDatabase
 import com.example.appaeropostv2.data.repository.RepositoryUsuario
+import com.example.appaeropostv2.domain.enums.Estados
 import com.example.appaeropostv2.domain.model.Usuario
 import com.example.appaeropostv2.presentation.home.HomeScreen
 import com.example.appaeropostv2.presentation.login.LoginScreen
@@ -24,6 +25,13 @@ import com.example.appaeropostv2.presentation.usuario.EditarUsuarioScreen
 import com.example.appaeropostv2.presentation.usuario.UsuarioScreen
 import com.example.appaeropostv2.presentation.usuario.UsuarioViewModel
 import com.example.appaeropostv2.presentation.usuario.UsuarioViewModelFactory
+import com.example.appaeropostv2.core.session.SessionManager
+import com.example.appaeropostv2.data.repository.RepositoryBitacora
+import com.example.appaeropostv2.presentation.bitacora.BitacoraScreen
+import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModel
+import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModelFactory
+import com.example.appaeropostv2.presentation.login.LoginViewModel
+import com.example.appaeropostv2.presentation.login.LoginViewModelFactory
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -38,7 +46,18 @@ fun AppNavGraph(
     ) {
         // ---------- Login ----------
         composable(Screen.Login.route) {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoUsuario = RepositoryUsuario(db.usuarioDao())
+            val repoBitacora = RepositoryBitacora(db.bitacoraDao())
+
+            val loginViewModel: LoginViewModel = viewModel(
+                factory = LoginViewModelFactory(repoUsuario, repoBitacora)
+            )
+
             LoginScreen(
+                viewModel = loginViewModel,
                 onLoginSuccess = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
@@ -49,15 +68,18 @@ fun AppNavGraph(
 
         // ---------- Home ----------
         composable(Screen.Home.route) {
+            val currentUser by SessionManager.currentUser.collectAsState()
+
             HomeScreen(
-                onOpenAcercaDe    = { navController.navigate(Screen.AcercaDe.route) },
-                onOpenUsuarios    = { navController.navigate(Screen.Usuarios.route) },
-                onOpenBitacora    = { navController.navigate(Screen.Bitacora.route) },
-                onOpenClientes    = { navController.navigate(Screen.Clientes.route) },
-                onOpenPaquetes    = { navController.navigate(Screen.Paquetes.route) },
+                currentUser = currentUser,
+                onOpenAcercaDe = { navController.navigate(Screen.AcercaDe.route) },
+                onOpenUsuarios = { navController.navigate(Screen.Usuarios.route) },
+                onOpenBitacora = { navController.navigate(Screen.Bitacora.route) },
+                onOpenClientes = { navController.navigate(Screen.Clientes.route) },
+                onOpenPaquetes = { navController.navigate(Screen.Paquetes.route) },
                 onOpenFacturacion = { navController.navigate(Screen.Facturacion.route) },
-                onOpenReportes    = { navController.navigate(Screen.Reportes.route) },
-                onOpenTracking    = { navController.navigate(Screen.Tracking.route) },
+                onOpenReportes = { navController.navigate(Screen.Reportes.route) },
+                onOpenTracking = { navController.navigate(Screen.Tracking.route) }
             )
         }
 
@@ -148,7 +170,7 @@ fun AppNavGraph(
             }
         }
 
-        // ---------- Usuarios: deshabilitar ----------
+        // ---------- Usuarios: habilitar/deshabilitar ----------
         composable("usuarios/deshabilitar/{idUsuario}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -160,9 +182,7 @@ fun AppNavGraph(
             val id = backStackEntry.arguments?.getString("idUsuario")?.toIntOrNull()
 
             if (id == null) {
-                LaunchedEffect(Unit) {
-                    navController.popBackStack()
-                }
+                LaunchedEffect(Unit) { navController.popBackStack() }
             } else {
                 var usuario by remember { mutableStateOf<Usuario?>(null) }
 
@@ -178,10 +198,12 @@ fun AppNavGraph(
                         CircularProgressIndicator()
                     }
                 } else {
+                    val esHabilitado = usuario!!.estadoUsuario == Estados.HABILITADO
+
                     DeshabilitarUsuarioScreen(
                         usuario = usuario!!,
                         onConfirmar = {
-                            usuarioViewModel.deshabilitar(usuario!!.idUsuario)
+                            usuarioViewModel.cambiarEstadoUsuario(usuario!!.idUsuario)
                             navController.popBackStack()
                         },
                         onCancelar = { navController.popBackStack() }
@@ -189,6 +211,7 @@ fun AppNavGraph(
                 }
             }
         }
+
 
         // ---------- Usuarios: detalles ----------
         composable("usuarios/detalles/{idUsuario}") { backStackEntry ->
@@ -228,9 +251,26 @@ fun AppNavGraph(
             }
         }
 
+        // ───────────────────────── Bitácora ─────────────────────────
+        composable(Screen.Bitacora.route) {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+            val repoBitacora = RepositoryBitacora(db.bitacoraDao())
+
+            val bitacoraViewModel: BitacoraViewModel = viewModel(
+                factory = BitacoraViewModelFactory(repoBitacora)
+            )
+
+            val uiState by bitacoraViewModel.uiState.collectAsState()
+
+            BitacoraScreen(
+                uiState = uiState
+            )
+        }
+
+
         // ---------- Rutas placeholder de otros módulos ----------
         composable(Screen.AcercaDe.route)    { /* TODO: Acerca De */ }
-        composable(Screen.Bitacora.route)    { /* TODO: Bitácora */ }
         composable(Screen.Clientes.route)    { /* TODO: Clientes */ }
         composable(Screen.Paquetes.route)    { /* TODO: Paquetes */ }
         composable(Screen.Facturacion.route) { /* TODO: Facturación */ }

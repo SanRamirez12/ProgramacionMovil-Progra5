@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.appaeropostv2.core.designsystem.theme.Dimens
+import com.example.appaeropostv2.domain.enums.Estados
 import com.example.appaeropostv2.domain.model.Usuario
 import com.example.appaeropostv2.presentation.common.components.GradientHeader
 import com.example.appaeropostv2.presentation.common.layout.AppScaffold
@@ -34,6 +35,38 @@ fun DeshabilitarUsuarioScreen(
     onCancelar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val esHabilitado = usuario.estadoUsuario == Estados.HABILITADO
+
+    val tituloTopBar = if (esHabilitado) {
+        "Deshabilitar usuario"
+    } else {
+        "Habilitar usuario"
+    }
+
+    val subtituloHeader = if (esHabilitado) {
+        "Deshabilitar usuario"
+    } else {
+        "Habilitar usuario"
+    }
+
+    val textoPregunta = if (esHabilitado) {
+        "¿Seguro que deseas deshabilitar este usuario?"
+    } else {
+        "¿Seguro que deseas volver a habilitar este usuario?"
+    }
+
+    val textoBotonConfirmar = if (esHabilitado) {
+        "Sí, deshabilitar"
+    } else {
+        "Sí, habilitar"
+    }
+
+    val colorPregunta = if (esHabilitado) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+
     AppScaffold(
         topBar = {
             Row(
@@ -44,25 +77,13 @@ fun DeshabilitarUsuarioScreen(
                         vertical = 8.dp
                     ),
                 verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onCancelar) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Volver"
-                    )
-                }
-                Text(
-                    text = "Deshabilitar usuario",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
+            ) {}
         },
         bottomBar = {},
         header = {
             GradientHeader(
                 title = "Módulo",
-                subtitle = "Deshabilitar usuario"
+                subtitle = subtituloHeader
             )
         }
     ) { innerPadding ->
@@ -76,9 +97,9 @@ fun DeshabilitarUsuarioScreen(
         ) {
 
             Text(
-                text = "¿Seguro que deseas deshabilitar este usuario?",
+                text = textoPregunta,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.error
+                color = colorPregunta
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -112,7 +133,7 @@ fun DeshabilitarUsuarioScreen(
                     modifier = Modifier.weight(1f),
                     shape = MaterialTheme.shapes.large
                 ) {
-                    Text("Sí, deshabilitar")
+                    Text(textoBotonConfirmar)
                 }
 
                 Button(

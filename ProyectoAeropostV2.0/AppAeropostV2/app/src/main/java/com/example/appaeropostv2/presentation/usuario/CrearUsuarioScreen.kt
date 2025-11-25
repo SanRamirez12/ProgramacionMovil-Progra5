@@ -66,19 +66,7 @@ fun CrearUsuarioScreen(
                         vertical = 8.dp
                     ),
                 verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onVolver) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Volver"
-                    )
-                }
-                Text(
-                    text = "Crear usuario",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
+            ) {}
         },
         bottomBar = {},
         header = {

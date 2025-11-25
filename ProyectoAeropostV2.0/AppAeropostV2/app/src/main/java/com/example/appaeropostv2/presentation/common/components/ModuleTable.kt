@@ -43,8 +43,8 @@ fun <T> ModuleTable(
     onDetailsClick: (T) -> Unit,
     onDisableClick: (T) -> Unit
 ) {
-    // ancho reservado para la columna de acciones
-    val actionsWeight = 0.8f
+    // un poquito más ancho para las acciones
+    val actionsWeight = 1.5f
 
     Surface(
         modifier = modifier,
@@ -83,7 +83,7 @@ fun <T> ModuleTable(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .weight(actionsWeight)
-                        .padding(start = 4.dp)
+                        .padding(start = 7.dp)
                 )
             }
 
@@ -117,19 +117,34 @@ fun <T> ModuleTable(
                         Row(
                             modifier = Modifier
                                 .weight(actionsWeight)
-                                .padding(start = 4.dp),
-                            horizontalArrangement = Arrangement.Center,
+                                .padding(start = 0.dp),
+                            horizontalArrangement = Arrangement.spacedBy(1.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { onEditClick(item) }) {
-                                Icon(Icons.Filled.Edit, contentDescription = "Editar")
-                            }
-                            IconButton(onClick = { onDetailsClick(item) }) {
-                                Icon(Icons.Filled.Info, contentDescription = "Detalles")
-                            }
-                            IconButton(onClick = { onDisableClick(item) }) {
+                            IconButton(
+                                onClick = { onEditClick(item) },
+                                modifier = Modifier.height(22.dp) // más pequeño
+                            ) {
                                 Icon(
-                                    Icons.Filled.Close,
+                                    imageVector = Icons.Filled.Edit,
+                                    contentDescription = "Editar"
+                                )
+                            }
+                            IconButton(
+                                onClick = { onDetailsClick(item) },
+                                modifier = Modifier.height(22.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Info,
+                                    contentDescription = "Detalles"
+                                )
+                            }
+                            IconButton(
+                                onClick = { onDisableClick(item) },
+                                modifier = Modifier.height(22.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
                                     contentDescription = "Deshabilitar",
                                     tint = MaterialTheme.colorScheme.error
                                 )
@@ -142,4 +157,5 @@ fun <T> ModuleTable(
         }
     }
 }
+
 

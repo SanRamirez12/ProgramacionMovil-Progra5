@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.appaeropostv2.domain.model.Usuario
 import com.example.appaeropostv2.presentation.common.components.InfoBlurbCard
 import com.example.appaeropostv2.presentation.common.components.ModuleCard
 import com.example.appaeropostv2.presentation.common.components.SectionTitle
@@ -20,6 +21,7 @@ import com.example.appaeropostv2.presentation.common.components.GradientHeader
 
 @Composable
 fun HomeScreen(
+    currentUser: Usuario?,
     onOpenAcercaDe: () -> Unit,
     onOpenUsuarios: () -> Unit,
     onOpenBitacora: () -> Unit,
@@ -55,7 +57,10 @@ fun HomeScreen(
             // — Header con parallax + fade
             item {
                 ParallaxHeader(listState = listState) {
-                    GradientHeader(title = "Bienvenido a", subtitle = "Aeropost")
+                    GradientHeader(
+                        title = "Bienvenido a Aeropost",
+                        subtitle = currentUser?.nombreUsuario ?: "Sistema de gestión de envíos internacionales"
+                    )
                 }
             }
             // — Info card con borde amarillo (blanca)
@@ -97,5 +102,6 @@ fun HomeScreen(
         }
     }
 }
+
 
 

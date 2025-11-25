@@ -112,18 +112,30 @@ class UsuarioViewModel(
         }
     }
 
-    // Lógica para "deshabilitar" usuario → cambia su estado
-    fun deshabilitar(id: Int) {
+    // Cambiar estado (habilitar ↔ deshabilitar)
+    fun cambiarEstadoUsuario(id: Int) {
         viewModelScope.launch {
             try {
                 val usuario = repository.obtenerPorId(id) ?: return@launch
-                val actualizado = usuario.copy(estadoUsuario = Estados.DESHABILITADO)
+
+                val nuevoEstado =
+                    if (usuario.estadoUsuario == Estados.HABILITADO)
+                        Estados.DESHABILITADO
+                    else
+                        Estados.HABILITADO
+
+                val actualizado = usuario.copy(estadoUsuario = nuevoEstado)
+
                 repository.actualizar(actualizado)
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.message)
             }
         }
     }
+
+
+
 
     suspend fun obtenerPorId(id: Int): Usuario? = repository.obtenerPorId(id)
 }
