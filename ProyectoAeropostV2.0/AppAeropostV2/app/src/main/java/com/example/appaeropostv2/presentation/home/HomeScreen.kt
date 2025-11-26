@@ -59,7 +59,7 @@ fun HomeScreen(
                 ParallaxHeader(listState = listState) {
                     GradientHeader(
                         title = "Bienvenido a Aeropost",
-                        subtitle = currentUser?.nombreUsuario ?: "Sistema de gestión de envíos internacionales"
+                        subtitle = currentUser?.nombreUsuario ?: "Master"
                     )
                 }
             }

