@@ -27,9 +27,19 @@ import com.example.appaeropostv2.presentation.usuario.UsuarioViewModel
 import com.example.appaeropostv2.presentation.usuario.UsuarioViewModelFactory
 import com.example.appaeropostv2.core.session.SessionManager
 import com.example.appaeropostv2.data.repository.RepositoryBitacora
+import com.example.appaeropostv2.data.repository.RepositoryCliente
 import com.example.appaeropostv2.presentation.bitacora.BitacoraScreen
 import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModel
 import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModelFactory
+import com.example.appaeropostv2.domain.model.Cliente
+import com.example.appaeropostv2.presentation.clientes.ClienteViewModel
+import com.example.appaeropostv2.presentation.clientes.ClienteViewModelFactory
+import com.example.appaeropostv2.presentation.clientes.ClientesScreen
+import com.example.appaeropostv2.presentation.clientes.CrearClienteScreen
+import com.example.appaeropostv2.presentation.clientes.EditarClienteScreen
+import com.example.appaeropostv2.presentation.clientes.DeshabilitarClienteScreen
+import com.example.appaeropostv2.presentation.clientes.DetallesClienteScreen
+
 import com.example.appaeropostv2.presentation.login.LoginViewModel
 import com.example.appaeropostv2.presentation.login.LoginViewModelFactory
 
@@ -268,10 +278,177 @@ fun AppNavGraph(
             )
         }
 
+        // ---------- Clientes: listado ----------
+        composable(Screen.Clientes.route) {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+            val repo = RepositoryCliente(db.clienteDao())
+
+            val clienteViewModel: ClienteViewModel = viewModel(
+                factory = ClienteViewModelFactory(repo)
+            )
+
+            val uiState by clienteViewModel.uiState.collectAsState()
+
+            ClienteScreen(
+                clientes = uiState.clientes,
+                onIrCrearCliente = { navController.navigate("clientes/crear") },
+                onEditarCliente = { cliente ->
+                    navController.navigate("clientes/editar/${cliente.idCliente}")
+                },
+                onVerDetallesCliente = { cliente ->
+                    navController.navigate("clientes/detalles/${cliente.idCliente}")
+                },
+                onDeshabilitarCliente = { cliente ->
+                    navController.navigate("clientes/deshabilitar/${cliente.idCliente}")
+                }
+            )
+        }
+        // ---------- Clientes: crear ----------
+        composable("clientes/crear") {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+            val repo = RepositoryCliente(db.clienteDao())
+            val clienteViewModel: ClienteViewModel = viewModel(
+                factory = ClienteViewModelFactory(repo)
+            )
+
+            CrearClienteScreen(
+                onGuardarCliente = { cliente ->
+                    clienteViewModel.insertar(cliente)
+                    navController.popBackStack()
+                },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+// ---------- Clientes: editar ----------
+        composable("clientes/editar/{idCliente}") { backStackEntry ->
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+            val repo = RepositoryCliente(db.clienteDao())
+            val clienteViewModel: ClienteViewModel = viewModel(
+                factory = ClienteViewModelFactory(repo)
+            )
+
+            val id = backStackEntry.arguments?.getString("idCliente")?.toIntOrNull()
+
+            if (id == null) {
+                LaunchedEffect(Unit) {
+                    navController.popBackStack()
+                }
+            } else {
+                var cliente by remember { mutableStateOf<Cliente?>(null) }
+
+                LaunchedEffect(id) {
+                    cliente = clienteViewModel.obtenerPorId(id)
+                }
+
+                if (cliente == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    EditarClienteScreen(
+                        clienteOriginal = cliente!!,
+                        onGuardarCambios = { actualizado ->
+                            clienteViewModel.actualizar(actualizado)
+                            navController.popBackStack()
+                        },
+                        onVolver = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
+
+// ---------- Clientes: habilitar/deshabilitar ----------
+        composable("clientes/deshabilitar/{idCliente}") { backStackEntry ->
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+            val repo = RepositoryCliente(db.clienteDao())
+            val clienteViewModel: ClienteViewModel = viewModel(
+                factory = ClienteViewModelFactory(repo)
+            )
+
+            val id = backStackEntry.arguments?.getString("idCliente")?.toIntOrNull()
+
+            if (id == null) {
+                LaunchedEffect(Unit) { navController.popBackStack() }
+            } else {
+                var cliente by remember { mutableStateOf<Cliente?>(null) }
+
+                LaunchedEffect(id) {
+                    cliente = clienteViewModel.obtenerPorId(id)
+                }
+
+                if (cliente == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    DeshabilitarClienteScreen(
+                        cliente = cliente!!,
+                        onConfirmar = {
+                            clienteViewModel.cambiarEstadoCliente(cliente!!.idCliente)
+                            navController.popBackStack()
+                        },
+                        onCancelar = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
+
+        // ---------- Clientes: detalles ----------
+        composable("clientes/detalles/{idCliente}") { backStackEntry ->
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+            val repo = RepositoryCliente(db.clienteDao())
+            val clienteViewModel: ClienteViewModel = viewModel(
+                factory = ClienteViewModelFactory(repo)
+            )
+
+            val id = backStackEntry.arguments?.getString("idCliente")?.toIntOrNull()
+
+            if (id == null) {
+                LaunchedEffect(Unit) {
+                    navController.popBackStack()
+                }
+            } else {
+                var cliente by remember { mutableStateOf<Cliente?>(null) }
+
+                LaunchedEffect(id) {
+                    cliente = clienteViewModel.obtenerPorId(id)
+                }
+
+                if (cliente == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    DetallesClienteScreen(
+                        cliente = cliente!!,
+                        onVolver = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
+
+
+
+
+
 
         // ---------- Rutas placeholder de otros módulos ----------
         composable(Screen.AcercaDe.route)    { /* TODO: Acerca De */ }
-        composable(Screen.Clientes.route)    { /* TODO: Clientes */ }
         composable(Screen.Paquetes.route)    { /* TODO: Paquetes */ }
         composable(Screen.Facturacion.route) { /* TODO: Facturación */ }
         composable(Screen.Reportes.route)    { /* TODO: Reportes */ }
