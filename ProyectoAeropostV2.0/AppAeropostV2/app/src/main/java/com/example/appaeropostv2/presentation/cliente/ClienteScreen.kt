@@ -36,7 +36,7 @@ import com.example.appaeropostv2.presentation.common.components.TableColumn
 import com.example.appaeropostv2.presentation.common.layout.AppScaffold
 
 @Composable
-fun ClientesScreen(
+fun ClienteScreen(
     clientes: List<Cliente>,
     modifier: Modifier = Modifier,
     onIrCrearCliente: () -> Unit,

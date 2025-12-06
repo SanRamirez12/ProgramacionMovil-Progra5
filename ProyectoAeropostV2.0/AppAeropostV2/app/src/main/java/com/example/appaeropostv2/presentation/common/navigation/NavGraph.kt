@@ -34,7 +34,7 @@ import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModelFactory
 import com.example.appaeropostv2.domain.model.Cliente
 import com.example.appaeropostv2.presentation.clientes.ClienteViewModel
 import com.example.appaeropostv2.presentation.clientes.ClienteViewModelFactory
-import com.example.appaeropostv2.presentation.clientes.ClientesScreen
+import com.example.appaeropostv2.presentation.clientes.ClienteScreen
 import com.example.appaeropostv2.presentation.clientes.CrearClienteScreen
 import com.example.appaeropostv2.presentation.clientes.EditarClienteScreen
 import com.example.appaeropostv2.presentation.clientes.DeshabilitarClienteScreen
