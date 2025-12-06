@@ -42,6 +42,7 @@ import com.example.appaeropostv2.presentation.clientes.DetallesClienteScreen
 
 import com.example.appaeropostv2.presentation.login.LoginViewModel
 import com.example.appaeropostv2.presentation.login.LoginViewModelFactory
+import com.example.appaeropostv2.presentation.login.RegistrarUsuarioScreen
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -72,9 +73,33 @@ fun AppNavGraph(
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
+                },
+                onRegisterClick = {
+                    navController.navigate("login/registrar")
                 }
             )
         }
+        // ---------- Registro de usuario desde Login ----------
+        composable("login/registrar") {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+            val repo = RepositoryUsuario(db.usuarioDao())
+
+            val usuarioViewModel: UsuarioViewModel = viewModel(
+                factory = UsuarioViewModelFactory(repo)
+            )
+
+            RegistrarUsuarioScreen(
+                onGuardarUsuario = { usuario ->
+                    usuarioViewModel.insertar(usuario)
+                    // Guardado en BD y regreso a la pantalla de login
+                    navController.popBackStack()
+                },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+
 
         // ---------- Home ----------
         composable(Screen.Home.route) {

@@ -34,9 +34,11 @@ import com.example.appaeropostv2.core.designsystem.theme.Brushes
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
+    onRegisterClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = viewModel()
-) {
+)
+ {
     val uiState = viewModel.uiState
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -326,6 +328,7 @@ fun LoginScreen(
                 Spacer(Modifier.height(22.dp))
 
                 // ---------- Registro: línea + texto debajo ----------
+                // ---------- Registro: línea + texto debajo ----------
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -336,7 +339,7 @@ fun LoginScreen(
                         style = typography.bodyMedium
                     )
                     TextButton(
-                        onClick = { /* TODO: navegación registro */ },
+                        onClick = onRegisterClick,   // <- aquí antes estaba /* TODO: navegación registro */
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
@@ -355,6 +358,7 @@ fun LoginScreen(
                             .background(AccentYellow)
                     )
                 }
+
 
                 Spacer(Modifier.height(8.dp))
             }
