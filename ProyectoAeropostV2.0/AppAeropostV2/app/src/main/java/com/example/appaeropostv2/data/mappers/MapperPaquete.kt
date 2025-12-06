@@ -18,6 +18,7 @@ fun EntityPaquete.toDomain(): Paquete = Paquete(
     valorBruto = valorBruto,
     monedasPaquete = monedasPaquete,
     tiendaOrigen = tiendaOrigen,
+    casillero = casillero,
     condicionEspecial = condicionEspecial
 )
 
@@ -32,5 +33,6 @@ fun Paquete.toEntity(): EntityPaquete = EntityPaquete(
     valorBruto = valorBruto,
     monedasPaquete = monedasPaquete,
     tiendaOrigen = tiendaOrigen,
+    casillero = casillero,
     condicionEspecial = condicionEspecial
 )

@@ -28,10 +28,12 @@ import com.example.appaeropostv2.presentation.usuario.UsuarioViewModelFactory
 import com.example.appaeropostv2.core.session.SessionManager
 import com.example.appaeropostv2.data.repository.RepositoryBitacora
 import com.example.appaeropostv2.data.repository.RepositoryCliente
+import com.example.appaeropostv2.data.repository.RepositoryPaquete
 import com.example.appaeropostv2.presentation.bitacora.BitacoraScreen
 import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModel
 import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModelFactory
 import com.example.appaeropostv2.domain.model.Cliente
+import com.example.appaeropostv2.domain.model.Paquete
 import com.example.appaeropostv2.presentation.clientes.ClienteViewModel
 import com.example.appaeropostv2.presentation.clientes.ClienteViewModelFactory
 import com.example.appaeropostv2.presentation.clientes.ClienteScreen
@@ -39,10 +41,16 @@ import com.example.appaeropostv2.presentation.clientes.CrearClienteScreen
 import com.example.appaeropostv2.presentation.clientes.EditarClienteScreen
 import com.example.appaeropostv2.presentation.clientes.DeshabilitarClienteScreen
 import com.example.appaeropostv2.presentation.clientes.DetallesClienteScreen
-
 import com.example.appaeropostv2.presentation.login.LoginViewModel
 import com.example.appaeropostv2.presentation.login.LoginViewModelFactory
 import com.example.appaeropostv2.presentation.login.RegistrarUsuarioScreen
+import com.example.appaeropostv2.presentation.paquete.CrearPaqueteScreen
+import com.example.appaeropostv2.presentation.paquete.DetallesPaqueteScreen
+import com.example.appaeropostv2.presentation.paquete.EditarPaqueteScreen
+import com.example.appaeropostv2.presentation.paquete.EliminarPaqueteScreen
+import com.example.appaeropostv2.presentation.paquete.PaqueteScreen
+import com.example.appaeropostv2.presentation.paquete.PaqueteViewModel
+import com.example.appaeropostv2.presentation.paquete.PaqueteViewModelFactory
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -347,7 +355,7 @@ fun AppNavGraph(
             )
         }
 
-// ---------- Clientes: editar ----------
+        // ---------- Clientes: editar ----------
         composable("clientes/editar/{idCliente}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -389,7 +397,7 @@ fun AppNavGraph(
             }
         }
 
-// ---------- Clientes: habilitar/deshabilitar ----------
+        // ---------- Clientes: habilitar/deshabilitar ----------
         composable("clientes/deshabilitar/{idCliente}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -467,21 +475,213 @@ fun AppNavGraph(
             }
         }
 
+        // ───────────────────────── Paquetes ─────────────────────────
+        // Paquetes: listado
+        composable(Screen.Paquetes.route) {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
 
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+            val repoCliente = RepositoryCliente(db.clienteDao())
 
+            val paqueteViewModel: PaqueteViewModel = viewModel(
+                factory = PaqueteViewModelFactory(repoPaquete)
+            )
+            val clienteViewModel: ClienteViewModel = viewModel(
+                factory = ClienteViewModelFactory(repoCliente)
+            )
 
+            val uiState by paqueteViewModel.uiState.collectAsState()
 
+            PaqueteScreen(
+                uiState = uiState,
+                onIrCrearPaquete = { navController.navigate("paquetes/crear") },
+                onEditarPaquete = { paquete ->
+                    navController.navigate("paquetes/editar/${paquete.idPaquete}")
+                },
+                onVerDetallesPaquete = { paquete ->
+                    navController.navigate("paquetes/detalles/${paquete.idPaquete}")
+                },
+                onEliminarPaquete = { paquete ->
+                    navController.navigate("paquetes/eliminar/${paquete.idPaquete}")
+                },
+                onActualizarBusqueda = { texto ->
+                    paqueteViewModel.actualizarBusqueda(texto)
+                },
+                onActualizarFechaDesde = { fecha ->
+                    paqueteViewModel.actualizarFechaDesde(fecha)
+                },
+                onActualizarFechaHasta = { fecha ->
+                    paqueteViewModel.actualizarFechaHasta(fecha)
+                },
+                onLimpiarFechas = {
+                    paqueteViewModel.limpiarFechas()
+                }
+            )
+        }
+
+        // Paquetes: crear
+        composable("paquetes/crear") {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+            val repoCliente = RepositoryCliente(db.clienteDao())
+
+            val paqueteViewModel: PaqueteViewModel = viewModel(
+                factory = PaqueteViewModelFactory(repoPaquete)
+            )
+            val clienteViewModel: ClienteViewModel = viewModel(
+                factory = ClienteViewModelFactory(repoCliente)
+            )
+
+            val clientesState by clienteViewModel.uiState.collectAsState()
+            val clientes = clientesState.clientes
+
+            CrearPaqueteScreen(
+                clientes = clientes,
+                onGuardarPaquete = { paquete ->
+                    paqueteViewModel.insertar(paquete)
+                    navController.popBackStack()
+                },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+        // Paquetes: editar
+        composable("paquetes/editar/{idPaquete}") { backStackEntry ->
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+            val repoCliente = RepositoryCliente(db.clienteDao())
+
+            val paqueteViewModel: PaqueteViewModel = viewModel(
+                factory = PaqueteViewModelFactory(repoPaquete)
+            )
+            val clienteViewModel: ClienteViewModel = viewModel(
+                factory = ClienteViewModelFactory(repoCliente)
+            )
+
+            val clientesState by clienteViewModel.uiState.collectAsState()
+            val clientes = clientesState.clientes
+
+            val idPaquete = backStackEntry.arguments?.getString("idPaquete")
+
+            if (idPaquete == null) {
+                LaunchedEffect(Unit) { navController.popBackStack() }
+            } else {
+                var paquete by remember { mutableStateOf<Paquete?>(null) }
+
+                LaunchedEffect(idPaquete) {
+                    paquete = paqueteViewModel.obtenerPorId(idPaquete)
+                }
+
+                if (paquete == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    EditarPaqueteScreen(
+                        paqueteOriginal = paquete!!,
+                        clientes = clientes,
+                        onGuardarCambios = { actualizado ->
+                            paqueteViewModel.actualizar(actualizado)
+                            navController.popBackStack()
+                        },
+                        onVolver = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
+
+        // Paquetes: detalles
+        composable("paquetes/detalles/{idPaquete}") { backStackEntry ->
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+
+            val paqueteViewModel: PaqueteViewModel = viewModel(
+                factory = PaqueteViewModelFactory(repoPaquete)
+            )
+
+            val idPaquete = backStackEntry.arguments?.getString("idPaquete")
+
+            if (idPaquete == null) {
+                LaunchedEffect(Unit) { navController.popBackStack() }
+            } else {
+                var paquete by remember { mutableStateOf<Paquete?>(null) }
+
+                LaunchedEffect(idPaquete) {
+                    paquete = paqueteViewModel.obtenerPorId(idPaquete)
+                }
+
+                if (paquete == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    DetallesPaqueteScreen(
+                        paquete = paquete!!,
+                        onVolver = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
+
+        // Paquetes: eliminar
+        composable("paquetes/eliminar/{idPaquete}") { backStackEntry ->
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+
+            val paqueteViewModel: PaqueteViewModel = viewModel(
+                factory = PaqueteViewModelFactory(repoPaquete)
+            )
+
+            val idPaquete = backStackEntry.arguments?.getString("idPaquete")
+
+            if (idPaquete == null) {
+                LaunchedEffect(Unit) { navController.popBackStack() }
+            } else {
+                var paquete by remember { mutableStateOf<Paquete?>(null) }
+
+                LaunchedEffect(idPaquete) {
+                    paquete = paqueteViewModel.obtenerPorId(idPaquete)
+                }
+
+                if (paquete == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    EliminarPaqueteScreen(
+                        paquete = paquete!!,
+                        onConfirmar = {
+                            paqueteViewModel.eliminar(paquete!!)
+                            navController.popBackStack()
+                        },
+                        onCancelar = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
 
         // ---------- Rutas placeholder de otros módulos ----------
         composable(Screen.AcercaDe.route)    { /* TODO: Acerca De */ }
-        composable(Screen.Paquetes.route)    { /* TODO: Paquetes */ }
         composable(Screen.Facturacion.route) { /* TODO: Facturación */ }
         composable(Screen.Reportes.route)    { /* TODO: Reportes */ }
         composable(Screen.Tracking.route)    { /* TODO: Tracking */ }
     }
 }
-
-
-
-
-

@@ -66,5 +66,13 @@ class RoomConverters {
 
     @TypeConverter
     fun toTiendas(name: String?): Tiendas? = name?.let { enumValueOf<Tiendas>(it) }
+
+    // -------- Enums: Casilleros --------
+    @TypeConverter
+    fun fromCasilleros(value: Casilleros?): String? = value?.name
+
+    @TypeConverter
+    fun toCasilleros(name: String?): Casilleros? = name?.let { enumValueOf<Casilleros>(it) }
+
 }
 

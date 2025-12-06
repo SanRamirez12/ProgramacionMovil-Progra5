@@ -23,3 +23,7 @@ enum class Monedas {
 enum class Genero {
    MASCULINO, FEMENINO, OTRO, NO_DECLARA
 }
+
+enum class Casilleros {
+    MIA, NYK, LAS
+}

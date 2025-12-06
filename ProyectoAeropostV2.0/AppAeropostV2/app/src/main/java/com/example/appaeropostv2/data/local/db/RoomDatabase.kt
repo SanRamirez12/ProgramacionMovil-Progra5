@@ -33,7 +33,7 @@ import com.example.appaeropostv2.data.local.entity.EntityUsuario
         EntityFacturacion::class,
         EntityBitacora::class,
     ],
-    version = 1, // Cambia cuando alteres el esquema
+    version = 2, // Cambia cuando alteres el esquema
     exportSchema = true // genera JSON de esquema (útil para migraciones)
 )
 

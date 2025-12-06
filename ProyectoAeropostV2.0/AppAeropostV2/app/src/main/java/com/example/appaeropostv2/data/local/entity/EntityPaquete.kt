@@ -1,6 +1,7 @@
 package com.example.appaeropostv2.data.local.entity
 
 import androidx.room.*
+import com.example.appaeropostv2.domain.enums.Casilleros
 import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.enums.Tiendas
 import java.math.BigDecimal
@@ -29,7 +30,8 @@ import java.time.LocalDate
         Index(value = ["cedulaCliente"]),
         Index(value = ["numeroTracking"], unique = true),
         Index(value = ["fechaRegistro"]),
-        Index(value = ["tiendaOrigen"])
+        Index(value = ["tiendaOrigen"]),
+        Index(value = ["casillero"])
     ]
 )
 data class EntityPaquete(
@@ -63,6 +65,9 @@ data class EntityPaquete(
 
     @ColumnInfo(name = "tiendaOrigen")
     val tiendaOrigen: Tiendas,
+
+    @ColumnInfo(name = "casillero")
+    val casillero: Casilleros,
 
     @ColumnInfo(name = "condicionEspecial")
     val condicionEspecial: Boolean

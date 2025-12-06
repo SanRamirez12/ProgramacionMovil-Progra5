@@ -1,5 +1,6 @@
 package com.example.appaeropostv2.domain.model
 
+import com.example.appaeropostv2.domain.enums.Casilleros
 import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.enums.Tiendas
 import java.math.BigDecimal
@@ -16,5 +17,6 @@ data class Paquete(
     val valorBruto: BigDecimal,
     val monedasPaquete: Monedas,
     val tiendaOrigen: Tiendas,
+    val casillero: Casilleros,
     val condicionEspecial: Boolean
 )
