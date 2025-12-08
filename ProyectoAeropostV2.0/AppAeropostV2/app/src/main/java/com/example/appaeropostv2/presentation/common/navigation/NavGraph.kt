@@ -678,9 +678,9 @@ fun AppNavGraph(
             }
         }
 
+
         // ---------- Rutas placeholder de otros módulos ----------
         composable(Screen.AcercaDe.route)    { /* TODO: Acerca De */ }
-        composable(Screen.Facturacion.route) { /* TODO: Facturación */ }
         composable(Screen.Reportes.route)    { /* TODO: Reportes */ }
         composable(Screen.Tracking.route)    { /* TODO: Tracking */ }
     }
