@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +30,7 @@ import com.example.appaeropostv2.core.session.SessionManager
 import com.example.appaeropostv2.data.repository.RepositoryBitacora
 import com.example.appaeropostv2.data.repository.RepositoryCliente
 import com.example.appaeropostv2.data.repository.RepositoryPaquete
+import com.example.appaeropostv2.data.repository.RepositoryFacturacion
 import com.example.appaeropostv2.presentation.bitacora.BitacoraScreen
 import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModel
 import com.example.appaeropostv2.presentation.bitacora.BitacoraViewModelFactory
@@ -51,6 +53,14 @@ import com.example.appaeropostv2.presentation.paquete.EliminarPaqueteScreen
 import com.example.appaeropostv2.presentation.paquete.PaqueteScreen
 import com.example.appaeropostv2.presentation.paquete.PaqueteViewModel
 import com.example.appaeropostv2.presentation.paquete.PaqueteViewModelFactory
+import com.example.appaeropostv2.data.pdf.AndroidFacturaPdfGenerator
+import com.example.appaeropostv2.presentation.facturacion.FacturacionScreen
+import com.example.appaeropostv2.presentation.facturacion.CrearFacturacionScreen
+import com.example.appaeropostv2.presentation.facturacion.DetallesFacturaScreen
+import com.example.appaeropostv2.presentation.facturacion.EliminarFacturaScreen
+import com.example.appaeropostv2.presentation.facturacion.FacturacionViewModel
+import com.example.appaeropostv2.presentation.facturacion.FacturacionViewModelFactory
+
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -106,8 +116,6 @@ fun AppNavGraph(
                 onVolver = { navController.popBackStack() }
             )
         }
-
-
 
         // ---------- Home ----------
         composable(Screen.Home.route) {
@@ -255,7 +263,6 @@ fun AppNavGraph(
             }
         }
 
-
         // ---------- Usuarios: detalles ----------
         composable("usuarios/detalles/{idUsuario}") { backStackEntry ->
             val context = LocalContext.current
@@ -337,6 +344,7 @@ fun AppNavGraph(
                 }
             )
         }
+
         // ---------- Clientes: crear ----------
         composable("clientes/crear") {
             val context = LocalContext.current
@@ -678,6 +686,171 @@ fun AppNavGraph(
             }
         }
 
+        // ───────────────────────── Facturación ─────────────────────────
+        // Listado de facturas
+        composable(Screen.Facturacion.route) {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoFact = RepositoryFacturacion(db.facturacionDao())
+            val repoCliente = RepositoryCliente(db.clienteDao())
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+            val pdfGenerator = remember { AndroidFacturaPdfGenerator(context) }
+
+            val factViewModel: FacturacionViewModel = viewModel(
+                factory = FacturacionViewModelFactory(
+                    repoFacturacion = repoFact,
+                    repoCliente = repoCliente,
+                    repoPaquete = repoPaquete,
+                    pdfGenerator = pdfGenerator
+                )
+            )
+
+            val uiState by factViewModel.ui.collectAsState()
+
+            FacturacionScreen(
+                uiState = uiState,
+                onIrCrearFactura = { navController.navigate("facturacion/crear") },
+                onVerDetalleFactura = { factura ->
+                    navController.navigate("facturacion/detalles/${factura.idFacturacion}")
+                },
+                onEliminarFactura = { factura ->
+                    navController.navigate("facturacion/eliminar/${factura.idFacturacion}")
+                },
+                onActualizarBusqueda = factViewModel::actualizarBusqueda,
+                onActualizarFechaDesde = factViewModel::actualizarFechaDesde,
+                onActualizarFechaHasta = factViewModel::actualizarFechaHasta,
+                onLimpiarFechas = factViewModel::limpiarFechas
+            )
+
+        }
+
+        // Crear factura
+        composable("facturacion/crear") {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoFact = RepositoryFacturacion(db.facturacionDao())
+            val repoCliente = RepositoryCliente(db.clienteDao())
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+            val pdfGenerator = remember { AndroidFacturaPdfGenerator(context) }
+
+            val factViewModel: FacturacionViewModel = viewModel(
+                factory = FacturacionViewModelFactory(
+                    repoFacturacion = repoFact,
+                    repoCliente = repoCliente,
+                    repoPaquete = repoPaquete,
+                    pdfGenerator = pdfGenerator
+                )
+            )
+
+            val uiState by factViewModel.ui.collectAsState()
+
+            CrearFacturacionScreen(
+                uiState = uiState,
+                onActualizarFechaFacturacion = factViewModel::actualizarFechaFacturacion,
+                onActualizarCedula = factViewModel::actualizarCedula,
+                onSeleccionarPaquete = factViewModel::seleccionarPaquete,
+                onCargarCliente = factViewModel::cargarCliente,
+                onGenerarFactura = {
+                    factViewModel.generarFactura()
+                    navController.popBackStack()
+                },
+                onVolver = { navController.popBackStack() },
+                onConsumirError = factViewModel::limpiarError,
+                onConsumirPdf = factViewModel::limpiarPdfUri
+            )
+        }
+
+
+        // Detalles factura
+        composable("facturacion/detalles/{idFactura}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("idFactura")?.toIntOrNull()
+
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoFact = RepositoryFacturacion(db.facturacionDao())
+            val repoCliente = RepositoryCliente(db.clienteDao())
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+            val pdfGenerator = remember { AndroidFacturaPdfGenerator(context) }
+
+            val factViewModel: FacturacionViewModel = viewModel(
+                factory = FacturacionViewModelFactory(
+                    repoFacturacion = repoFact,
+                    repoCliente = repoCliente,
+                    repoPaquete = repoPaquete,
+                    pdfGenerator = pdfGenerator
+                )
+            )
+
+            val uiState by factViewModel.ui.collectAsState()
+
+            val factura = uiState.facturas.firstOrNull { it.idFacturacion == id }
+
+            if (factura == null) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Factura no encontrada")
+                }
+            } else {
+                DetallesFacturaScreen(
+                    factura = factura,
+                    uiState = uiState,
+                    onGenerarPdfDesdeDetalle = {
+                        factViewModel.generarPdfParaFacturaExistente(factura)
+                    },
+                    onConsumirPdf = factViewModel::limpiarPdfUri,
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Eliminar factura
+        composable("facturacion/eliminar/{idFactura}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("idFactura")?.toIntOrNull()
+
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoFact = RepositoryFacturacion(db.facturacionDao())
+            val repoCliente = RepositoryCliente(db.clienteDao())
+            val repoPaquete = RepositoryPaquete(db.paqueteDao())
+            val pdfGenerator = remember { AndroidFacturaPdfGenerator(context) }
+
+            val factViewModel: FacturacionViewModel = viewModel(
+                factory = FacturacionViewModelFactory(
+                    repoFacturacion = repoFact,
+                    repoCliente = repoCliente,
+                    repoPaquete = repoPaquete,
+                    pdfGenerator = pdfGenerator
+                )
+            )
+
+            val uiState by factViewModel.ui.collectAsState()
+
+            val factura = uiState.facturas.firstOrNull { it.idFacturacion == id }
+
+            if (factura == null) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Factura no encontrada")
+                }
+            } else {
+                EliminarFacturaScreen(
+                    factura = factura,
+                    onConfirmarEliminar = {
+                        factViewModel.eliminarFactura(factura)
+                        navController.popBackStack()
+                    },
+                    onCancelar = { navController.popBackStack() }
+                )
+            }
+        }
 
         // ---------- Rutas placeholder de otros módulos ----------
         composable(Screen.AcercaDe.route)    { /* TODO: Acerca De */ }

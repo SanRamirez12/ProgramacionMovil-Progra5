@@ -7,10 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.appaeropostv2.data.repository.RepositoryCliente
 import com.example.appaeropostv2.data.repository.RepositoryFacturacion
 import com.example.appaeropostv2.data.repository.RepositoryPaquete
+import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.logic.FacturaLogic
 import com.example.appaeropostv2.domain.model.*
 import com.example.appaeropostv2.domain.pdf.FacturaPdfGenerator
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -51,12 +55,16 @@ data class FacturacionUiState(
 
     val clienteCargado: Cliente? = null,
     val paqueteCargado: Paquete? = null,
+    val paquetesDisponibles: List<Paquete> = emptyList(),
 
     val fechaFacturacion: String = "",
     val cedulaInput: String = "",
     val trackingInput: String = "",
 
     val montoTotalCalculado: Double? = null,
+
+    // mapa para saber la moneda de cada factura por tracking
+    val monedaPorTracking: Map<String, Monedas> = emptyMap(),
 
     val errorMessage: String? = null,
     val pdfUri: Uri? = null
@@ -72,8 +80,11 @@ class FacturacionViewModel(
     private val pdfGenerator: FacturaPdfGenerator
 ) : ViewModel() {
 
-    private val _ui = MutableStateFlow(FacturacionUiState())
+    private val _ui = MutableStateFlow(FacturacionUiState(isLoading = true))
     val ui: StateFlow<FacturacionUiState> = _ui.asStateFlow()
+
+    // lista completa (sin filtros), igual que todosLosPaquetes en PaqueteViewModel
+    private var todasLasFacturas: List<Facturacion> = emptyList()
 
     init {
         observarFacturas()
@@ -85,41 +96,73 @@ class FacturacionViewModel(
     private fun observarFacturas() {
         viewModelScope.launch {
             repoFacturacion.observarFacturaciones()
-                .catch { e -> _ui.value = _ui.value.copy(errorMessage = e.message) }
-                .collect { lista ->
+                .catch { e ->
                     _ui.value = _ui.value.copy(
-                        facturas = filtrarFacturas(lista),
+                        errorMessage = e.message,
                         isLoading = false
                     )
+                }
+                .collect { lista ->
+                    todasLasFacturas = lista
+                    val mapaMonedas = construirMapaMonedas(lista)
+
+                    // actualizamos solo el mapa y luego aplicamos filtros
+                    _ui.value = _ui.value.copy(
+                        monedaPorTracking = mapaMonedas
+                    )
+
+                    aplicarFiltros()
                 }
         }
     }
 
-    private fun filtrarFacturas(lista: List<Facturacion>): List<Facturacion> {
-        val q = _ui.value.searchQuery.lowercase()
-        val desde = _ui.value.fechaDesde
-        val hasta = _ui.value.fechaHasta
-
-        return lista.filter { f ->
-
-            // filtro por texto
-            val coincideTexto = q.isBlank() ||
-                    f.numeroTracking.lowercase().contains(q) ||
-                    f.cedulaCliente.lowercase().contains(q)
-
-            // filtro por fecha
-            val coincideFecha = when {
-                desde == null && hasta == null -> true
-                desde != null && hasta == null ->
-                    LocalDate.parse(f.fechaFacturacion) >= desde
-                desde == null && hasta != null ->
-                    LocalDate.parse(f.fechaFacturacion) <= hasta
-                else ->
-                    LocalDate.parse(f.fechaFacturacion) in desde!!..hasta!!
+    // Construye mapa tracking → moneda usando el paquete asociado
+    private suspend fun construirMapaMonedas(lista: List<Facturacion>): Map<String, Monedas> {
+        val mapa = mutableMapOf<String, Monedas>()
+        for (factura in lista) {
+            val paquete = repoPaquete.obtenerPorTracking(factura.numeroTracking)
+            if (paquete != null) {
+                mapa[factura.numeroTracking] = paquete.monedasPaquete
             }
-
-            coincideTexto && coincideFecha
         }
+        return mapa
+    }
+
+    // ===================================================
+    // APLICAR FILTROS (búsqueda + fechas)
+    // ===================================================
+    private fun aplicarFiltros() {
+        val estadoActual = _ui.value
+        val q = estadoActual.searchQuery.trim().lowercase()
+        val desde = estadoActual.fechaDesde
+        val hasta = estadoActual.fechaHasta
+
+        var lista = todasLasFacturas
+
+        // Filtro por rango de fechas
+        if (desde != null || hasta != null) {
+            lista = lista.filter { factura ->
+                val f = LocalDate.parse(factura.fechaFacturacion)
+                val cumpleDesde = desde?.let { !f.isBefore(it) } ?: true
+                val cumpleHasta = hasta?.let { !f.isAfter(it) } ?: true
+                cumpleDesde && cumpleHasta
+            }
+        }
+
+        // Filtro por texto: cédula o tracking
+        if (q.isNotBlank()) {
+            lista = lista.filter { factura ->
+                val cedula = factura.cedulaCliente.lowercase()
+                val tracking = factura.numeroTracking.lowercase()
+                cedula.contains(q) || tracking.contains(q)
+            }
+        }
+
+        _ui.value = estadoActual.copy(
+            facturas = lista,
+            isLoading = false,
+            errorMessage = null
+        )
     }
 
     // ===================================================
@@ -138,7 +181,7 @@ class FacturacionViewModel(
     }
 
     // ===================================================
-    // CARGAR CLIENTE
+    // CARGAR CLIENTE + PAQUETES DISPONIBLES
     // ===================================================
     fun cargarCliente() {
         viewModelScope.launch {
@@ -155,12 +198,30 @@ class FacturacionViewModel(
                 return@launch
             }
 
-            _ui.value = _ui.value.copy(clienteCargado = cliente)
+            val paquetesCliente = repoPaquete.listarPorCedula(cedula)
+
+            val paquetesSinFacturar = paquetesCliente.filter { paquete ->
+                repoFacturacion.obtenerPorTracking(paquete.numeroTracking) == null
+            }
+
+            _ui.value = _ui.value.copy(
+                clienteCargado = cliente,
+                paquetesDisponibles = paquetesSinFacturar,
+                paqueteCargado = null,
+                montoTotalCalculado = null,
+                trackingInput = ""
+            )
+
+            if (paquetesSinFacturar.isEmpty()) {
+                _ui.value = _ui.value.copy(
+                    errorMessage = "Este cliente no tiene paquetes pendientes de facturar."
+                )
+            }
         }
     }
 
     // ===================================================
-    // CARGAR PAQUETE
+    // CARGAR PAQUETE (modo antiguo por tracking)
     // ===================================================
     fun cargarPaquete() {
         viewModelScope.launch {
@@ -178,7 +239,6 @@ class FacturacionViewModel(
                 return@launch
             }
 
-            // validar que no esté facturado
             val yaFacturado = repoFacturacion.obtenerPorTracking(tracking)
             if (yaFacturado != null) {
                 _ui.value = _ui.value.copy(errorMessage = "Este paquete ya fue facturado.")
@@ -186,6 +246,26 @@ class FacturacionViewModel(
             }
 
             _ui.value = _ui.value.copy(paqueteCargado = paquete)
+
+            calcularMonto()
+        }
+    }
+
+    // ===================================================
+    // SELECCIONAR PAQUETE DESDE DROPDOWN
+    // ===================================================
+    fun seleccionarPaquete(paquete: Paquete) {
+        viewModelScope.launch {
+            val yaFacturado = repoFacturacion.obtenerPorTracking(paquete.numeroTracking)
+            if (yaFacturado != null) {
+                _ui.value = _ui.value.copy(errorMessage = "Este paquete ya fue facturado.")
+                return@launch
+            }
+
+            _ui.value = _ui.value.copy(
+                paqueteCargado = paquete,
+                trackingInput = paquete.numeroTracking
+            )
 
             calcularMonto()
         }
@@ -234,14 +314,12 @@ class FacturacionViewModel(
 
             val idInsertado = repoFacturacion.insertar(factura)
 
-            // construir FacturaConDetalle
             val detalle = FacturaConDetalle(
                 factura.copy(idFacturacion = idInsertado),
                 cliente,
                 paquete
             )
 
-            // Generar el PDF
             val pdfUri = pdfGenerator.generarFacturaPDF(detalle)
 
             _ui.value = _ui.value.copy(
@@ -252,30 +330,30 @@ class FacturacionViewModel(
     }
 
     // ===================================================
-    // FILTROS
+    // FILTROS LISTA FACTURAS
     // ===================================================
     fun actualizarBusqueda(q: String) {
         _ui.value = _ui.value.copy(searchQuery = q)
-        observarFacturas()
+        aplicarFiltros()
     }
 
     fun actualizarFechaDesde(f: LocalDate?) {
         _ui.value = _ui.value.copy(fechaDesde = f)
-        observarFacturas()
+        aplicarFiltros()
     }
 
     fun actualizarFechaHasta(f: LocalDate?) {
         _ui.value = _ui.value.copy(fechaHasta = f)
-        observarFacturas()
+        aplicarFiltros()
     }
 
     fun limpiarFechas() {
         _ui.value = _ui.value.copy(fechaDesde = null, fechaHasta = null)
-        observarFacturas()
+        aplicarFiltros()
     }
 
     // ===================================================
-    // LIMPIAR PDF EVENT
+    // LIMPIAR EVENTOS
     // ===================================================
     fun limpiarPdfUri() {
         _ui.value = _ui.value.copy(pdfUri = null)
@@ -283,5 +361,54 @@ class FacturacionViewModel(
 
     fun limpiarError() {
         _ui.value = _ui.value.copy(errorMessage = null)
+    }
+
+    // ===================================================
+    // ELIMINAR FACTURA
+    // ===================================================
+    fun eliminarFactura(factura: Facturacion) {
+        viewModelScope.launch {
+            try {
+                repoFacturacion.eliminar(factura)
+            } catch (e: Exception) {
+                _ui.value = _ui.value.copy(errorMessage = e.message)
+            }
+        }
+    }
+
+    // ===================================================
+    // GENERAR PDF PARA FACTURA EXISTENTE
+    // ===================================================
+    fun generarPdfParaFacturaExistente(factura: Facturacion) {
+        viewModelScope.launch {
+            try {
+                val cliente = repoCliente.obtenerPorCedula(factura.cedulaCliente)
+                    ?: run {
+                        _ui.value = _ui.value.copy(errorMessage = "Cliente de la factura no existe.")
+                        return@launch
+                    }
+
+                val paquete = repoPaquete.obtenerPorTracking(factura.numeroTracking)
+                    ?: run {
+                        _ui.value = _ui.value.copy(errorMessage = "Paquete de la factura no existe.")
+                        return@launch
+                    }
+
+                val detalle = FacturaConDetalle(
+                    factura = factura,
+                    cliente = cliente,
+                    paquete = paquete
+                )
+
+                val pdfUri = pdfGenerator.generarFacturaPDF(detalle)
+
+                _ui.value = _ui.value.copy(
+                    pdfUri = pdfUri,
+                    errorMessage = null
+                )
+            } catch (e: Exception) {
+                _ui.value = _ui.value.copy(errorMessage = e.message)
+            }
+        }
     }
 }

@@ -39,7 +39,7 @@ fun <T> ModuleTable(
     items: List<T>,
     columns: List<TableColumn<T>>,
     modifier: Modifier = Modifier,
-    onEditClick: (T) -> Unit,
+    onEditClick: ((T) -> Unit)? = null,   // 🔹 ahora es opcional
     onDetailsClick: (T) -> Unit,
     onDisableClick: (T) -> Unit
 ) {
@@ -121,14 +121,17 @@ fun <T> ModuleTable(
                             horizontalArrangement = Arrangement.spacedBy(1.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(
-                                onClick = { onEditClick(item) },
-                                modifier = Modifier.height(22.dp) // más pequeño
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Edit,
-                                    contentDescription = "Editar"
-                                )
+                            // 🔹 Solo muestra el icono de editar si pasaste un lambda
+                            if (onEditClick != null) {
+                                IconButton(
+                                    onClick = { onEditClick(item) },
+                                    modifier = Modifier.height(22.dp) // más pequeño
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Edit,
+                                        contentDescription = "Editar"
+                                    )
+                                }
                             }
                             IconButton(
                                 onClick = { onDetailsClick(item) },
@@ -157,5 +160,3 @@ fun <T> ModuleTable(
         }
     }
 }
-
-

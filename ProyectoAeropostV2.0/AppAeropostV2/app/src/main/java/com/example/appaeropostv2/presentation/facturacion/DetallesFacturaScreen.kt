@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.appaeropostv2.core.designsystem.theme.Dimens
+import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.model.Facturacion
 import com.example.appaeropostv2.presentation.common.components.GradientHeader
 import com.example.appaeropostv2.presentation.common.layout.AppScaffold
@@ -35,6 +36,15 @@ fun DetallesFacturaScreen(
             context.startActivity(intent)
             onConsumirPdf()
         }
+    }
+
+    // 🔹 determinar símbolo según la moneda asociada al tracking
+    val moneda = uiState.monedaPorTracking[factura.numeroTracking]
+    val symbol = when (moneda) {
+        Monedas.USD -> "$"
+        Monedas.CRC -> "₡"
+        Monedas.EUR -> "€"
+        null -> ""
     }
 
     AppScaffold(
@@ -73,11 +83,11 @@ fun DetallesFacturaScreen(
                     Text("Tracking: ${factura.numeroTracking}")
                     Text("Fecha facturación: ${factura.fechaFacturacion}")
                     Text("Peso paquete: ${factura.pesoPaquete} kg")
-                    Text("Valor bruto: ₡${factura.valorBrutoPaquete}")
+                    Text("Valor bruto: $symbol${String.format("%.2f", factura.valorBrutoPaquete)}")
                     Text("Producto especial: ${if (factura.productoEspecial) "Sí" else "No"}")
                     Text("Dirección entrega: ${factura.direccionEntrega}")
                     Text(
-                        text = "Monto total: ₡${String.format("%.2f", factura.montoTotal)}",
+                        text = "Monto total: $symbol${String.format("%.2f", factura.montoTotal)}",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )

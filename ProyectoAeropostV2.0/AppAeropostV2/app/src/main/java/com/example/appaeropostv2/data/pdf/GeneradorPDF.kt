@@ -9,6 +9,7 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.content.FileProvider
+import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.model.FacturaConDetalle
 import com.example.appaeropostv2.domain.pdf.FacturaPdfGenerator
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -31,12 +32,28 @@ class AndroidFacturaPdfGenerator(
 
             webView.webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
+                    if (view == null) return
+
+                    val pageWidth = 1240
+                    val pageHeight = 1754
+
+                    val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+                        pageWidth,
+                        View.MeasureSpec.EXACTLY
+                    )
+                    val heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+                        pageHeight,
+                        View.MeasureSpec.EXACTLY
+                    )
+
+                    view.measure(widthMeasureSpec, heightMeasureSpec)
+                    view.layout(0, 0, pageWidth, pageHeight)
 
                     val doc = PdfDocument()
-                    val pageInfo = PdfDocument.PageInfo.Builder(1240, 1754, 1).create()
+                    val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
                     val page = doc.startPage(pageInfo)
 
-                    view?.draw(page.canvas)
+                    view.draw(page.canvas)
                     doc.finishPage(page)
 
                     val directory =
@@ -71,7 +88,6 @@ class AndroidFacturaPdfGenerator(
     // -------------------------------------------------------------
     // HTML TEMPLATE + CSS estilo comprobante oficial
     // -------------------------------------------------------------
-
     private fun buildHtml(det: FacturaConDetalle): String {
 
         val factura = det.factura
@@ -79,6 +95,12 @@ class AndroidFacturaPdfGenerator(
         val paquete = det.paquete
 
         val hash = generarSelloDigital("${factura.numeroTracking}${factura.fechaFacturacion}")
+
+        val symbol = when (paquete.monedasPaquete) {
+            Monedas.USD -> "$"
+            Monedas.CRC -> "₡"
+            Monedas.EUR -> "€"
+        }
 
         return """
 <!DOCTYPE html>
@@ -158,7 +180,7 @@ td, th {
 <table>
 <tr><td><b>Tracking:</b></td><td>${factura.numeroTracking}</td></tr>
 <tr><td><b>Peso:</b></td><td>${factura.pesoPaquete} kg</td></tr>
-<tr><td><b>Valor declarado:</b></td><td>$${factura.valorBrutoPaquete}</td></tr>
+<tr><td><b>Valor declarado:</b></td><td>$symbol${String.format("%.2f", factura.valorBrutoPaquete)}</td></tr>
 <tr><td><b>Fecha registro:</b></td><td>${paquete.fechaRegistro}</td></tr>
 <tr><td><b>Origen:</b></td><td>${paquete.tiendaOrigen} / ${paquete.casillero}</td></tr>
 <tr><td><b>Condición especial:</b></td><td>${if (factura.productoEspecial) "Sí" else "No"}</td></tr>
@@ -167,17 +189,25 @@ td, th {
 <h2>Detalle de Cargos</h2>
 <table>
 <tr><th>Concepto</th><th>Monto</th></tr>
-<tr><td>Peso × 12</td><td>$${factura.pesoPaquete * 12}</td></tr>
-<tr><td>Impuesto 13%</td><td>$${factura.valorBrutoPaquete * 0.13}</td></tr>
-<tr><td>Comisión (${if (factura.productoEspecial) "10%" else "5%"})</td><td>$${if (factura.productoEspecial) factura.valorBrutoPaquete * 0.10 else factura.valorBrutoPaquete * 0.05}</td></tr>
+<tr><td>Peso × 12</td><td>$symbol${String.format("%.2f", factura.pesoPaquete * 12)}</td></tr>
+<tr><td>Impuesto 13%</td><td>$symbol${String.format("%.2f", factura.valorBrutoPaquete * 0.13)}</td></tr>
+<tr><td>Comisión (${if (factura.productoEspecial) "10%" else "5%"})</td><td>$symbol${
+            String.format(
+                "%.2f",
+                if (factura.productoEspecial)
+                    factura.valorBrutoPaquete * 0.10
+                else
+                    factura.valorBrutoPaquete * 0.05
+            )
+        }</td></tr>
 </table>
 
 <div class="total">
-TOTAL A PAGAR: $${String.format("%.2f", factura.montoTotal)}
+TOTAL A PAGAR: $symbol${String.format("%.2f", factura.montoTotal)}
 </div>
 
 <div class="sello">
-Sello digital: ${hash}<br>
+Sello digital: $hash<br>
 Documento generado electrónicamente por AeropostApp.
 </div>
 

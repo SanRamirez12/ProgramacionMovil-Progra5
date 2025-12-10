@@ -16,6 +16,6 @@ object FacturaLogic {
         val impuesto = valorBruto * 0.13
         val comision = valorBruto * if (productoEspecial) 0.10 else 0.05
 
-        return (pesoPaquete * 12.0) + impuesto + comision
+        return (pesoPaquete * 12.0) + impuesto + comision + valorBruto
     }
 }
