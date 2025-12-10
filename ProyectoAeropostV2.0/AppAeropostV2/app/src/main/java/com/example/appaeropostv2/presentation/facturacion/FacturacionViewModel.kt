@@ -10,7 +10,7 @@ import com.example.appaeropostv2.data.repository.RepositoryPaquete
 import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.logic.FacturaLogic
 import com.example.appaeropostv2.domain.model.*
-import com.example.appaeropostv2.domain.pdf.FacturaPdfGenerator
+import com.example.appaeropostv2.interfaces.InterfaceFacturaPdfGenerator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +25,7 @@ class FacturacionViewModelFactory(
     private val repoFacturacion: RepositoryFacturacion,
     private val repoCliente: RepositoryCliente,
     private val repoPaquete: RepositoryPaquete,
-    private val pdfGenerator: FacturaPdfGenerator
+    private val pdfGenerator: InterfaceFacturaPdfGenerator
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -77,7 +77,7 @@ class FacturacionViewModel(
     private val repoFacturacion: RepositoryFacturacion,
     private val repoCliente: RepositoryCliente,
     private val repoPaquete: RepositoryPaquete,
-    private val pdfGenerator: FacturaPdfGenerator
+    private val pdfGenerator: InterfaceFacturaPdfGenerator
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(FacturacionUiState(isLoading = true))

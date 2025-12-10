@@ -38,7 +38,7 @@ fun DetallesFacturaScreen(
         }
     }
 
-    // 🔹 determinar símbolo según la moneda asociada al tracking
+    // determinar símbolo según la moneda asociada al tracking
     val moneda = uiState.monedaPorTracking[factura.numeroTracking]
     val symbol = when (moneda) {
         Monedas.USD -> "$"

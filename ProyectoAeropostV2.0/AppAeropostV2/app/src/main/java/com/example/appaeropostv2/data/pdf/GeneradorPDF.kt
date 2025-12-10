@@ -11,16 +11,16 @@ import android.webkit.WebViewClient
 import androidx.core.content.FileProvider
 import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.model.FacturaConDetalle
-import com.example.appaeropostv2.domain.pdf.FacturaPdfGenerator
+import com.example.appaeropostv2.interfaces.InterfaceFacturaPdfGenerator
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
 import kotlin.coroutines.resume
 
-class AndroidFacturaPdfGenerator(
+class AndroidInterfaceFacturaPdfGenerator(
     private val context: Context
-) : FacturaPdfGenerator {
+) : InterfaceFacturaPdfGenerator {
 
     override suspend fun generarFacturaPDF(detalle: FacturaConDetalle): Uri =
         suspendCancellableCoroutine { continuation ->
