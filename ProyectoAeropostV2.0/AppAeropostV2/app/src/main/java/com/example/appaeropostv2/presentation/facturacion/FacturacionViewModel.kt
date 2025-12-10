@@ -10,7 +10,7 @@ import com.example.appaeropostv2.data.repository.RepositoryPaquete
 import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.logic.FacturaLogic
 import com.example.appaeropostv2.domain.model.*
-import com.example.appaeropostv2.interfaces.InterfaceFacturaPdfGenerator
+import com.example.appaeropostv2.interfaces.InterfacePdfGenerator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +25,7 @@ class FacturacionViewModelFactory(
     private val repoFacturacion: RepositoryFacturacion,
     private val repoCliente: RepositoryCliente,
     private val repoPaquete: RepositoryPaquete,
-    private val pdfGenerator: InterfaceFacturaPdfGenerator
+    private val pdfGenerator: InterfacePdfGenerator
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -67,7 +67,10 @@ data class FacturacionUiState(
     val monedaPorTracking: Map<String, Monedas> = emptyMap(),
 
     val errorMessage: String? = null,
-    val pdfUri: Uri? = null
+    val pdfUri: Uri? = null,
+
+    // flag para mostrar que se está generando un PDF
+    val isGenerandoPdf: Boolean = false
 )
 
 // =======================================================
@@ -77,13 +80,13 @@ class FacturacionViewModel(
     private val repoFacturacion: RepositoryFacturacion,
     private val repoCliente: RepositoryCliente,
     private val repoPaquete: RepositoryPaquete,
-    private val pdfGenerator: InterfaceFacturaPdfGenerator
+    private val pdfGenerator: InterfacePdfGenerator
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(FacturacionUiState(isLoading = true))
     val ui: StateFlow<FacturacionUiState> = _ui.asStateFlow()
 
-    // lista completa (sin filtros), igual que todosLosPaquetes en PaqueteViewModel
+    // lista completa (sin filtros)
     private var todasLasFacturas: List<Facturacion> = emptyList()
 
     init {
@@ -106,7 +109,6 @@ class FacturacionViewModel(
                     todasLasFacturas = lista
                     val mapaMonedas = construirMapaMonedas(lista)
 
-                    // actualizamos solo el mapa y luego aplicamos filtros
                     _ui.value = _ui.value.copy(
                         monedaPorTracking = mapaMonedas
                     )
@@ -139,7 +141,6 @@ class FacturacionViewModel(
 
         var lista = todasLasFacturas
 
-        // Filtro por rango de fechas
         if (desde != null || hasta != null) {
             lista = lista.filter { factura ->
                 val f = LocalDate.parse(factura.fechaFacturacion)
@@ -149,7 +150,6 @@ class FacturacionViewModel(
             }
         }
 
-        // Filtro por texto: cédula o tracking
         if (q.isNotBlank()) {
             lista = lista.filter { factura ->
                 val cedula = factura.cedulaCliente.lowercase()
@@ -286,7 +286,7 @@ class FacturacionViewModel(
     }
 
     // ===================================================
-    // GENERAR FACTURA
+    // GENERAR FACTURA + PDF
     // ===================================================
     fun generarFactura() {
         viewModelScope.launch {
@@ -300,32 +300,42 @@ class FacturacionViewModel(
                 return@launch
             }
 
-            val factura = Facturacion(
-                idFacturacion = 0,
-                numeroTracking = paquete.numeroTracking,
-                cedulaCliente = cliente.cedulaCliente,
-                pesoPaquete = paquete.pesoPaquete,
-                valorBrutoPaquete = paquete.valorBruto.toDouble(),
-                productoEspecial = paquete.condicionEspecial,
-                fechaFacturacion = fecha,
-                montoTotal = monto,
-                direccionEntrega = cliente.direccionEntrega
-            )
+            try {
+                val factura = Facturacion(
+                    idFacturacion = 0,
+                    numeroTracking = paquete.numeroTracking,
+                    cedulaCliente = cliente.cedulaCliente,
+                    pesoPaquete = paquete.pesoPaquete,
+                    valorBrutoPaquete = paquete.valorBruto.toDouble(),
+                    productoEspecial = paquete.condicionEspecial,
+                    fechaFacturacion = fecha,
+                    montoTotal = monto,
+                    direccionEntrega = cliente.direccionEntrega
+                )
 
-            val idInsertado = repoFacturacion.insertar(factura)
+                val idInsertado = repoFacturacion.insertar(factura)
 
-            val detalle = FacturaConDetalle(
-                factura.copy(idFacturacion = idInsertado),
-                cliente,
-                paquete
-            )
+                val detalle = FacturaConDetalle(
+                    factura.copy(idFacturacion = idInsertado),
+                    cliente,
+                    paquete
+                )
 
-            val pdfUri = pdfGenerator.generarFacturaPDF(detalle)
+                _ui.value = _ui.value.copy(isGenerandoPdf = true)
 
-            _ui.value = _ui.value.copy(
-                pdfUri = pdfUri,
-                errorMessage = null
-            )
+                val pdfUri = pdfGenerator.generarFacturaPDF(detalle)
+
+                _ui.value = _ui.value.copy(
+                    pdfUri = pdfUri,
+                    errorMessage = null,
+                    isGenerandoPdf = false
+                )
+            } catch (e: Exception) {
+                _ui.value = _ui.value.copy(
+                    errorMessage = e.message ?: "Error al generar el PDF.",
+                    isGenerandoPdf = false
+                )
+            }
         }
     }
 
@@ -400,14 +410,20 @@ class FacturacionViewModel(
                     paquete = paquete
                 )
 
+                _ui.value = _ui.value.copy(isGenerandoPdf = true)
+
                 val pdfUri = pdfGenerator.generarFacturaPDF(detalle)
 
                 _ui.value = _ui.value.copy(
                     pdfUri = pdfUri,
-                    errorMessage = null
+                    errorMessage = null,
+                    isGenerandoPdf = false
                 )
             } catch (e: Exception) {
-                _ui.value = _ui.value.copy(errorMessage = e.message)
+                _ui.value = _ui.value.copy(
+                    errorMessage = e.message ?: "Error al generar el PDF.",
+                    isGenerandoPdf = false
+                )
             }
         }
     }

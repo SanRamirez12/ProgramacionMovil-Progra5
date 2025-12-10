@@ -22,10 +22,12 @@ fun DetallesFacturaScreen(
     modifier: Modifier = Modifier,
     onGenerarPdfDesdeDetalle: () -> Unit,
     onConsumirPdf: () -> Unit,
+    onConsumirError: () -> Unit,
     onVolver: () -> Unit
 ) {
     val context = LocalContext.current
 
+    // --- Lanzar visor de PDF cuando llega el Uri ---
     val pdfUri: Uri? = uiState.pdfUri
     LaunchedEffect(pdfUri) {
         pdfUri?.let { uri ->
@@ -35,6 +37,16 @@ fun DetallesFacturaScreen(
             }
             context.startActivity(intent)
             onConsumirPdf()
+        }
+    }
+
+    // --- Mostrar errores en Snackbar ---
+    val snackbarHostState = remember { SnackbarHostState() }
+    val error = uiState.errorMessage
+    LaunchedEffect(error) {
+        if (!error.isNullOrBlank()) {
+            snackbarHostState.showSnackbar(error)
+            onConsumirError()
         }
     }
 
@@ -55,7 +67,8 @@ fun DetallesFacturaScreen(
                 title = "Facturación",
                 subtitle = "Detalle de factura"
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
         Column(
             modifier = modifier
@@ -112,9 +125,20 @@ fun DetallesFacturaScreen(
                 Button(
                     onClick = onGenerarPdfDesdeDetalle,
                     modifier = Modifier.weight(1f),
+                    enabled = !uiState.isGenerandoPdf,
                     shape = MaterialTheme.shapes.large
                 ) {
-                    Text("Ver PDF")
+                    if (uiState.isGenerandoPdf) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Generando...")
+                    } else {
+                        Text("Ver PDF")
+                    }
                 }
             }
         }

@@ -53,7 +53,7 @@ import com.example.appaeropostv2.presentation.paquete.EliminarPaqueteScreen
 import com.example.appaeropostv2.presentation.paquete.PaqueteScreen
 import com.example.appaeropostv2.presentation.paquete.PaqueteViewModel
 import com.example.appaeropostv2.presentation.paquete.PaqueteViewModelFactory
-import com.example.appaeropostv2.data.pdf.AndroidInterfaceFacturaPdfGenerator
+import com.example.appaeropostv2.data.pdf.FacturaPdfGenerator
 import com.example.appaeropostv2.presentation.facturacion.FacturacionScreen
 import com.example.appaeropostv2.presentation.facturacion.CrearFacturacionScreen
 import com.example.appaeropostv2.presentation.facturacion.DetallesFacturaScreen
@@ -695,7 +695,7 @@ fun AppNavGraph(
             val repoFact = RepositoryFacturacion(db.facturacionDao())
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
-            val pdfGenerator = remember { AndroidInterfaceFacturaPdfGenerator(context) }
+            val pdfGenerator = remember { FacturaPdfGenerator(context) }
 
             val factViewModel: FacturacionViewModel = viewModel(
                 factory = FacturacionViewModelFactory(
@@ -733,7 +733,7 @@ fun AppNavGraph(
             val repoFact = RepositoryFacturacion(db.facturacionDao())
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
-            val pdfGenerator = remember { AndroidInterfaceFacturaPdfGenerator(context) }
+            val pdfGenerator = remember { FacturaPdfGenerator(context) }
 
             val factViewModel: FacturacionViewModel = viewModel(
                 factory = FacturacionViewModelFactory(
@@ -773,7 +773,7 @@ fun AppNavGraph(
             val repoFact = RepositoryFacturacion(db.facturacionDao())
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
-            val pdfGenerator = remember { AndroidInterfaceFacturaPdfGenerator(context) }
+            val pdfGenerator = remember { FacturaPdfGenerator(context) }
 
             val factViewModel: FacturacionViewModel = viewModel(
                 factory = FacturacionViewModelFactory(
@@ -803,8 +803,10 @@ fun AppNavGraph(
                         factViewModel.generarPdfParaFacturaExistente(factura)
                     },
                     onConsumirPdf = factViewModel::limpiarPdfUri,
+                    onConsumirError = factViewModel::limpiarError,
                     onVolver = { navController.popBackStack() }
                 )
+
             }
         }
 
@@ -818,7 +820,7 @@ fun AppNavGraph(
             val repoFact = RepositoryFacturacion(db.facturacionDao())
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
-            val pdfGenerator = remember { AndroidInterfaceFacturaPdfGenerator(context) }
+            val pdfGenerator = remember { FacturaPdfGenerator(context) }
 
             val factViewModel: FacturacionViewModel = viewModel(
                 factory = FacturacionViewModelFactory(
