@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.example.appaeropostv2.domain.logic.PdfLogic
+
 
 // =======================================================
 // FACTORY
@@ -321,23 +323,24 @@ class FacturacionViewModel(
                     paquete
                 )
 
-                _ui.value = _ui.value.copy(isGenerandoPdf = true)
+                // Lógica de dominio: preparar datos listos para el PDF
+                val pdfData = PdfLogic.buildFacturaPdfData(detalle)
 
-                val pdfUri = pdfGenerator.generarFacturaPDF(detalle)
+                // Data: generar el archivo físico
+                val pdfUri = pdfGenerator.generarFacturaPDF(pdfData)
 
                 _ui.value = _ui.value.copy(
                     pdfUri = pdfUri,
-                    errorMessage = null,
-                    isGenerandoPdf = false
+                    errorMessage = null
                 )
             } catch (e: Exception) {
                 _ui.value = _ui.value.copy(
-                    errorMessage = e.message ?: "Error al generar el PDF.",
-                    isGenerandoPdf = false
+                    errorMessage = e.message ?: "Error al generar la factura."
                 )
             }
         }
     }
+
 
     // ===================================================
     // FILTROS LISTA FACTURAS
@@ -410,21 +413,23 @@ class FacturacionViewModel(
                     paquete = paquete
                 )
 
-                _ui.value = _ui.value.copy(isGenerandoPdf = true)
+                // Domain: preparar datos para PDF
+                val pdfData = PdfLogic.buildFacturaPdfData(detalle)
 
-                val pdfUri = pdfGenerator.generarFacturaPDF(detalle)
+                // Data: generar PDF físico
+                val pdfUri = pdfGenerator.generarFacturaPDF(pdfData)
 
                 _ui.value = _ui.value.copy(
                     pdfUri = pdfUri,
-                    errorMessage = null,
-                    isGenerandoPdf = false
+                    errorMessage = null
                 )
             } catch (e: Exception) {
                 _ui.value = _ui.value.copy(
-                    errorMessage = e.message ?: "Error al generar el PDF.",
-                    isGenerandoPdf = false
+                    errorMessage = e.message ?: "Error al generar el PDF."
                 )
             }
         }
     }
+
+
 }

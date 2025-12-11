@@ -7,36 +7,35 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Environment
 import androidx.core.content.FileProvider
-import com.example.appaeropostv2.domain.logic.FacturaSecurityLogic
-import com.example.appaeropostv2.domain.model.FacturaConDetalle
+import com.example.appaeropostv2.domain.model.FacturaPdfData
 import com.example.appaeropostv2.interfaces.InterfacePdfGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * Implementación Android de InterfacePdfGenerator SIN WebView.
+ * Implementación Android de InterfacePdfGenerator SIN lógica de negocio.
  *
- * - Crea un PdfDocument directamente.
- * - Dibuja texto en el canvas (título, datos, totales, sello).
- * - Guarda el archivo en /Android/data/.../files/Documents/facturas
- * - Devuelve un Uri vía FileProvider.
+ * Aquí solo se:
+ *  - crea el PdfDocument,
+ *  - se dibuja el contenido en el canvas,
+ *  - se guarda en almacenamiento,
+ *  - se devuelve un Uri vía FileProvider.
  */
 class FacturaPdfGenerator(
     private val context: Context
 ) : InterfacePdfGenerator {
 
-    override suspend fun generarFacturaPDF(detalle: FacturaConDetalle): Uri =
+    override suspend fun generarFacturaPDF(datos: FacturaPdfData): Uri =
         withContext(Dispatchers.IO) {
-            // ================================
-            // Preparar datos
-            // ================================
-            val factura = detalle.factura
-            val cliente = detalle.cliente
-            val paquete = detalle.paquete
+            val factura = datos.factura
+            val cliente = datos.cliente
+            val paquete = datos.paquete
 
-            val claveSello = "${factura.numeroTracking}${factura.fechaFacturacion}"
-            val selloDigital = FacturaSecurityLogic.generarSelloDigital(claveSello)
+            val cargoPeso = datos.cargoPeso
+            val cargoImpuesto = datos.cargoImpuesto
+            val cargoEspecial = datos.cargoEspecial
+            val selloDigital = datos.selloDigital
 
             // ================================
             // Crear documento PDF
@@ -151,14 +150,6 @@ class FacturaPdfGenerator(
             canvas.drawText("Detalle de cargos", marginLeft, y, sectionPaint)
             y += lineSpacing
 
-            val cargoPeso = factura.pesoPaquete * 12
-            val cargoImpuesto = factura.valorBrutoPaquete * 0.13
-            val cargoEspecial = if (factura.productoEspecial) {
-                factura.valorBrutoPaquete * 0.10
-            } else {
-                factura.valorBrutoPaquete * 0.05
-            }
-
             canvas.drawText(
                 "Peso x 12         : ${"%.2f".format(cargoPeso)}",
                 marginLeft,
@@ -222,7 +213,8 @@ class FacturaPdfGenerator(
                 directory.mkdirs()
             }
 
-            val fileName = "factura_${factura.idFacturacion}_${System.currentTimeMillis()}.pdf"
+            val fileName =
+                "factura_${factura.idFacturacion}_${System.currentTimeMillis()}.pdf"
             val archivo = File(directory, fileName)
 
             archivo.outputStream().use { output ->
@@ -230,12 +222,10 @@ class FacturaPdfGenerator(
             }
             document.close()
 
-            val uri = FileProvider.getUriForFile(
+            FileProvider.getUriForFile(
                 context,
                 context.packageName + ".provider",
                 archivo
             )
-
-            uri
         }
 }
