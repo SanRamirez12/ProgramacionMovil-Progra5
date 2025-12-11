@@ -4,16 +4,10 @@ import com.example.appaeropostv2.domain.enums.Estados
 import com.example.appaeropostv2.domain.model.Usuario
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Contrato de alto nivel para gestionar usuarios desde la UI/casos de uso.
- * Trabaja SIEMPRE con el modelo de dominio (no con Entities de Room).
- */
 interface InterfaceUsuario {
 
-    // Observación reactiva (para listas en Compose)
     fun observarUsuarios(): Flow<List<Usuario>>
 
-    // CRUD
     suspend fun obtenerPorId(idUsuario: Int): Usuario?
     suspend fun obtenerPorUsername(username: String): Usuario?
     suspend fun obtenerPorCedula(cedula: String): Usuario?
@@ -26,10 +20,12 @@ interface InterfaceUsuario {
         estadoRequerido: Estados = Estados.HABILITADO
     ): Usuario?
 
-    suspend fun insertar(usuario: Usuario): Int
+    // AHORA NECESITA LA CONTRASEÑA PLANA
+    suspend fun insertar(usuario: Usuario, plainPassword: String): Int
+
     suspend fun actualizar(usuario: Usuario)
     suspend fun eliminar(usuario: Usuario)
 
-    suspend fun upsert(usuario: Usuario)
+    suspend fun upsert(usuario: Usuario, plainPassword: String)
     suspend fun contar(): Int
 }

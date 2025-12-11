@@ -29,7 +29,6 @@ interface DaoUsuario : DaoBase<EntityUsuario> {
     @Query("SELECT * FROM usuarios WHERE cedulaUsuario = :cedula LIMIT 1")
     suspend fun obtenerPorCedula(cedula: String): EntityUsuario?
 
-    // Búsqueda básica por nombre o username (LIKE con comodines)
     @Query("""
         SELECT * FROM usuarios 
         WHERE nombreUsuario LIKE :patron OR username LIKE :patron
@@ -37,21 +36,8 @@ interface DaoUsuario : DaoBase<EntityUsuario> {
     """)
     suspend fun buscarPorNombreOUsuario(patron: String): List<EntityUsuario>
 
-    // --- Autenticación simple (estado por defecto HABILITADO) ---
-    @Query("""
-        SELECT * FROM usuarios 
-        WHERE username = :username 
-          AND password = :password 
-          AND estadoUsuario = :estado
-        LIMIT 1
-    """)
-    suspend fun validarLogin(
-        username: String,
-        password: String,
-        estado: Estados = Estados.HABILITADO
-    ): EntityUsuario?
+    // YA NO USAMOS validarLogin POR PASSWORD PLANO
 
-    // --- Utilidades ---
     @Query("SELECT COUNT(*) FROM usuarios")
     suspend fun contar(): Int
 }

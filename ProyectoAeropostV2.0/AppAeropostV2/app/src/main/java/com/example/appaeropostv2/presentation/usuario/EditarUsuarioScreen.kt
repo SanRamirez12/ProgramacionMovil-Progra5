@@ -5,14 +5,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.appaeropostv2.core.designsystem.theme.Dimens
 import com.example.appaeropostv2.domain.enums.Genero
@@ -55,10 +53,6 @@ fun EditarUsuarioScreen(
     }
     // Username se muestra pero NO se puede editar
     val username = usuarioOriginal.username
-
-    // Para cambio opcional de contraseña
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
 
     var errorForm by remember { mutableStateOf<String?>(null) }
 
@@ -256,32 +250,6 @@ fun EditarUsuarioScreen(
                 enabled = false
             )
 
-            // Password nueva (opcional)
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Nueva contraseña (opcional)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
-                ),
-                visualTransformation = PasswordVisualTransformation()
-            )
-
-            // Confirm Password
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                label = { Text("Confirmar nueva contraseña") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
-                ),
-                visualTransformation = PasswordVisualTransformation()
-            )
-
             if (errorForm != null) {
                 Text(
                     text = errorForm ?: "",
@@ -312,25 +280,6 @@ fun EditarUsuarioScreen(
                                 errorForm = "Por favor, complete todos los campos requeridos."
                             }
 
-                            password.isNotBlank() || confirmPassword.isNotBlank() -> {
-                                if (password != confirmPassword) {
-                                    errorForm = "Las contraseñas no coinciden."
-                                    return@Button
-                                } else {
-                                    errorForm = null
-                                    val usuarioActualizado = usuarioOriginal.copy(
-                                        nombreUsuario = nombre,
-                                        cedulaUsuario = cedula,
-                                        generoUsuario = generoSeleccionado!!,
-                                        rolUsuario = rolSeleccionado!!,
-                                        correoUsuario = correo,
-                                        telefonoUsuario = telefono,
-                                        password = password // nueva
-                                    )
-                                    onGuardarCambios(usuarioActualizado)
-                                }
-                            }
-
                             else -> {
                                 errorForm = null
                                 val usuarioActualizado = usuarioOriginal.copy(
@@ -339,8 +288,8 @@ fun EditarUsuarioScreen(
                                     generoUsuario = generoSeleccionado!!,
                                     rolUsuario = rolSeleccionado!!,
                                     correoUsuario = correo,
-                                    telefonoUsuario = telefono,
-                                    // password se mantiene igual
+                                    telefonoUsuario = telefono
+                                    // La contraseña NO se toca aquí.
                                 )
                                 onGuardarCambios(usuarioActualizado)
                             }
@@ -362,5 +311,3 @@ fun EditarUsuarioScreen(
         }
     }
 }
-
-

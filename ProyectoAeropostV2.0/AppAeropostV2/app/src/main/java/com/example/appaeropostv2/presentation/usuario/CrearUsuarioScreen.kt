@@ -27,10 +27,10 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CrearUsuarioScreen(
-    onGuardarUsuario: (Usuario) -> Unit,
+    onGuardarUsuario: (Usuario, String) -> Unit,   // ← ahora también la password
     onVolver: () -> Unit,
     modifier: Modifier = Modifier
-) {
+){
     // --- Estados del formulario ---
     var nombre by remember { mutableStateOf("") }
     var cedula by remember { mutableStateOf("") }
@@ -308,7 +308,7 @@ fun CrearUsuarioScreen(
                             else -> {
                                 errorForm = null
                                 val nuevoUsuario = Usuario(
-                                    idUsuario = 0, // Room lo autogenera
+                                    idUsuario = 0,
                                     nombreUsuario = nombre,
                                     cedulaUsuario = cedula,
                                     generoUsuario = generoSeleccionado!!,
@@ -318,9 +318,13 @@ fun CrearUsuarioScreen(
                                     correoUsuario = correo,
                                     telefonoUsuario = telefono,
                                     username = username,
-                                    password = password
+
+                                    // valores dummy, el repo los rellenará con el hash real
+                                    passwordHash = "",
+                                    passwordSalt = "",
+                                    passwordIterations = 0
                                 )
-                                onGuardarUsuario(nuevoUsuario)
+                                onGuardarUsuario(nuevoUsuario, password)
                             }
                         }
                     },

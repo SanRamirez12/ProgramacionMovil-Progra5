@@ -60,7 +60,7 @@ import com.example.appaeropostv2.presentation.facturacion.DetallesFacturaScreen
 import com.example.appaeropostv2.presentation.facturacion.EliminarFacturaScreen
 import com.example.appaeropostv2.presentation.facturacion.FacturacionViewModel
 import com.example.appaeropostv2.presentation.facturacion.FacturacionViewModelFactory
-
+import com.example.appaeropostv2.data.security.RepositorySecurityHash
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -78,8 +78,10 @@ fun AppNavGraph(
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
 
-            val repoUsuario = RepositoryUsuario(db.usuarioDao())
-            val repoBitacora = RepositoryBitacora(db.bitacoraDao())
+            // Repos con seguridad de contraseñas
+            val securityHash = remember { RepositorySecurityHash() }
+            val repoUsuario = remember { RepositoryUsuario(db.usuarioDao(), securityHash) }
+            val repoBitacora = remember { RepositoryBitacora(db.bitacoraDao()) }
 
             val loginViewModel: LoginViewModel = viewModel(
                 factory = LoginViewModelFactory(repoUsuario, repoBitacora)
@@ -97,19 +99,22 @@ fun AppNavGraph(
                 }
             )
         }
+
         // ---------- Registro de usuario desde Login ----------
         composable("login/registrar") {
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
-            val repo = RepositoryUsuario(db.usuarioDao())
+
+            val securityHash = remember { RepositorySecurityHash() }
+            val repo = remember { RepositoryUsuario(db.usuarioDao(), securityHash) }
 
             val usuarioViewModel: UsuarioViewModel = viewModel(
                 factory = UsuarioViewModelFactory(repo)
             )
 
             RegistrarUsuarioScreen(
-                onGuardarUsuario = { usuario ->
-                    usuarioViewModel.insertar(usuario)
+                onGuardarUsuario = { usuario, plainPassword ->
+                    usuarioViewModel.insertar(usuario, plainPassword)
                     // Guardado en BD y regreso a la pantalla de login
                     navController.popBackStack()
                 },
@@ -138,7 +143,9 @@ fun AppNavGraph(
         composable(Screen.Usuarios.route) {
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
-            val repo = RepositoryUsuario(db.usuarioDao())
+
+            val securityHash = remember { RepositorySecurityHash() }
+            val repo = remember { RepositoryUsuario(db.usuarioDao(), securityHash) }
 
             val usuarioViewModel: UsuarioViewModel = viewModel(
                 factory = UsuarioViewModelFactory(repo)
@@ -165,14 +172,17 @@ fun AppNavGraph(
         composable("usuarios/crear") {
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
-            val repo = RepositoryUsuario(db.usuarioDao())
+
+            val securityHash = remember { RepositorySecurityHash() }
+            val repo = remember { RepositoryUsuario(db.usuarioDao(), securityHash) }
+
             val usuarioViewModel: UsuarioViewModel = viewModel(
                 factory = UsuarioViewModelFactory(repo)
             )
 
             CrearUsuarioScreen(
-                onGuardarUsuario = { usuario ->
-                    usuarioViewModel.insertar(usuario)
+                onGuardarUsuario = { usuario, plainPassword ->
+                    usuarioViewModel.insertar(usuario, plainPassword)
                     navController.popBackStack()
                 },
                 onVolver = { navController.popBackStack() }
@@ -183,7 +193,10 @@ fun AppNavGraph(
         composable("usuarios/editar/{idUsuario}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
-            val repo = RepositoryUsuario(db.usuarioDao())
+
+            val securityHash = remember { RepositorySecurityHash() }
+            val repo = remember { RepositoryUsuario(db.usuarioDao(), securityHash) }
+
             val usuarioViewModel: UsuarioViewModel = viewModel(
                 factory = UsuarioViewModelFactory(repo)
             )
@@ -225,7 +238,10 @@ fun AppNavGraph(
         composable("usuarios/deshabilitar/{idUsuario}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
-            val repo = RepositoryUsuario(db.usuarioDao())
+
+            val securityHash = remember { RepositorySecurityHash() }
+            val repo = remember { RepositoryUsuario(db.usuarioDao(), securityHash) }
+
             val usuarioViewModel: UsuarioViewModel = viewModel(
                 factory = UsuarioViewModelFactory(repo)
             )
@@ -267,7 +283,10 @@ fun AppNavGraph(
         composable("usuarios/detalles/{idUsuario}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
-            val repo = RepositoryUsuario(db.usuarioDao())
+
+            val securityHash = remember { RepositorySecurityHash() }
+            val repo = remember { RepositoryUsuario(db.usuarioDao(), securityHash) }
+
             val usuarioViewModel: UsuarioViewModel = viewModel(
                 factory = UsuarioViewModelFactory(repo)
             )
@@ -722,7 +741,6 @@ fun AppNavGraph(
                 onActualizarFechaHasta = factViewModel::actualizarFechaHasta,
                 onLimpiarFechas = factViewModel::limpiarFechas
             )
-
         }
 
         // Crear factura
@@ -761,7 +779,6 @@ fun AppNavGraph(
                 onConsumirPdf = factViewModel::limpiarPdfUri
             )
         }
-
 
         // Detalles factura
         composable("facturacion/detalles/{idFactura}") { backStackEntry ->
@@ -806,7 +823,6 @@ fun AppNavGraph(
                     onConsumirError = factViewModel::limpiarError,
                     onVolver = { navController.popBackStack() }
                 )
-
             }
         }
 

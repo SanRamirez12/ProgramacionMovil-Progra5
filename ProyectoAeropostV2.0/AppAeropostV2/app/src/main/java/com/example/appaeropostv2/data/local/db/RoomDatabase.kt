@@ -17,14 +17,6 @@ import com.example.appaeropostv2.data.local.entity.EntityFacturacion
 import com.example.appaeropostv2.data.local.entity.EntityPaquete
 import com.example.appaeropostv2.data.local.entity.EntityUsuario
 
-/**
- * AppDatabase es el punto de entrada a la persistencia local con Room.
- * - @Database: lista de entidades (tablas) y versión del esquema.
- * - @TypeConverters: convertidores para tipos no soportados nativamente (LocalDate, enums, etc.)
- *
- * Nota: empezamos SOLO con EntityUsuario y UsuarioDao para que puedas correr ya.
- * Luego agregas tus otras entidades/DAOs (Cliente, Paquete, Facturación, etc.)
- */
 @Database(
     entities = [
         EntityUsuario::class,
@@ -33,42 +25,31 @@ import com.example.appaeropostv2.data.local.entity.EntityUsuario
         EntityFacturacion::class,
         EntityBitacora::class,
     ],
-    version = 2, // Cambia cuando alteres el esquema
-    exportSchema = true // genera JSON de esquema (útil para migraciones)
+    version = 3, // ⬅⬅ Subido de 2 a 3 para aplicar destructive migration
+    exportSchema = true
 )
 
 @TypeConverters(RoomConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    // DAOs expuestos por la DB
     abstract fun usuarioDao(): DaoUsuario
     abstract fun clienteDao(): DaoCliente
     abstract fun paqueteDao(): DaoPaquete
     abstract fun facturacionDao(): DaoFacturacion
     abstract fun bitacoraDao(): DaoBitacora
 
-    // Singleton
-
-
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        /**
-         * Obtiene una instancia Singleton de la base de datos.
-         * - fallbackToDestructiveMigration(): útil en desarrollo; borra y recrea si cambia version.
-         *   En producción, reemplázalo por MIGRATIONS reales.
-         */
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "aeropost_v2.db" // nombre del archivo .db
+                    "aeropost_v2.db"
                 )
-                    // Para DEV: destruye y recrea si cambia la version
-                    .fallbackToDestructiveMigration()
-                    // Si quieres ver/guardar los esquemas: configura room.schemaLocation en Gradle
+                    .fallbackToDestructiveMigration() // borra y recrea si cambia version
                     .build()
                 INSTANCE = instance
                 instance
@@ -76,6 +57,4 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 
-
 }
-

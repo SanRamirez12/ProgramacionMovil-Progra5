@@ -5,7 +5,6 @@ import com.example.appaeropostv2.domain.enums.Genero
 import com.example.appaeropostv2.domain.enums.RolesUsuarios
 import java.time.LocalDate
 
-
 data class Usuario(
     val idUsuario: Int,
     val nombreUsuario: String,
@@ -17,5 +16,9 @@ data class Usuario(
     val correoUsuario: String,
     val telefonoUsuario: String,
     val username: String,
-    val password: String
+
+    // NUEVOS CAMPOS DE SEGURIDAD
+    val passwordHash: String,
+    val passwordSalt: String,
+    val passwordIterations: Int
 )

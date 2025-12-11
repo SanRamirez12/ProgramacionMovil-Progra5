@@ -40,7 +40,6 @@ class UsuarioViewModel(
         observarUsuarios()
     }
 
-    // Observa en tiempo real los usuarios almacenados en Room
     private fun observarUsuarios() {
         viewModelScope.launch {
             repository.observarUsuarios()
@@ -56,7 +55,6 @@ class UsuarioViewModel(
                 .collect { lista ->
                     val q = _uiState.value.searchQuery.lowercase()
 
-                    // Filtrado dinámico
                     val filtrados =
                         if (q.isBlank()) lista
                         else lista.filter {
@@ -74,18 +72,16 @@ class UsuarioViewModel(
         }
     }
 
-    // Actualiza búsqueda
     fun actualizarBusqueda(texto: String) {
         _uiState.value = _uiState.value.copy(searchQuery = texto)
-        observarUsuarios() // recalcula el filtrado dinámico
+        observarUsuarios()
     }
 
-    // CRUD ----------------------
-
-    fun insertar(usuario: Usuario) {
+    // INSERTAR AHORA RECIBE LA CONTRASEÑA PLANA
+    fun insertar(usuario: Usuario, plainPassword: String) {
         viewModelScope.launch {
             try {
-                repository.insertar(usuario)
+                repository.insertar(usuario, plainPassword)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.message)
             }
@@ -112,7 +108,6 @@ class UsuarioViewModel(
         }
     }
 
-    // Cambiar estado (habilitar ↔ deshabilitar)
     fun cambiarEstadoUsuario(id: Int) {
         viewModelScope.launch {
             try {
@@ -134,11 +129,5 @@ class UsuarioViewModel(
         }
     }
 
-
-
-
     suspend fun obtenerPorId(id: Int): Usuario? = repository.obtenerPorId(id)
 }
-
-
-

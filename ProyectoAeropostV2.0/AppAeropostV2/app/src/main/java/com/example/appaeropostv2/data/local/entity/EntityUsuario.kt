@@ -9,18 +9,12 @@ import com.example.appaeropostv2.domain.enums.Genero
 import com.example.appaeropostv2.domain.enums.RolesUsuarios
 import java.time.LocalDate
 
-/**
- * EntityUsuario
- *  - Espejo 1:1 del domain.model.Usuario para simplificar el mapping.
- *  - Indices únicos en username y cédula; correo único opcional (útil para evitar duplicados).
- *  - LocalDate/Enums se convierten vía RoomConverters (ya configurados en tu AppDatabase).
- */
 @Entity(
     tableName = "usuarios",
     indices = [
         Index(value = ["username"], unique = true),
         Index(value = ["cedulaUsuario"], unique = true),
-        Index(value = ["correoUsuario"], unique = true), // si no quieres único, quítalo
+        Index(value = ["correoUsuario"], unique = true),
         Index(value = ["estadoUsuario"]),
         Index(value = ["rolUsuario"])
     ]
@@ -57,6 +51,13 @@ data class EntityUsuario(
     @ColumnInfo(name = "username")
     val username: String,
 
-    @ColumnInfo(name = "password")
-    val password: String
+    // NUEVOS CAMPOS
+    @ColumnInfo(name = "passwordHash")
+    val passwordHash: String,
+
+    @ColumnInfo(name = "passwordSalt")
+    val passwordSalt: String,
+
+    @ColumnInfo(name = "passwordIterations")
+    val passwordIterations: Int
 )

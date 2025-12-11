@@ -3,10 +3,6 @@ package com.example.appaeropostv2.data.mappers
 import com.example.appaeropostv2.data.local.entity.EntityUsuario
 import com.example.appaeropostv2.domain.model.Usuario
 
-/**
- * Conversión explícita para no contaminar el dominio con Room.
- * Si mañana cambian nombres/columnas, solo tocas aquí.
- */
 fun EntityUsuario.toDomain(): Usuario = Usuario(
     idUsuario = idUsuario,
     nombreUsuario = nombreUsuario,
@@ -18,7 +14,9 @@ fun EntityUsuario.toDomain(): Usuario = Usuario(
     correoUsuario = correoUsuario,
     telefonoUsuario = telefonoUsuario,
     username = username,
-    password = password
+    passwordHash = passwordHash,
+    passwordSalt = passwordSalt,
+    passwordIterations = passwordIterations
 )
 
 fun Usuario.toEntity(): EntityUsuario = EntityUsuario(
@@ -32,5 +30,7 @@ fun Usuario.toEntity(): EntityUsuario = EntityUsuario(
     correoUsuario = correoUsuario,
     telefonoUsuario = telefonoUsuario,
     username = username,
-    password = password
+    passwordHash = passwordHash,
+    passwordSalt = passwordSalt,
+    passwordIterations = passwordIterations
 )

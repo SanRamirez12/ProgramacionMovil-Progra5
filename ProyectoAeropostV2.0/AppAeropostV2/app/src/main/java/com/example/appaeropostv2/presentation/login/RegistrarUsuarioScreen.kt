@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrarUsuarioScreen(
-    onGuardarUsuario: (Usuario) -> Unit,
+    onGuardarUsuario: (Usuario, String) -> Unit,  // <- ahora con password
     onVolver: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -315,9 +315,11 @@ fun RegistrarUsuarioScreen(
                                     correoUsuario = correo,
                                     telefonoUsuario = telefono,
                                     username = username,
-                                    password = password
+                                    passwordHash = "",
+                                    passwordSalt = "",
+                                    passwordIterations = 0
                                 )
-                                onGuardarUsuario(nuevoUsuario)
+                                onGuardarUsuario(nuevoUsuario, password)
                             }
                         }
                     },
