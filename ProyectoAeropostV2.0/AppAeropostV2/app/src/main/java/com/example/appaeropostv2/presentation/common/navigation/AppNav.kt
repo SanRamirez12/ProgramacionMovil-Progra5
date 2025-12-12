@@ -11,6 +11,7 @@ sealed class Screen(
     val icon: ImageVector? = null
 ) {
     // ---------- Pre-App (sin BottomBar)
+    data object Loading : Screen("loading", "Loading")
     data object Login : Screen("login", "Login")
 
     // ---------- Tabs de BottomBar

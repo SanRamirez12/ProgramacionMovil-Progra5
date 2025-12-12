@@ -17,7 +17,7 @@ import com.example.appaeropostv2.data.local.db.AppDatabase
 import com.example.appaeropostv2.data.repository.RepositoryUsuario
 import com.example.appaeropostv2.domain.enums.Estados
 import com.example.appaeropostv2.domain.model.Usuario
-import com.example.appaeropostv2.presentation.home.HomeScreen
+import com.example.appaeropostv2.presentation.bottonbar_views.home.HomeScreen
 import com.example.appaeropostv2.presentation.login.LoginScreen
 import com.example.appaeropostv2.presentation.usuario.CrearUsuarioScreen
 import com.example.appaeropostv2.presentation.usuario.DeshabilitarUsuarioScreen
@@ -61,6 +61,10 @@ import com.example.appaeropostv2.presentation.facturacion.EliminarFacturaScreen
 import com.example.appaeropostv2.presentation.facturacion.FacturacionViewModel
 import com.example.appaeropostv2.presentation.facturacion.FacturacionViewModelFactory
 import com.example.appaeropostv2.data.security.RepositorySecurityHash
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import com.example.appaeropostv2.presentation.loadingscreen.LoadingScreen
+
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -70,9 +74,20 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route,
+        startDestination = Screen.Loading.route,
         modifier = modifier
     ) {
+        // ---------- Loading ----------
+        composable(Screen.Loading.route) {
+            LoadingScreen()
+
+            LaunchedEffect(Unit) {
+                delay(1600) // duración del loading (ajustable)
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Loading.route) { inclusive = true }
+                }
+            }
+        }
         // ---------- Login ----------
         composable(Screen.Login.route) {
             val context = LocalContext.current
