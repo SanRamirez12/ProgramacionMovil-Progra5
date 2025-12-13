@@ -69,6 +69,13 @@ import com.example.appaeropostv2.presentation.loadingscreen.LoadingScreen
 import com.example.appaeropostv2.presentation.acercade.AcercaDeScreen
 import com.example.appaeropostv2.presentation.acercade.AcercaDeViewModel
 import com.example.appaeropostv2.presentation.acercade.AcercaDeViewModelFactory
+import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
+import android.util.Log
 
 
 @SuppressLint("ViewModelConstructorInComposable")
@@ -82,23 +89,24 @@ fun AppNavGraph(
         startDestination = Screen.Loading.route,
         modifier = modifier
     ) {
+
         // ---------- Loading ----------
         composable(Screen.Loading.route) {
             LoadingScreen()
 
             LaunchedEffect(Unit) {
-                delay(1600) // duración del loading (ajustable)
+                delay(1600)
                 navController.navigate(Screen.Login.route) {
                     popUpTo(Screen.Loading.route) { inclusive = true }
                 }
             }
         }
+
         // ---------- Login ----------
         composable(Screen.Login.route) {
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
 
-            // Repos con seguridad de contraseñas
             val securityHash = remember { RepositorySecurityHash() }
             val repoUsuario = remember { RepositoryUsuario(db.usuarioDao(), securityHash) }
             val repoBitacora = remember { RepositoryBitacora(db.bitacoraDao()) }
@@ -135,7 +143,6 @@ fun AppNavGraph(
             RegistrarUsuarioScreen(
                 onGuardarUsuario = { usuario, plainPassword ->
                     usuarioViewModel.insertar(usuario, plainPassword)
-                    // Guardado en BD y regreso a la pantalla de login
                     navController.popBackStack()
                 },
                 onVolver = { navController.popBackStack() }
@@ -151,7 +158,6 @@ fun AppNavGraph(
 
             AcercaDeScreen(viewModel = acercaDeViewModel)
         }
-
 
         // ---------- Home ----------
         composable(Screen.Home.route) {
@@ -296,8 +302,6 @@ fun AppNavGraph(
                         CircularProgressIndicator()
                     }
                 } else {
-                    val esHabilitado = usuario!!.estadoUsuario == Estados.HABILITADO
-
                     DeshabilitarUsuarioScreen(
                         usuario = usuario!!,
                         onConfirmar = {
@@ -363,9 +367,7 @@ fun AppNavGraph(
 
             val uiState by bitacoraViewModel.uiState.collectAsState()
 
-            BitacoraScreen(
-                uiState = uiState
-            )
+            BitacoraScreen(uiState = uiState)
         }
 
         // ---------- Clientes: listado ----------
@@ -534,7 +536,6 @@ fun AppNavGraph(
         }
 
         // ───────────────────────── Paquetes ─────────────────────────
-        // Paquetes: listado
         composable(Screen.Paquetes.route) {
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -563,22 +564,13 @@ fun AppNavGraph(
                 onEliminarPaquete = { paquete ->
                     navController.navigate("paquetes/eliminar/${paquete.idPaquete}")
                 },
-                onActualizarBusqueda = { texto ->
-                    paqueteViewModel.actualizarBusqueda(texto)
-                },
-                onActualizarFechaDesde = { fecha ->
-                    paqueteViewModel.actualizarFechaDesde(fecha)
-                },
-                onActualizarFechaHasta = { fecha ->
-                    paqueteViewModel.actualizarFechaHasta(fecha)
-                },
-                onLimpiarFechas = {
-                    paqueteViewModel.limpiarFechas()
-                }
+                onActualizarBusqueda = paqueteViewModel::actualizarBusqueda,
+                onActualizarFechaDesde = paqueteViewModel::actualizarFechaDesde,
+                onActualizarFechaHasta = paqueteViewModel::actualizarFechaHasta,
+                onLimpiarFechas = paqueteViewModel::limpiarFechas
             )
         }
 
-        // Paquetes: crear
         composable("paquetes/crear") {
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -606,7 +598,6 @@ fun AppNavGraph(
             )
         }
 
-        // Paquetes: editar
         composable("paquetes/editar/{idPaquete}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -656,7 +647,6 @@ fun AppNavGraph(
             }
         }
 
-        // Paquetes: detalles
         composable("paquetes/detalles/{idPaquete}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -694,7 +684,6 @@ fun AppNavGraph(
             }
         }
 
-        // Paquetes: eliminar
         composable("paquetes/eliminar/{idPaquete}") { backStackEntry ->
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -738,7 +727,7 @@ fun AppNavGraph(
 
         // ───────────────────────── Facturación ─────────────────────────
 
-        // Listado de facturas
+        // ✅ Listado de facturas (AQUÍ se crea el VM UNA sola vez)
         composable(Screen.Facturacion.route) {
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -747,9 +736,15 @@ fun AppNavGraph(
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
             val pdfGenerator = remember { FacturaPdfGenerator(context) }
+
+            val baseUrl = "http://10.0.2.2:8080/"
+
+            android.util.Log.d("EMAIL", "BaseUrl usada para EmailService: $baseUrl")
+
             val emailApi = remember {
-                EmailServiceFactory.create("http://10.0.2.2:8080/") // emulador -> tu backend local
+                EmailServiceFactory.create(baseUrl)
             }
+
             val repoEmail = remember {
                 RepositoryEmail(
                     api = emailApi,
@@ -781,40 +776,24 @@ fun AppNavGraph(
                 onActualizarBusqueda = factViewModel::actualizarBusqueda,
                 onActualizarFechaDesde = factViewModel::actualizarFechaDesde,
                 onActualizarFechaHasta = factViewModel::actualizarFechaHasta,
-                onLimpiarFechas = factViewModel::limpiarFechas
+                onLimpiarFechas = factViewModel::limpiarFechas,
+                onConsumirCorreoEnviado = factViewModel::consumirCorreoEnviado,
+                onConsumirErrorCorreo = factViewModel::consumirErrorCorreo,
+                onConsumirErrorGeneral = factViewModel::limpiarError
             )
         }
 
-        // Crear factura
-        composable("facturacion/crear") {
-            val context = LocalContext.current
-            val db = AppDatabase.getInstance(context)
-
-            val repoFact = RepositoryFacturacion(db.facturacionDao())
-            val repoCliente = RepositoryCliente(db.clienteDao())
-            val repoPaquete = RepositoryPaquete(db.paqueteDao())
-            val pdfGenerator = remember { FacturaPdfGenerator(context) }
-            val emailApi = remember {
-                EmailServiceFactory.create("http://10.0.2.2:8080/") // emulador -> tu backend local
+        composable("facturacion/crear") { entry ->
+            val parentEntry = remember(entry) {
+                navController.getBackStackEntry(Screen.Facturacion.route)
             }
-            val repoEmail = remember {
-                RepositoryEmail(
-                    api = emailApi,
-                    contentResolver = context.contentResolver
-                )
-            }
-
-            val factViewModel: FacturacionViewModel = viewModel(
-                factory = FacturacionViewModelFactory(
-                    repoFacturacion = repoFact,
-                    repoCliente = repoCliente,
-                    repoPaquete = repoPaquete,
-                    pdfGenerator = pdfGenerator,
-                    repoEmail = repoEmail
-                )
-            )
-
+            val factViewModel: FacturacionViewModel = viewModel(parentEntry)
             val uiState by factViewModel.ui.collectAsState()
+
+            // ✅ limpiar SIEMPRE al entrar a crear
+            LaunchedEffect(Unit) {
+                factViewModel.resetCrearFacturaForm()
+            }
 
             CrearFacturacionScreen(
                 uiState = uiState,
@@ -822,46 +801,21 @@ fun AppNavGraph(
                 onActualizarCedula = factViewModel::actualizarCedula,
                 onSeleccionarPaquete = factViewModel::seleccionarPaquete,
                 onCargarCliente = factViewModel::cargarCliente,
-                onGenerarFactura = {
-                    factViewModel.generarFactura()
-                },
+                onGenerarFactura = { factViewModel.generarFactura() },
                 onVolver = { navController.popBackStack() },
                 onConsumirError = factViewModel::limpiarError,
                 onConsumirPdf = factViewModel::limpiarPdfUri
             )
         }
 
-        // Detalles factura
-        composable("facturacion/detalles/{idFactura}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("idFactura")?.toIntOrNull()
 
-            val context = LocalContext.current
-            val db = AppDatabase.getInstance(context)
+        composable("facturacion/detalles/{idFactura}") { entry ->
+            val id = entry.arguments?.getString("idFactura")?.toIntOrNull()
 
-            val repoFact = RepositoryFacturacion(db.facturacionDao())
-            val repoCliente = RepositoryCliente(db.clienteDao())
-            val repoPaquete = RepositoryPaquete(db.paqueteDao())
-            val pdfGenerator = remember { FacturaPdfGenerator(context) }
-            val emailApi = remember {
-                EmailServiceFactory.create("http://10.0.2.2:8080/") // emulador -> tu backend local
+            val parentEntry = remember(entry) {
+                navController.getBackStackEntry(Screen.Facturacion.route)
             }
-            val repoEmail = remember {
-                RepositoryEmail(
-                    api = emailApi,
-                    contentResolver = context.contentResolver
-                )
-            }
-
-            val factViewModel: FacturacionViewModel = viewModel(
-                factory = FacturacionViewModelFactory(
-                    repoFacturacion = repoFact,
-                    repoCliente = repoCliente,
-                    repoPaquete = repoPaquete,
-                    pdfGenerator = pdfGenerator,
-                    repoEmail = repoEmail
-                )
-            )
-
+            val factViewModel: FacturacionViewModel = viewModel(parentEntry)
             val uiState by factViewModel.ui.collectAsState()
 
             val factura = uiState.facturas.firstOrNull { it.idFacturacion == id }
@@ -870,16 +824,12 @@ fun AppNavGraph(
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
-                ) {
-                    Text("Factura no encontrada")
-                }
+                ) { Text("Factura no encontrada") }
             } else {
                 DetallesFacturaScreen(
                     factura = factura,
                     uiState = uiState,
-                    onGenerarPdfDesdeDetalle = {
-                        factViewModel.generarPdfParaFacturaExistente(factura)
-                    },
+                    onGenerarPdfDesdeDetalle = { factViewModel.generarPdfParaFacturaExistente(factura) },
                     onConsumirPdf = factViewModel::limpiarPdfUri,
                     onConsumirError = factViewModel::limpiarError,
                     onVolver = { navController.popBackStack() }
@@ -887,37 +837,13 @@ fun AppNavGraph(
             }
         }
 
-        // Eliminar factura
-        composable("facturacion/eliminar/{idFactura}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("idFactura")?.toIntOrNull()
+        composable("facturacion/eliminar/{idFactura}") { entry ->
+            val id = entry.arguments?.getString("idFactura")?.toIntOrNull()
 
-            val context = LocalContext.current
-            val db = AppDatabase.getInstance(context)
-
-            val repoFact = RepositoryFacturacion(db.facturacionDao())
-            val repoCliente = RepositoryCliente(db.clienteDao())
-            val repoPaquete = RepositoryPaquete(db.paqueteDao())
-            val pdfGenerator = remember { FacturaPdfGenerator(context) }
-            val emailApi = remember {
-                EmailServiceFactory.create("http://10.0.2.2:8080/") // emulador -> tu backend local
+            val parentEntry = remember(entry) {
+                navController.getBackStackEntry(Screen.Facturacion.route)
             }
-            val repoEmail = remember {
-                RepositoryEmail(
-                    api = emailApi,
-                    contentResolver = context.contentResolver
-                )
-            }
-
-            val factViewModel: FacturacionViewModel = viewModel(
-                factory = FacturacionViewModelFactory(
-                    repoFacturacion = repoFact,
-                    repoCliente = repoCliente,
-                    repoPaquete = repoPaquete,
-                    pdfGenerator = pdfGenerator,
-                    repoEmail = repoEmail
-                )
-            )
-
+            val factViewModel: FacturacionViewModel = viewModel(parentEntry)
             val uiState by factViewModel.ui.collectAsState()
 
             val factura = uiState.facturas.firstOrNull { it.idFacturacion == id }
@@ -926,9 +852,7 @@ fun AppNavGraph(
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
-                ) {
-                    Text("Factura no encontrada")
-                }
+                ) { Text("Factura no encontrada") }
             } else {
                 EliminarFacturaScreen(
                     factura = factura,
@@ -941,8 +865,9 @@ fun AppNavGraph(
             }
         }
 
-        // ---------- Rutas placeholder de otros módulos ----------
-        composable(Screen.Reportes.route)    { /* TODO: Reportes */ }
-        composable(Screen.Tracking.route)    { /* TODO: Tracking */ }
+
+        // ---------- Rutas placeholder ----------
+        composable(Screen.Reportes.route) { /* TODO */ }
+        composable(Screen.Tracking.route) { /* TODO */ }
     }
 }

@@ -24,8 +24,10 @@ data class SendEmailRequest(
 data class SendEmailResponse(
     val ok: Boolean,
     val messageId: String? = null,
-    val error: String? = null
+    val error: String? = null,
+    val details: String? = null
 )
+
 
 interface EmailApiService {
     @POST("api/email/send")

@@ -70,7 +70,7 @@ class RepositoryEmail(
             if (resp.ok) emit(Resource.Success(true))
             else emit(Resource.Error(resp.error ?: "El backend respondió ok=false"))
         } catch (e: Exception) {
-            emit(Resource.Error("No se pudo enviar el correo con adjunto.", e))
+            emit(Resource.Error("No se pudo enviar el correo con adjunto: ${e.message}", e))
         }
     }
 }

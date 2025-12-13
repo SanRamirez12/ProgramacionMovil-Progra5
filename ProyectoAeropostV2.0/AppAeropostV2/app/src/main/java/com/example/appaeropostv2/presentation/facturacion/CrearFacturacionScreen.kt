@@ -1,7 +1,5 @@
 package com.example.appaeropostv2.presentation.facturacion
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,7 +14,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.appaeropostv2.core.designsystem.theme.Dimens
@@ -43,9 +40,7 @@ fun CrearFacturacionScreen(
     onConsumirError: () -> Unit,
     onConsumirPdf: () -> Unit
 ) {
-    val context = LocalContext.current
     val formatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
-
     var mostrarDatePicker by remember { mutableStateOf(false) }
 
     val fechaIso = uiState.fechaFacturacion
@@ -53,30 +48,32 @@ fun CrearFacturacionScreen(
         if (fechaIso.isBlank()) "" else LocalDate.parse(fechaIso).format(formatter)
     }
 
-    val pdfUri: Uri? = uiState.pdfUri
-    LaunchedEffect(pdfUri) {
-        pdfUri?.let { uri ->
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, "application/pdf")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            context.startActivity(intent)
+    val snackbarHostState = remember { SnackbarHostState() }
 
-            // Consumimos el evento para no abrir el PDF dos veces
+    // ✅ Si se generó PDF, lo consumimos (NO lo abrimos)
+    LaunchedEffect(uiState.pdfUri) {
+        if (uiState.pdfUri != null) {
             onConsumirPdf()
-
-            // ✅ Regresamos a la lista (sin matar el flujo antes de tiempo)
-            onVolver()
         }
     }
 
-
+    // ✅ Error general (validaciones / flujo)
     val error = uiState.errorMessage
-    val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(error) {
         if (!error.isNullOrBlank()) {
             snackbarHostState.showSnackbar(error)
             onConsumirError()
+        }
+    }
+
+    // ✅ Cuando termine el correo (éxito o error), regresamos al listado,
+    // para ver el snackbar ahí (FacturacionScreen).
+    LaunchedEffect(uiState.correoEnviado, uiState.errorCorreo, uiState.isEnviandoCorreo, uiState.isGenerandoPdf) {
+        val terminoGeneracion = !uiState.isGenerandoPdf
+        val terminoEnvio = !uiState.isEnviandoCorreo && (uiState.correoEnviado || uiState.errorCorreo != null)
+
+        if (terminoGeneracion && terminoEnvio) {
+            onVolver()
         }
     }
 
@@ -179,8 +176,7 @@ fun CrearFacturacionScreen(
                         onExpandedChange = { expanded = !expanded }
                     ) {
                         OutlinedTextField(
-                            value = uiState.paqueteCargado?.numeroTracking
-                                ?: "Seleccionar paquete",
+                            value = uiState.paqueteCargado?.numeroTracking ?: "Seleccionar paquete",
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier
@@ -204,11 +200,7 @@ fun CrearFacturacionScreen(
                                 }
 
                                 DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            "${paquete.numeroTracking}  ·  $symbol${paquete.valorBruto}"
-                                        )
-                                    },
+                                    text = { Text("${paquete.numeroTracking}  ·  $symbol${paquete.valorBruto}") },
                                     onClick = {
                                         expanded = false
                                         onSeleccionarPaquete(paquete)
@@ -266,32 +258,18 @@ fun CrearFacturacionScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-
-            if (uiState.isEnviandoCorreo) {
+            // ✅ Loader visible mientras se crea PDF o se envía correo
+            if (uiState.isGenerandoPdf || uiState.isEnviandoCorreo) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                    Text("Enviando factura por correo...")
-                }
-            }
-
-            LaunchedEffect(uiState.correoEnviado) {
-                if (uiState.correoEnviado) {
-                    snackbarHostState.showSnackbar(
-                        message = "Factura enviada por correo correctamente"
-                    )
-                    // consumimos el evento
-                    // (evita que se repita al recomponer)
-                    onConsumirError() // si usás el mismo patrón
-                }
-            }
-
-            uiState.errorCorreo?.let { msg ->
-                LaunchedEffect(msg) {
-                    snackbarHostState.showSnackbar(
-                        message = "Error enviando correo: $msg"
+                    Text(
+                        text = when {
+                            uiState.isGenerandoPdf -> "Generando PDF..."
+                            else -> "Enviando factura por correo..."
+                        }
                     )
                 }
             }
@@ -304,7 +282,8 @@ fun CrearFacturacionScreen(
                 OutlinedButton(
                     onClick = onVolver,
                     modifier = Modifier.weight(1f),
-                    shape = MaterialTheme.shapes.large
+                    shape = MaterialTheme.shapes.large,
+                    enabled = !uiState.isGenerandoPdf && !uiState.isEnviandoCorreo
                 ) {
                     Text("Cancelar")
                 }
@@ -312,7 +291,8 @@ fun CrearFacturacionScreen(
                 Button(
                     onClick = onGenerarFactura,
                     modifier = Modifier.weight(1f),
-                    shape = MaterialTheme.shapes.large
+                    shape = MaterialTheme.shapes.large,
+                    enabled = !uiState.isGenerandoPdf && !uiState.isEnviandoCorreo
                 ) {
                     Text("Generar factura")
                 }
@@ -331,14 +311,10 @@ fun CrearFacturacionScreen(
                             onActualizarFechaFacturacion(fechaSeleccionada.toString())
                         }
                         mostrarDatePicker = false
-                    }) {
-                        Text("Aceptar")
-                    }
+                    }) { Text("Aceptar") }
                 },
                 dismissButton = {
-                    Button(onClick = { mostrarDatePicker = false }) {
-                        Text("Cancelar")
-                    }
+                    Button(onClick = { mostrarDatePicker = false }) { Text("Cancelar") }
                 }
             ) {
                 DatePicker(state = state)

@@ -8,8 +8,10 @@ import com.example.appaeropostv2.data.repository.RepositoryCliente
 import com.example.appaeropostv2.data.repository.RepositoryEmail
 import com.example.appaeropostv2.data.repository.RepositoryFacturacion
 import com.example.appaeropostv2.data.repository.RepositoryPaquete
+import com.example.appaeropostv2.domain.common.Resource
 import com.example.appaeropostv2.domain.enums.Monedas
 import com.example.appaeropostv2.domain.logic.FacturaLogic
+import com.example.appaeropostv2.domain.logic.PdfLogic
 import com.example.appaeropostv2.domain.model.*
 import com.example.appaeropostv2.interfaces.InterfacePdfGenerator
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import com.example.appaeropostv2.domain.logic.PdfLogic
-import com.example.appaeropostv2.domain.common.Resource
-
-
 
 // =======================================================
 // FACTORY
@@ -70,20 +68,17 @@ data class FacturacionUiState(
 
     val montoTotalCalculado: Double? = null,
 
-    // mapa para saber la moneda de cada factura por tracking
     val monedaPorTracking: Map<String, Monedas> = emptyMap(),
 
     val errorMessage: String? = null,
     val pdfUri: Uri? = null,
 
-    // flag para mostrar que se está generando un PDF
     val isGenerandoPdf: Boolean = false,
 
     val isEnviandoCorreo: Boolean = false,
     val correoEnviado: Boolean = false,
     val errorCorreo: String? = null
-
-    )
+)
 
 // =======================================================
 // VIEWMODEL
@@ -99,7 +94,6 @@ class FacturacionViewModel(
     private val _ui = MutableStateFlow(FacturacionUiState(isLoading = true))
     val ui: StateFlow<FacturacionUiState> = _ui.asStateFlow()
 
-    // lista completa (sin filtros)
     private var todasLasFacturas: List<Facturacion> = emptyList()
 
     init {
@@ -122,16 +116,13 @@ class FacturacionViewModel(
                     todasLasFacturas = lista
                     val mapaMonedas = construirMapaMonedas(lista)
 
-                    _ui.value = _ui.value.copy(
-                        monedaPorTracking = mapaMonedas
-                    )
+                    _ui.value = _ui.value.copy(monedaPorTracking = mapaMonedas)
 
                     aplicarFiltros()
                 }
         }
     }
 
-    // Construye mapa tracking → moneda usando el paquete asociado
     private suspend fun construirMapaMonedas(lista: List<Facturacion>): Map<String, Monedas> {
         val mapa = mutableMapOf<String, Monedas>()
         for (factura in lista) {
@@ -144,7 +135,7 @@ class FacturacionViewModel(
     }
 
     // ===================================================
-    // APLICAR FILTROS (búsqueda + fechas)
+    // APLICAR FILTROS
     // ===================================================
     private fun aplicarFiltros() {
         val estadoActual = _ui.value
@@ -173,13 +164,12 @@ class FacturacionViewModel(
 
         _ui.value = estadoActual.copy(
             facturas = lista,
-            isLoading = false,
-            errorMessage = null
+            isLoading = false
         )
     }
 
     // ===================================================
-    // INPUTS DEL FORMULARIO
+    // INPUTS
     // ===================================================
     fun actualizarFechaFacturacion(fecha: String) {
         _ui.value = _ui.value.copy(fechaFacturacion = fecha)
@@ -194,7 +184,7 @@ class FacturacionViewModel(
     }
 
     // ===================================================
-    // CARGAR CLIENTE + PAQUETES DISPONIBLES
+    // CARGAR CLIENTE + PAQUETES
     // ===================================================
     fun cargarCliente() {
         viewModelScope.launch {
@@ -234,7 +224,7 @@ class FacturacionViewModel(
     }
 
     // ===================================================
-    // CARGAR PAQUETE (modo antiguo por tracking)
+    // CARGAR PAQUETE POR TRACKING (modo antiguo)
     // ===================================================
     fun cargarPaquete() {
         viewModelScope.launch {
@@ -285,7 +275,7 @@ class FacturacionViewModel(
     }
 
     // ===================================================
-    // CÁLCULO AUTOMÁTICO DE MONTO
+    // CÁLCULO MONTO
     // ===================================================
     private fun calcularMonto() {
         val paq = _ui.value.paqueteCargado ?: return
@@ -299,7 +289,7 @@ class FacturacionViewModel(
     }
 
     // ===================================================
-    // GENERAR FACTURA + PDF
+    // GENERAR FACTURA + PDF + EMAIL
     // ===================================================
     fun generarFactura() {
         viewModelScope.launch {
@@ -313,8 +303,13 @@ class FacturacionViewModel(
                 return@launch
             }
 
-            // Marcamos loading de PDF (opcional, útil para UX)
-            _ui.value = _ui.value.copy(isGenerandoPdf = true, errorMessage = null)
+            _ui.value = _ui.value.copy(
+                isGenerandoPdf = true,
+                errorMessage = null,
+                errorCorreo = null,
+                correoEnviado = false,
+                isEnviandoCorreo = false
+            )
 
             try {
                 val factura = Facturacion(
@@ -337,35 +332,19 @@ class FacturacionViewModel(
                     paquete
                 )
 
-                // Domain: preparar datos listos para PDF
                 val pdfData = PdfLogic.buildFacturaPdfData(detalle)
-
-                // Data: generar el archivo físico
                 val pdfUri = pdfGenerator.generarFacturaPDF(pdfData)
 
-                // Guardamos URI para UI
                 _ui.value = _ui.value.copy(
                     pdfUri = pdfUri,
                     isGenerandoPdf = false
                 )
 
-                // Envío automático por correo (adjuntando PDF)
                 val emailDestino = cliente.correoCliente.trim()
-
                 if (emailDestino.isBlank()) {
-                    _ui.value = _ui.value.copy(
-                        isGenerandoPdf = false,
-                        errorMessage = "El cliente no tiene correo registrado."
-                    )
+                    _ui.value = _ui.value.copy(errorMessage = "El cliente no tiene correo registrado.")
                     return@launch
                 }
-
-                // Reset estado correo
-                _ui.value = _ui.value.copy(
-                    isEnviandoCorreo = false,
-                    correoEnviado = false,
-                    errorCorreo = null
-                )
 
                 val subject = "Factura Aeropost #$idInsertado"
                 val bodyText = "Adjuntamos su factura. Tracking: ${paquete.numeroTracking}"
@@ -399,21 +378,18 @@ class FacturacionViewModel(
                     }
                 }
 
-
-
             } catch (e: Exception) {
                 _ui.value = _ui.value.copy(
                     isGenerandoPdf = false,
+                    isEnviandoCorreo = false,
                     errorMessage = e.message ?: "Error al generar la factura."
                 )
             }
         }
     }
 
-
-
     // ===================================================
-    // FILTROS LISTA FACTURAS
+    // FILTROS LISTA
     // ===================================================
     fun actualizarBusqueda(q: String) {
         _ui.value = _ui.value.copy(searchQuery = q)
@@ -446,6 +422,14 @@ class FacturacionViewModel(
         _ui.value = _ui.value.copy(errorMessage = null)
     }
 
+    fun consumirCorreoEnviado() {
+        _ui.value = _ui.value.copy(correoEnviado = false)
+    }
+
+    fun consumirErrorCorreo() {
+        _ui.value = _ui.value.copy(errorCorreo = null)
+    }
+
     // ===================================================
     // ELIMINAR FACTURA
     // ===================================================
@@ -457,6 +441,32 @@ class FacturacionViewModel(
                 _ui.value = _ui.value.copy(errorMessage = e.message)
             }
         }
+    }
+
+    // ===================================================
+    // RESET FORM (crear factura)
+    // ===================================================
+    fun resetCrearFacturaForm() {
+        _ui.value = _ui.value.copy(
+            // inputs
+            fechaFacturacion = "",
+            cedulaInput = "",
+            trackingInput = "",
+
+            // selección / data del form
+            clienteCargado = null,
+            paquetesDisponibles = emptyList(),
+            paqueteCargado = null,
+            montoTotalCalculado = null,
+
+            // eventos/flags
+            pdfUri = null,
+            isGenerandoPdf = false,
+            isEnviandoCorreo = false,
+            correoEnviado = false,
+            errorCorreo = null,
+            errorMessage = null
+        )
     }
 
     // ===================================================
@@ -483,10 +493,7 @@ class FacturacionViewModel(
                     paquete = paquete
                 )
 
-                // Domain: preparar datos para PDF
                 val pdfData = PdfLogic.buildFacturaPdfData(detalle)
-
-                // Data: generar PDF físico
                 val pdfUri = pdfGenerator.generarFacturaPDF(pdfData)
 
                 _ui.value = _ui.value.copy(
@@ -500,16 +507,4 @@ class FacturacionViewModel(
             }
         }
     }
-
-
-    fun consumirCorreoEnviado() {
-        _ui.value = _ui.value.copy(correoEnviado = false)
-    }
-
-    fun consumirErrorCorreo() {
-        _ui.value = _ui.value.copy(errorCorreo = null)
-    }
-
-
-
 }

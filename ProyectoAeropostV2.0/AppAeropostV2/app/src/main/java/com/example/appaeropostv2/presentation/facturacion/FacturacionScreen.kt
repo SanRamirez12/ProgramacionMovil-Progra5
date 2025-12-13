@@ -7,10 +7,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +35,10 @@ fun FacturacionScreen(
     onActualizarBusqueda: (String) -> Unit,
     onActualizarFechaDesde: (LocalDate?) -> Unit,
     onActualizarFechaHasta: (LocalDate?) -> Unit,
-    onLimpiarFechas: () -> Unit
+    onLimpiarFechas: () -> Unit,
+    onConsumirCorreoEnviado: () -> Unit,
+    onConsumirErrorCorreo: () -> Unit,
+    onConsumirErrorGeneral: () -> Unit
 ) {
     val formatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
 
@@ -49,6 +48,30 @@ fun FacturacionScreen(
     val fechaDesde = uiState.fechaDesde
     val fechaHasta = uiState.fechaHasta
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // ✅ Snackbars centrales (aquí SIEMPRE se ven)
+    LaunchedEffect(uiState.correoEnviado) {
+        if (uiState.correoEnviado) {
+            snackbarHostState.showSnackbar("Factura enviada por correo correctamente")
+            onConsumirCorreoEnviado()
+        }
+    }
+
+    LaunchedEffect(uiState.errorCorreo) {
+        uiState.errorCorreo?.let { msg ->
+            snackbarHostState.showSnackbar("Error enviando correo: $msg")
+            onConsumirErrorCorreo()
+        }
+    }
+
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { msg ->
+            snackbarHostState.showSnackbar(msg)
+            onConsumirErrorGeneral()
+        }
+    }
+
     AppScaffold(
         topBar = {},
         bottomBar = {},
@@ -57,7 +80,8 @@ fun FacturacionScreen(
                 title = "Facturación",
                 subtitle = "Gestión de facturas"
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
 
         Column(
@@ -74,7 +98,7 @@ fun FacturacionScreen(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // --- Barra de búsqueda (cédula o tracking) ---
+            // --- Barra de búsqueda ---
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = onActualizarBusqueda,
@@ -88,12 +112,10 @@ fun FacturacionScreen(
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = { /* opcional ocultar teclado */ }
-                )
+                keyboardActions = KeyboardActions(onSearch = { })
             )
 
-            // --- Filtro por rango de fechas (igual estilo que Paquetes) ---
+            // --- Filtro por rango de fechas ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -104,9 +126,7 @@ fun FacturacionScreen(
                     modifier = Modifier.weight(1f),
                     shape = MaterialTheme.shapes.large
                 ) {
-                    Text(
-                        text = fechaDesde?.format(formatter) ?: "Fecha inicial"
-                    )
+                    Text(text = fechaDesde?.format(formatter) ?: "Fecha inicial")
                 }
 
                 Button(
@@ -114,9 +134,7 @@ fun FacturacionScreen(
                     modifier = Modifier.weight(1f),
                     shape = MaterialTheme.shapes.large
                 ) {
-                    Text(
-                        text = fechaHasta?.format(formatter) ?: "Fecha final"
-                    )
+                    Text(text = fechaHasta?.format(formatter) ?: "Fecha final")
                 }
             }
 
@@ -201,7 +219,7 @@ fun FacturacionScreen(
                             symbol + String.format("%.2f", factura.montoTotal)
                         }
                     ),
-                    onEditClick = null, // sin botón de editar en facturación
+                    onEditClick = null,
                     onDetailsClick = onVerDetalleFactura,
                     onDisableClick = onEliminarFactura,
                     modifier = Modifier.fillMaxWidth()
@@ -220,14 +238,10 @@ fun FacturacionScreen(
                         val fechaSeleccionada = millis?.let { toLocalDate(it) }
                         onActualizarFechaDesde(fechaSeleccionada)
                         mostrarPickerDesde = false
-                    }) {
-                        Text("Aceptar")
-                    }
+                    }) { Text("Aceptar") }
                 },
                 dismissButton = {
-                    Button(onClick = { mostrarPickerDesde = false }) {
-                        Text("Cancelar")
-                    }
+                    Button(onClick = { mostrarPickerDesde = false }) { Text("Cancelar") }
                 }
             ) {
                 DatePicker(state = state)
@@ -245,14 +259,10 @@ fun FacturacionScreen(
                         val fechaSeleccionada = millis?.let { toLocalDate(it) }
                         onActualizarFechaHasta(fechaSeleccionada)
                         mostrarPickerHasta = false
-                    }) {
-                        Text("Aceptar")
-                    }
+                    }) { Text("Aceptar") }
                 },
                 dismissButton = {
-                    Button(onClick = { mostrarPickerHasta = false }) {
-                        Text("Cancelar")
-                    }
+                    Button(onClick = { mostrarPickerHasta = false }) { Text("Cancelar") }
                 }
             ) {
                 DatePicker(state = state)
