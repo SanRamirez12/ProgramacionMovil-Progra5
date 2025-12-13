@@ -64,6 +64,9 @@ import com.example.appaeropostv2.data.security.RepositorySecurityHash
 import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.delay
 import com.example.appaeropostv2.presentation.loadingscreen.LoadingScreen
+import com.example.appaeropostv2.presentation.acercade.AcercaDeScreen
+import com.example.appaeropostv2.presentation.acercade.AcercaDeViewModel
+import com.example.appaeropostv2.presentation.acercade.AcercaDeViewModelFactory
 
 
 @SuppressLint("ViewModelConstructorInComposable")
@@ -136,6 +139,17 @@ fun AppNavGraph(
                 onVolver = { navController.popBackStack() }
             )
         }
+
+        // ---------- Acerca de ----------
+        composable(Screen.AcercaDe.route) {
+            val context = LocalContext.current
+            val acercaDeViewModel: AcercaDeViewModel = viewModel(
+                factory = AcercaDeViewModelFactory(context.applicationContext as android.app.Application)
+            )
+
+            AcercaDeScreen(viewModel = acercaDeViewModel)
+        }
+
 
         // ---------- Home ----------
         composable(Screen.Home.route) {
@@ -886,7 +900,6 @@ fun AppNavGraph(
         }
 
         // ---------- Rutas placeholder de otros módulos ----------
-        composable(Screen.AcercaDe.route)    { /* TODO: Acerca De */ }
         composable(Screen.Reportes.route)    { /* TODO: Reportes */ }
         composable(Screen.Tracking.route)    { /* TODO: Tracking */ }
     }
