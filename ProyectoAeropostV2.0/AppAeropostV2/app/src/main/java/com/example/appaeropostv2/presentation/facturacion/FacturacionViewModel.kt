@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.appaeropostv2.data.repository.RepositoryCliente
+import com.example.appaeropostv2.data.repository.RepositoryEmail
 import com.example.appaeropostv2.data.repository.RepositoryFacturacion
 import com.example.appaeropostv2.data.repository.RepositoryPaquete
 import com.example.appaeropostv2.domain.enums.Monedas
@@ -18,6 +19,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import com.example.appaeropostv2.domain.logic.PdfLogic
+import com.example.appaeropostv2.domain.common.Resource
+
 
 
 // =======================================================
@@ -27,7 +30,8 @@ class FacturacionViewModelFactory(
     private val repoFacturacion: RepositoryFacturacion,
     private val repoCliente: RepositoryCliente,
     private val repoPaquete: RepositoryPaquete,
-    private val pdfGenerator: InterfacePdfGenerator
+    private val pdfGenerator: InterfacePdfGenerator,
+    private val repoEmail: RepositoryEmail
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -37,7 +41,8 @@ class FacturacionViewModelFactory(
                 repoFacturacion,
                 repoCliente,
                 repoPaquete,
-                pdfGenerator
+                pdfGenerator,
+                repoEmail
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
@@ -72,8 +77,13 @@ data class FacturacionUiState(
     val pdfUri: Uri? = null,
 
     // flag para mostrar que se está generando un PDF
-    val isGenerandoPdf: Boolean = false
-)
+    val isGenerandoPdf: Boolean = false,
+
+    val isEnviandoCorreo: Boolean = false,
+    val correoEnviado: Boolean = false,
+    val errorCorreo: String? = null
+
+    )
 
 // =======================================================
 // VIEWMODEL
@@ -82,7 +92,8 @@ class FacturacionViewModel(
     private val repoFacturacion: RepositoryFacturacion,
     private val repoCliente: RepositoryCliente,
     private val repoPaquete: RepositoryPaquete,
-    private val pdfGenerator: InterfacePdfGenerator
+    private val pdfGenerator: InterfacePdfGenerator,
+    private val repoEmail: RepositoryEmail
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(FacturacionUiState(isLoading = true))
@@ -302,6 +313,9 @@ class FacturacionViewModel(
                 return@launch
             }
 
+            // Marcamos loading de PDF (opcional, útil para UX)
+            _ui.value = _ui.value.copy(isGenerandoPdf = true, errorMessage = null)
+
             try {
                 val factura = Facturacion(
                     idFacturacion = 0,
@@ -323,23 +337,79 @@ class FacturacionViewModel(
                     paquete
                 )
 
-                // Lógica de dominio: preparar datos listos para el PDF
+                // Domain: preparar datos listos para PDF
                 val pdfData = PdfLogic.buildFacturaPdfData(detalle)
 
                 // Data: generar el archivo físico
                 val pdfUri = pdfGenerator.generarFacturaPDF(pdfData)
 
+                // Guardamos URI para UI
                 _ui.value = _ui.value.copy(
                     pdfUri = pdfUri,
-                    errorMessage = null
+                    isGenerandoPdf = false
                 )
+
+                // Envío automático por correo (adjuntando PDF)
+                val emailDestino = cliente.correoCliente.trim()
+
+                if (emailDestino.isBlank()) {
+                    _ui.value = _ui.value.copy(
+                        isGenerandoPdf = false,
+                        errorMessage = "El cliente no tiene correo registrado."
+                    )
+                    return@launch
+                }
+
+                // Reset estado correo
+                _ui.value = _ui.value.copy(
+                    isEnviandoCorreo = false,
+                    correoEnviado = false,
+                    errorCorreo = null
+                )
+
+                val subject = "Factura Aeropost #$idInsertado"
+                val bodyText = "Adjuntamos su factura. Tracking: ${paquete.numeroTracking}"
+
+                repoEmail.sendEmailWithPdf(
+                    to = emailDestino,
+                    subject = subject,
+                    html = null,
+                    text = bodyText,
+                    pdfUri = pdfUri,
+                    filename = "Factura_${paquete.numeroTracking}.pdf"
+                ).collect { r ->
+                    when (r) {
+                        is Resource.Loading -> {
+                            _ui.value = _ui.value.copy(isEnviandoCorreo = true)
+                        }
+
+                        is Resource.Success -> {
+                            _ui.value = _ui.value.copy(
+                                isEnviandoCorreo = false,
+                                correoEnviado = true
+                            )
+                        }
+
+                        is Resource.Error -> {
+                            _ui.value = _ui.value.copy(
+                                isEnviandoCorreo = false,
+                                errorCorreo = r.message ?: "Error enviando el correo"
+                            )
+                        }
+                    }
+                }
+
+
+
             } catch (e: Exception) {
                 _ui.value = _ui.value.copy(
+                    isGenerandoPdf = false,
                     errorMessage = e.message ?: "Error al generar la factura."
                 )
             }
         }
     }
+
 
 
     // ===================================================
@@ -430,6 +500,16 @@ class FacturacionViewModel(
             }
         }
     }
+
+
+    fun consumirCorreoEnviado() {
+        _ui.value = _ui.value.copy(correoEnviado = false)
+    }
+
+    fun consumirErrorCorreo() {
+        _ui.value = _ui.value.copy(errorCorreo = null)
+    }
+
 
 
 }

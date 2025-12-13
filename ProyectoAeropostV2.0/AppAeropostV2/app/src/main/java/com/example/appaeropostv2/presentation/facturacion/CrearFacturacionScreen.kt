@@ -61,9 +61,15 @@ fun CrearFacturacionScreen(
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             context.startActivity(intent)
+
+            // Consumimos el evento para no abrir el PDF dos veces
             onConsumirPdf()
+
+            // ✅ Regresamos a la lista (sin matar el flujo antes de tiempo)
+            onVolver()
         }
     }
+
 
     val error = uiState.errorMessage
     val snackbarHostState = remember { SnackbarHostState() }
@@ -259,6 +265,36 @@ fun CrearFacturacionScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
+
+
+            if (uiState.isEnviandoCorreo) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                    Text("Enviando factura por correo...")
+                }
+            }
+
+            LaunchedEffect(uiState.correoEnviado) {
+                if (uiState.correoEnviado) {
+                    snackbarHostState.showSnackbar(
+                        message = "Factura enviada por correo correctamente"
+                    )
+                    // consumimos el evento
+                    // (evita que se repita al recomponer)
+                    onConsumirError() // si usás el mismo patrón
+                }
+            }
+
+            uiState.errorCorreo?.let { msg ->
+                LaunchedEffect(msg) {
+                    snackbarHostState.showSnackbar(
+                        message = "Error enviando correo: $msg"
+                    )
+                }
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

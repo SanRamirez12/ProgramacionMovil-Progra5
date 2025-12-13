@@ -62,6 +62,8 @@ import com.example.appaeropostv2.presentation.facturacion.FacturacionViewModel
 import com.example.appaeropostv2.presentation.facturacion.FacturacionViewModelFactory
 import com.example.appaeropostv2.data.security.RepositorySecurityHash
 import androidx.compose.runtime.LaunchedEffect
+import com.example.appaeropostv2.data.remote.services.email.EmailServiceFactory
+import com.example.appaeropostv2.data.repository.RepositoryEmail
 import kotlinx.coroutines.delay
 import com.example.appaeropostv2.presentation.loadingscreen.LoadingScreen
 import com.example.appaeropostv2.presentation.acercade.AcercaDeScreen
@@ -735,6 +737,7 @@ fun AppNavGraph(
         }
 
         // ───────────────────────── Facturación ─────────────────────────
+
         // Listado de facturas
         composable(Screen.Facturacion.route) {
             val context = LocalContext.current
@@ -744,13 +747,23 @@ fun AppNavGraph(
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
             val pdfGenerator = remember { FacturaPdfGenerator(context) }
+            val emailApi = remember {
+                EmailServiceFactory.create("http://10.0.2.2:8080/") // emulador -> tu backend local
+            }
+            val repoEmail = remember {
+                RepositoryEmail(
+                    api = emailApi,
+                    contentResolver = context.contentResolver
+                )
+            }
 
             val factViewModel: FacturacionViewModel = viewModel(
                 factory = FacturacionViewModelFactory(
                     repoFacturacion = repoFact,
                     repoCliente = repoCliente,
                     repoPaquete = repoPaquete,
-                    pdfGenerator = pdfGenerator
+                    pdfGenerator = pdfGenerator,
+                    repoEmail = repoEmail
                 )
             )
 
@@ -781,13 +794,23 @@ fun AppNavGraph(
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
             val pdfGenerator = remember { FacturaPdfGenerator(context) }
+            val emailApi = remember {
+                EmailServiceFactory.create("http://10.0.2.2:8080/") // emulador -> tu backend local
+            }
+            val repoEmail = remember {
+                RepositoryEmail(
+                    api = emailApi,
+                    contentResolver = context.contentResolver
+                )
+            }
 
             val factViewModel: FacturacionViewModel = viewModel(
                 factory = FacturacionViewModelFactory(
                     repoFacturacion = repoFact,
                     repoCliente = repoCliente,
                     repoPaquete = repoPaquete,
-                    pdfGenerator = pdfGenerator
+                    pdfGenerator = pdfGenerator,
+                    repoEmail = repoEmail
                 )
             )
 
@@ -801,7 +824,6 @@ fun AppNavGraph(
                 onCargarCliente = factViewModel::cargarCliente,
                 onGenerarFactura = {
                     factViewModel.generarFactura()
-                    navController.popBackStack()
                 },
                 onVolver = { navController.popBackStack() },
                 onConsumirError = factViewModel::limpiarError,
@@ -820,13 +842,23 @@ fun AppNavGraph(
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
             val pdfGenerator = remember { FacturaPdfGenerator(context) }
+            val emailApi = remember {
+                EmailServiceFactory.create("http://10.0.2.2:8080/") // emulador -> tu backend local
+            }
+            val repoEmail = remember {
+                RepositoryEmail(
+                    api = emailApi,
+                    contentResolver = context.contentResolver
+                )
+            }
 
             val factViewModel: FacturacionViewModel = viewModel(
                 factory = FacturacionViewModelFactory(
                     repoFacturacion = repoFact,
                     repoCliente = repoCliente,
                     repoPaquete = repoPaquete,
-                    pdfGenerator = pdfGenerator
+                    pdfGenerator = pdfGenerator,
+                    repoEmail = repoEmail
                 )
             )
 
@@ -866,13 +898,23 @@ fun AppNavGraph(
             val repoCliente = RepositoryCliente(db.clienteDao())
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
             val pdfGenerator = remember { FacturaPdfGenerator(context) }
+            val emailApi = remember {
+                EmailServiceFactory.create("http://10.0.2.2:8080/") // emulador -> tu backend local
+            }
+            val repoEmail = remember {
+                RepositoryEmail(
+                    api = emailApi,
+                    contentResolver = context.contentResolver
+                )
+            }
 
             val factViewModel: FacturacionViewModel = viewModel(
                 factory = FacturacionViewModelFactory(
                     repoFacturacion = repoFact,
                     repoCliente = repoCliente,
                     repoPaquete = repoPaquete,
-                    pdfGenerator = pdfGenerator
+                    pdfGenerator = pdfGenerator,
+                    repoEmail = repoEmail
                 )
             )
 
