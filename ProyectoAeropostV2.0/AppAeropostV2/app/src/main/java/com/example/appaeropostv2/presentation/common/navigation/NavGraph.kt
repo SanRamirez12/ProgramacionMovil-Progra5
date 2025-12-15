@@ -83,6 +83,17 @@ import com.example.appaeropostv2.presentation.tracking.TrackingViewModel
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import com.example.appaeropostv2.presentation.common.comingsoon.ComingSoonScreen
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.composable
+import com.example.appaeropostv2.data.remote.services.exchange.BccrSoapExchangeService
+import com.example.appaeropostv2.data.repository.RepositoryExchange
+import com.example.appaeropostv2.data.repository.RepositoryReportes
+import com.example.appaeropostv2.presentation.reportes.ReporteScreen
+import com.example.appaeropostv2.presentation.reportes.ReporteViewModel
+import com.example.appaeropostv2.presentation.reportes.ReporteViewModelFactory
+
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -932,7 +943,7 @@ fun AppNavGraph(
         composable("tracking_detalle/{numeroTracking}") { entry ->
             val numero = entry.arguments?.getString("numeroTracking") ?: return@composable
 
-            // ✅ compartir el mismo VM del backstack de Tracking (como haces en Facturación)
+            //  compartir el mismo VM del backstack de Tracking (como haces en Facturación)
             val parentEntry = remember(entry) {
                 navController.getBackStackEntry(Screen.Tracking.route)
             }
@@ -945,11 +956,53 @@ fun AppNavGraph(
             )
         }
 
+        composable(Screen.Reportes.route) {
+            val context = LocalContext.current
+            val db = remember { AppDatabase.getInstance(context) }
 
+            // Repos base (Room)
+            val repoCliente = remember { RepositoryCliente(db.clienteDao()) }
+            val repoPaquete = remember { RepositoryPaquete(db.paqueteDao()) }
+            val repoFacturacion = remember { RepositoryFacturacion(db.facturacionDao()) }
 
+            // DaoReporte (Room)
+            val daoReporte = remember { db.reporteDao() }
 
-        // ---------- Rutas placeholder ----------
-        composable(Screen.Reportes.route) { /* TODO */ }
+            // Email (mismo backend que ya usás)
+            val baseUrl = "http://10.0.2.2:8080/"
+            val emailApi = remember { EmailServiceFactory.create(baseUrl) }
+            val repoEmail = remember {
+                RepositoryEmail(
+                    api = emailApi,
+                    contentResolver = context.contentResolver
+                )
+            }
+
+            // Exchange (BCCR)
+            val exchangeService = remember { BccrSoapExchangeService() }
+            val repoExchange = remember { RepositoryExchange(exchangeService) }
+
+            // Reportes
+            val repoReportes = remember {
+                RepositoryReportes(
+                    context = context,
+                    contentResolver = context.contentResolver,
+                    daoReporte = daoReporte,
+                    repoCliente = repoCliente,
+                    repoPaquete = repoPaquete,
+                    repoFacturacion = repoFacturacion,
+                    repoEmail = repoEmail,
+                    repoExchange = repoExchange
+                )
+            }
+
+            val vm: ReporteViewModel = viewModel(
+                factory = ReporteViewModelFactory(repoReportes)
+            )
+
+            ReporteScreen(vm = vm)
+        }
+
         composable(Screen.Search.route) {
             ComingSoonScreen(
                 featureName = Screen.Search.label,

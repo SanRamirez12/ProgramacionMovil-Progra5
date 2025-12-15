@@ -1,4 +1,3 @@
-// Ruta: app/src/main/java/com/example/appaeropostv2/data/local/db/RoomDatabase.kt
 package com.example.appaeropostv2.data.local.db
 
 import android.content.Context
@@ -10,14 +9,16 @@ import com.example.appaeropostv2.data.local.dao.DaoBitacora
 import com.example.appaeropostv2.data.local.dao.DaoCliente
 import com.example.appaeropostv2.data.local.dao.DaoFacturacion
 import com.example.appaeropostv2.data.local.dao.DaoPaquete
+import com.example.appaeropostv2.data.local.dao.DaoReporte
 import com.example.appaeropostv2.data.local.dao.DaoTracking
 import com.example.appaeropostv2.data.local.dao.DaoUsuario
 import com.example.appaeropostv2.data.local.entity.EntityBitacora
 import com.example.appaeropostv2.data.local.entity.EntityCliente
 import com.example.appaeropostv2.data.local.entity.EntityFacturacion
 import com.example.appaeropostv2.data.local.entity.EntityPaquete
-import com.example.appaeropostv2.data.local.entity.EntityUsuario
+import com.example.appaeropostv2.data.local.entity.EntityReporte
 import com.example.appaeropostv2.data.local.entity.EntityTracking
+import com.example.appaeropostv2.data.local.entity.EntityUsuario
 
 @Database(
     entities = [
@@ -27,11 +28,11 @@ import com.example.appaeropostv2.data.local.entity.EntityTracking
         EntityFacturacion::class,
         EntityBitacora::class,
         EntityTracking::class,
+        EntityReporte::class,
     ],
-    version = 4, // ⬅⬅ Subido de 2 a 3 para aplicar destructive migration
+    version = 5, // subir versión (tenías 4) :contentReference[oaicite:2]{index=2}
     exportSchema = true
 )
-
 @TypeConverters(RoomConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -40,9 +41,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun paqueteDao(): DaoPaquete
     abstract fun facturacionDao(): DaoFacturacion
     abstract fun bitacoraDao(): DaoBitacora
-
     abstract fun trackingDao(): DaoTracking
 
+    abstract fun reporteDao(): DaoReporte
 
     companion object {
         @Volatile
@@ -55,12 +56,11 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "aeropost_v2.db"
                 )
-                    .fallbackToDestructiveMigration() // borra y recrea si cambia version
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
             }
         }
     }
-
 }
