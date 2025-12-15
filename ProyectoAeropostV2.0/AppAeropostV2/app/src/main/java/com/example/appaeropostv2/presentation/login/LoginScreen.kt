@@ -35,10 +35,13 @@ import com.example.appaeropostv2.core.designsystem.theme.Brushes
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit = {},
+    onGoogleClick: () -> Unit = {},
+    onFacebookClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = viewModel()
-)
- {
+) {
+
     val uiState = viewModel.uiState
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -188,7 +191,7 @@ fun LoginScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     TextButton(
-                        onClick = { /* TODO */ },
+                        onClick = onForgotPasswordClick,
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
@@ -275,7 +278,7 @@ fun LoginScreen(
 
                 // ---------- Botón Google ----------
                 OutlinedButton(
-                    onClick = { /* TODO: Google */ },
+                    onClick = onGoogleClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -302,7 +305,7 @@ fun LoginScreen(
 
                 // ---------- Botón Facebook ----------
                 OutlinedButton(
-                    onClick = { /* TODO: Facebook */ },
+                    onClick = onFacebookClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),

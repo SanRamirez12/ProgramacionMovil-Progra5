@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import android.net.Uri
 
 @Composable
 fun AppBottomBar(navController: NavController) {
@@ -19,6 +20,20 @@ fun AppBottomBar(navController: NavController) {
             NavigationBarItem(
                 selected = currentRoute == screen.route,
                 onClick = {
+                    val comingSoonRoutes = setOf(
+                        Screen.Search.route,
+                        Screen.Alerts.route,
+                        Screen.Profile.route
+                    )
+
+                    if (screen.route in comingSoonRoutes) {
+                        val feature = Uri.encode(screen.label) // "Buscar", "Alertas", "Perfil"
+                        navController.navigate("coming_soon/$feature") {
+                            launchSingleTop = true
+                        }
+                        return@NavigationBarItem
+                    }
+
                     if (currentRoute != screen.route) {
                         navController.navigate(screen.route) {
                             popUpTo(navController.graph.startDestinationId) { saveState = true }
@@ -26,7 +41,8 @@ fun AppBottomBar(navController: NavController) {
                             restoreState = true
                         }
                     }
-                },
+                }
+                ,
                 icon = { screen.icon?.let { Icon(it, contentDescription = screen.label) } },
                 label = { Text(screen.label) }
             )

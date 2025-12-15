@@ -82,6 +82,7 @@ import com.example.appaeropostv2.presentation.tracking.TrackingVerEstadoScreen
 import com.example.appaeropostv2.presentation.tracking.TrackingViewModel
 import kotlinx.coroutines.launch
 import java.time.ZoneId
+import com.example.appaeropostv2.presentation.common.comingsoon.ComingSoonScreen
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -119,7 +120,6 @@ fun AppNavGraph(
             val loginViewModel: LoginViewModel = viewModel(
                 factory = LoginViewModelFactory(repoUsuario, repoBitacora)
             )
-
             LoginScreen(
                 viewModel = loginViewModel,
                 onLoginSuccess = {
@@ -129,8 +129,18 @@ fun AppNavGraph(
                 },
                 onRegisterClick = {
                     navController.navigate("login/registrar")
+                },
+                onForgotPasswordClick = {
+                    navController.navigate("coming_soon/Recuperar%20contraseña")
+                },
+                onGoogleClick = {
+                    navController.navigate("coming_soon/Login%20con%20Google")
+                },
+                onFacebookClick = {
+                    navController.navigate("coming_soon/Login%20con%20Facebook")
                 }
             )
+
         }
 
         // ---------- Registro de usuario desde Login ----------
@@ -153,6 +163,16 @@ fun AppNavGraph(
                 onVolver = { navController.popBackStack() }
             )
         }
+
+        composable("coming_soon/{feature}") { entry ->
+            val feature = entry.arguments?.getString("feature").orEmpty().ifBlank { "Funcionalidad" }
+
+            ComingSoonScreen(
+                featureName = feature,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
 
         // ---------- Acerca de ----------
         composable(Screen.AcercaDe.route) {
@@ -930,5 +950,27 @@ fun AppNavGraph(
 
         // ---------- Rutas placeholder ----------
         composable(Screen.Reportes.route) { /* TODO */ }
+        composable(Screen.Search.route) {
+            ComingSoonScreen(
+                featureName = Screen.Search.label,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Alerts.route) {
+            ComingSoonScreen(
+                featureName = Screen.Alerts.label,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Profile.route) {
+            ComingSoonScreen(
+                featureName = Screen.Profile.label,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+
     }
 }
