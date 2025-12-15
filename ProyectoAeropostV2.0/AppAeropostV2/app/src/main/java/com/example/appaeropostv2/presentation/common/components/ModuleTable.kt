@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,11 +39,10 @@ fun <T> ModuleTable(
     items: List<T>,
     columns: List<TableColumn<T>>,
     modifier: Modifier = Modifier,
-    onEditClick: ((T) -> Unit)? = null,   // 🔹 ahora es opcional
-    onDetailsClick: (T) -> Unit,
-    onDisableClick: (T) -> Unit
+    onEditClick: ((T) -> Unit)? = null,
+    onDetailsClick: ((T) -> Unit)? = null,  // ✅ opcional
+    onDisableClick: ((T) -> Unit)? = null   // ✅ opcional
 ) {
-    // un poquito más ancho para las acciones
     val actionsWeight = 1.5f
 
     Surface(
@@ -90,7 +89,6 @@ fun <T> ModuleTable(
             Spacer(modifier = Modifier.height(4.dp))
             Divider()
 
-            // Rows
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.padding(top = 4.dp)
@@ -121,11 +119,10 @@ fun <T> ModuleTable(
                             horizontalArrangement = Arrangement.spacedBy(1.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // 🔹 Solo muestra el icono de editar si pasaste un lambda
                             if (onEditClick != null) {
                                 IconButton(
                                     onClick = { onEditClick(item) },
-                                    modifier = Modifier.height(22.dp) // más pequeño
+                                    modifier = Modifier.height(22.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.Edit,
@@ -133,24 +130,30 @@ fun <T> ModuleTable(
                                     )
                                 }
                             }
-                            IconButton(
-                                onClick = { onDetailsClick(item) },
-                                modifier = Modifier.height(22.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Info,
-                                    contentDescription = "Detalles"
-                                )
+
+                            if (onDetailsClick != null) {
+                                IconButton(
+                                    onClick = { onDetailsClick(item) },
+                                    modifier = Modifier.height(22.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Info,
+                                        contentDescription = "Detalles"
+                                    )
+                                }
                             }
-                            IconButton(
-                                onClick = { onDisableClick(item) },
-                                modifier = Modifier.height(22.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Close,
-                                    contentDescription = "Deshabilitar",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+
+                            if (onDisableClick != null) {
+                                IconButton(
+                                    onClick = { onDisableClick(item) },
+                                    modifier = Modifier.height(22.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = "Deshabilitar",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                     }

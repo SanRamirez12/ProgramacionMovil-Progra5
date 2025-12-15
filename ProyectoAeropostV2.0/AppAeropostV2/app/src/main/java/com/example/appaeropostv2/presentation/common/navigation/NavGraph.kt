@@ -76,7 +76,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import android.util.Log
-
+import com.example.appaeropostv2.data.repository.RepositoryTracking
+import com.example.appaeropostv2.presentation.tracking.TrackingScreen
+import com.example.appaeropostv2.presentation.tracking.TrackingVerEstadoScreen
+import com.example.appaeropostv2.presentation.tracking.TrackingViewModel
+import kotlinx.coroutines.launch
+import java.time.ZoneId
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -577,10 +582,12 @@ fun AppNavGraph(
 
             val repoPaquete = RepositoryPaquete(db.paqueteDao())
             val repoCliente = RepositoryCliente(db.clienteDao())
+            val repoTracking = RepositoryTracking(db.trackingDao())
 
             val paqueteViewModel: PaqueteViewModel = viewModel(
                 factory = PaqueteViewModelFactory(repoPaquete)
             )
+
             val clienteViewModel: ClienteViewModel = viewModel(
                 factory = ClienteViewModelFactory(repoCliente)
             )
@@ -588,15 +595,33 @@ fun AppNavGraph(
             val clientesState by clienteViewModel.uiState.collectAsState()
             val clientes = clientesState.clientes
 
+            val scope = rememberCoroutineScope()
+
             CrearPaqueteScreen(
                 clientes = clientes,
                 onGuardarPaquete = { paquete ->
                     paqueteViewModel.insertar(paquete)
+
+                    scope.launch {
+                        val inicioMillis = paquete.fechaRegistro
+                            .atStartOfDay(ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli()
+
+                        repoTracking.crearTracking(
+                            idPaquete = paquete.idPaquete,
+                            numeroTracking = paquete.numeroTracking,
+                            casilleroOrigen = paquete.casillero,
+                            tiempoInicioMillis = inicioMillis
+                        )
+                    }
+
                     navController.popBackStack()
                 },
                 onVolver = { navController.popBackStack() }
             )
         }
+
 
         composable("paquetes/editar/{idPaquete}") { backStackEntry ->
             val context = LocalContext.current
@@ -727,7 +752,7 @@ fun AppNavGraph(
 
         // ───────────────────────── Facturación ─────────────────────────
 
-        // ✅ Listado de facturas (AQUÍ se crea el VM UNA sola vez)
+        // Listado de facturas (AQUÍ se crea el VM UNA sola vez)
         composable(Screen.Facturacion.route) {
             val context = LocalContext.current
             val db = AppDatabase.getInstance(context)
@@ -865,9 +890,45 @@ fun AppNavGraph(
             }
         }
 
+        // ───────────────────────── Tracking ─────────────────────────
+        composable(Screen.Tracking.route) {
+            val context = LocalContext.current
+            val db = AppDatabase.getInstance(context)
+
+            val repoTracking = remember { RepositoryTracking(db.trackingDao()) }
+
+            val trackingViewModel: TrackingViewModel = viewModel(
+                factory = TrackingViewModel.Factory(repoTracking)
+            )
+
+            TrackingScreen(
+                viewModel = trackingViewModel,
+                onVerEstado = { numero ->
+                    navController.navigate("tracking_detalle/$numero")
+                }
+            )
+        }
+
+        composable("tracking_detalle/{numeroTracking}") { entry ->
+            val numero = entry.arguments?.getString("numeroTracking") ?: return@composable
+
+            // ✅ compartir el mismo VM del backstack de Tracking (como haces en Facturación)
+            val parentEntry = remember(entry) {
+                navController.getBackStackEntry(Screen.Tracking.route)
+            }
+            val trackingViewModel: TrackingViewModel = viewModel(parentEntry)
+
+            TrackingVerEstadoScreen(
+                numeroTracking = numero,
+                viewModel = trackingViewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+
+
 
         // ---------- Rutas placeholder ----------
         composable(Screen.Reportes.route) { /* TODO */ }
-        composable(Screen.Tracking.route) { /* TODO */ }
     }
 }

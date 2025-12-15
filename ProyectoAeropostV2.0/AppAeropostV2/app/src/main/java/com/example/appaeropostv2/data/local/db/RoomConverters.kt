@@ -74,5 +74,13 @@ class RoomConverters {
     @TypeConverter
     fun toCasilleros(name: String?): Casilleros? = name?.let { enumValueOf<Casilleros>(it) }
 
+    // -------- Enums: Tracking --------
+    @TypeConverter
+    fun fromTrackingStatus(value: TrackingStatus?): String? = value?.name
+
+    @TypeConverter
+    fun toTrackingStatus(name: String?): TrackingStatus? =
+        name?.let { enumValueOf<TrackingStatus>(it) }
+
 }
 

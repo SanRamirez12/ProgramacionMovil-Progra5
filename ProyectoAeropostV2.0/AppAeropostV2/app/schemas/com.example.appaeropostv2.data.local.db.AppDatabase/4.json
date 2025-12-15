@@ -1,0 +1,674 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "147fdea66b76a13dfc7d7e93d8b43b5c",
+    "entities": [
+      {
+        "tableName": "usuarios",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idUsuario` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombreUsuario` TEXT NOT NULL, `cedulaUsuario` TEXT NOT NULL, `generoUsuario` TEXT NOT NULL, `fechaRegistro` INTEGER NOT NULL, `estadoUsuario` TEXT NOT NULL, `rolUsuario` TEXT NOT NULL, `correoUsuario` TEXT NOT NULL, `telefonoUsuario` TEXT NOT NULL, `username` TEXT NOT NULL, `passwordHash` TEXT NOT NULL, `passwordSalt` TEXT NOT NULL, `passwordIterations` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idUsuario",
+            "columnName": "idUsuario",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombreUsuario",
+            "columnName": "nombreUsuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cedulaUsuario",
+            "columnName": "cedulaUsuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generoUsuario",
+            "columnName": "generoUsuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaRegistro",
+            "columnName": "fechaRegistro",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estadoUsuario",
+            "columnName": "estadoUsuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rolUsuario",
+            "columnName": "rolUsuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correoUsuario",
+            "columnName": "correoUsuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telefonoUsuario",
+            "columnName": "telefonoUsuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "passwordHash",
+            "columnName": "passwordHash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "passwordSalt",
+            "columnName": "passwordSalt",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "passwordIterations",
+            "columnName": "passwordIterations",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "idUsuario"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_usuarios_username",
+            "unique": true,
+            "columnNames": [
+              "username"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuarios_username` ON `${TABLE_NAME}` (`username`)"
+          },
+          {
+            "name": "index_usuarios_cedulaUsuario",
+            "unique": true,
+            "columnNames": [
+              "cedulaUsuario"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuarios_cedulaUsuario` ON `${TABLE_NAME}` (`cedulaUsuario`)"
+          },
+          {
+            "name": "index_usuarios_correoUsuario",
+            "unique": true,
+            "columnNames": [
+              "correoUsuario"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuarios_correoUsuario` ON `${TABLE_NAME}` (`correoUsuario`)"
+          },
+          {
+            "name": "index_usuarios_estadoUsuario",
+            "unique": false,
+            "columnNames": [
+              "estadoUsuario"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuarios_estadoUsuario` ON `${TABLE_NAME}` (`estadoUsuario`)"
+          },
+          {
+            "name": "index_usuarios_rolUsuario",
+            "unique": false,
+            "columnNames": [
+              "rolUsuario"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuarios_rolUsuario` ON `${TABLE_NAME}` (`rolUsuario`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "clientes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idCliente` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombreCliente` TEXT NOT NULL, `cedulaCliente` TEXT NOT NULL, `telefonoCliente` TEXT NOT NULL, `correoCliente` TEXT NOT NULL, `tipoCliente` TEXT NOT NULL, `estadoCliente` TEXT NOT NULL, `direccionEntrega` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idCliente",
+            "columnName": "idCliente",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombreCliente",
+            "columnName": "nombreCliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cedulaCliente",
+            "columnName": "cedulaCliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telefonoCliente",
+            "columnName": "telefonoCliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correoCliente",
+            "columnName": "correoCliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoCliente",
+            "columnName": "tipoCliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estadoCliente",
+            "columnName": "estadoCliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "direccionEntrega",
+            "columnName": "direccionEntrega",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "idCliente"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_clientes_cedulaCliente",
+            "unique": true,
+            "columnNames": [
+              "cedulaCliente"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_clientes_cedulaCliente` ON `${TABLE_NAME}` (`cedulaCliente`)"
+          },
+          {
+            "name": "index_clientes_correoCliente",
+            "unique": true,
+            "columnNames": [
+              "correoCliente"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_clientes_correoCliente` ON `${TABLE_NAME}` (`correoCliente`)"
+          },
+          {
+            "name": "index_clientes_nombreCliente",
+            "unique": false,
+            "columnNames": [
+              "nombreCliente"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_clientes_nombreCliente` ON `${TABLE_NAME}` (`nombreCliente`)"
+          },
+          {
+            "name": "index_clientes_tipoCliente",
+            "unique": false,
+            "columnNames": [
+              "tipoCliente"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_clientes_tipoCliente` ON `${TABLE_NAME}` (`tipoCliente`)"
+          },
+          {
+            "name": "index_clientes_estadoCliente",
+            "unique": false,
+            "columnNames": [
+              "estadoCliente"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_clientes_estadoCliente` ON `${TABLE_NAME}` (`estadoCliente`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "paquetes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idPaquete` TEXT NOT NULL, `fechaRegistro` INTEGER NOT NULL, `idCliente` INTEGER NOT NULL, `nombrecliente` TEXT NOT NULL, `cedulaCliente` TEXT NOT NULL, `numeroTracking` TEXT NOT NULL, `pesoPaquete` REAL NOT NULL, `valorBruto` TEXT NOT NULL, `monedasPaquete` TEXT NOT NULL, `tiendaOrigen` TEXT NOT NULL, `casillero` TEXT NOT NULL, `condicionEspecial` INTEGER NOT NULL, PRIMARY KEY(`idPaquete`), FOREIGN KEY(`idCliente`) REFERENCES `clientes`(`idCliente`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "idPaquete",
+            "columnName": "idPaquete",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaRegistro",
+            "columnName": "fechaRegistro",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCliente",
+            "columnName": "idCliente",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombrecliente",
+            "columnName": "nombrecliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cedulaCliente",
+            "columnName": "cedulaCliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeroTracking",
+            "columnName": "numeroTracking",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pesoPaquete",
+            "columnName": "pesoPaquete",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "valorBruto",
+            "columnName": "valorBruto",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "monedasPaquete",
+            "columnName": "monedasPaquete",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tiendaOrigen",
+            "columnName": "tiendaOrigen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "casillero",
+            "columnName": "casillero",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "condicionEspecial",
+            "columnName": "condicionEspecial",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idPaquete"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_paquetes_idCliente",
+            "unique": false,
+            "columnNames": [
+              "idCliente"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_paquetes_idCliente` ON `${TABLE_NAME}` (`idCliente`)"
+          },
+          {
+            "name": "index_paquetes_cedulaCliente",
+            "unique": false,
+            "columnNames": [
+              "cedulaCliente"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_paquetes_cedulaCliente` ON `${TABLE_NAME}` (`cedulaCliente`)"
+          },
+          {
+            "name": "index_paquetes_numeroTracking",
+            "unique": true,
+            "columnNames": [
+              "numeroTracking"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_paquetes_numeroTracking` ON `${TABLE_NAME}` (`numeroTracking`)"
+          },
+          {
+            "name": "index_paquetes_fechaRegistro",
+            "unique": false,
+            "columnNames": [
+              "fechaRegistro"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_paquetes_fechaRegistro` ON `${TABLE_NAME}` (`fechaRegistro`)"
+          },
+          {
+            "name": "index_paquetes_tiendaOrigen",
+            "unique": false,
+            "columnNames": [
+              "tiendaOrigen"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_paquetes_tiendaOrigen` ON `${TABLE_NAME}` (`tiendaOrigen`)"
+          },
+          {
+            "name": "index_paquetes_casillero",
+            "unique": false,
+            "columnNames": [
+              "casillero"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_paquetes_casillero` ON `${TABLE_NAME}` (`casillero`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "clientes",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idCliente"
+            ],
+            "referencedColumns": [
+              "idCliente"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "facturaciones",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idFacturacion` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `numeroTracking` TEXT NOT NULL, `cedulaCliente` TEXT NOT NULL, `pesoPaquete` REAL NOT NULL, `valorBrutoPaquete` REAL NOT NULL, `productoEspecial` INTEGER NOT NULL, `fechaFacturacion` TEXT NOT NULL, `montoTotal` REAL NOT NULL, `direccionEntrega` TEXT NOT NULL, FOREIGN KEY(`numeroTracking`) REFERENCES `paquetes`(`numeroTracking`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "idFacturacion",
+            "columnName": "idFacturacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeroTracking",
+            "columnName": "numeroTracking",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cedulaCliente",
+            "columnName": "cedulaCliente",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pesoPaquete",
+            "columnName": "pesoPaquete",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "valorBrutoPaquete",
+            "columnName": "valorBrutoPaquete",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productoEspecial",
+            "columnName": "productoEspecial",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaFacturacion",
+            "columnName": "fechaFacturacion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "montoTotal",
+            "columnName": "montoTotal",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "direccionEntrega",
+            "columnName": "direccionEntrega",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "idFacturacion"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_facturaciones_numeroTracking",
+            "unique": true,
+            "columnNames": [
+              "numeroTracking"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_facturaciones_numeroTracking` ON `${TABLE_NAME}` (`numeroTracking`)"
+          },
+          {
+            "name": "index_facturaciones_cedulaCliente",
+            "unique": false,
+            "columnNames": [
+              "cedulaCliente"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_facturaciones_cedulaCliente` ON `${TABLE_NAME}` (`cedulaCliente`)"
+          },
+          {
+            "name": "index_facturaciones_fechaFacturacion",
+            "unique": false,
+            "columnNames": [
+              "fechaFacturacion"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_facturaciones_fechaFacturacion` ON `${TABLE_NAME}` (`fechaFacturacion`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "paquetes",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "numeroTracking"
+            ],
+            "referencedColumns": [
+              "numeroTracking"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "bitacora",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idBitacora` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `fechaLogin` TEXT NOT NULL, `fechaLogout` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idBitacora",
+            "columnName": "idBitacora",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaLogin",
+            "columnName": "fechaLogin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaLogout",
+            "columnName": "fechaLogout",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "idBitacora"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_bitacora_username",
+            "unique": false,
+            "columnNames": [
+              "username"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_bitacora_username` ON `${TABLE_NAME}` (`username`)"
+          },
+          {
+            "name": "index_bitacora_fechaLogin",
+            "unique": false,
+            "columnNames": [
+              "fechaLogin"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_bitacora_fechaLogin` ON `${TABLE_NAME}` (`fechaLogin`)"
+          },
+          {
+            "name": "index_bitacora_fechaLogout",
+            "unique": false,
+            "columnNames": [
+              "fechaLogout"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_bitacora_fechaLogout` ON `${TABLE_NAME}` (`fechaLogout`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "tracking",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idTracking` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idPaquete` TEXT NOT NULL, `numeroTracking` TEXT NOT NULL, `casilleroOrigen` TEXT NOT NULL, `estado` TEXT NOT NULL, `latitud` REAL NOT NULL, `longitud` REAL NOT NULL, `tiempoInicioMillis` INTEGER NOT NULL, `ultimaActualizacionMillis` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idTracking",
+            "columnName": "idTracking",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idPaquete",
+            "columnName": "idPaquete",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeroTracking",
+            "columnName": "numeroTracking",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "casilleroOrigen",
+            "columnName": "casilleroOrigen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estado",
+            "columnName": "estado",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitud",
+            "columnName": "latitud",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitud",
+            "columnName": "longitud",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tiempoInicioMillis",
+            "columnName": "tiempoInicioMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ultimaActualizacionMillis",
+            "columnName": "ultimaActualizacionMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "idTracking"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tracking_numeroTracking",
+            "unique": true,
+            "columnNames": [
+              "numeroTracking"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_tracking_numeroTracking` ON `${TABLE_NAME}` (`numeroTracking`)"
+          },
+          {
+            "name": "index_tracking_idPaquete",
+            "unique": false,
+            "columnNames": [
+              "idPaquete"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tracking_idPaquete` ON `${TABLE_NAME}` (`idPaquete`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '147fdea66b76a13dfc7d7e93d8b43b5c')"
+    ]
+  }
+}

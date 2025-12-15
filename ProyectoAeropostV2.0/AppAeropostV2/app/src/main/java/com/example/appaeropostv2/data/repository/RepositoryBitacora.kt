@@ -1,8 +1,8 @@
 package com.example.appaeropostv2.data.repository
 
 import com.example.appaeropostv2.data.local.dao.DaoBitacora
-import com.example.appaeropostv2.data.mappers.toDomain
-import com.example.appaeropostv2.data.mappers.toEntity
+import com.example.appaeropostv2.data.local.mappers.toDomain
+import com.example.appaeropostv2.data.local.mappers.toEntity
 import com.example.appaeropostv2.domain.model.Bitacora
 import com.example.appaeropostv2.interfaces.InterfaceBitacora
 import kotlinx.coroutines.flow.Flow

@@ -288,17 +288,23 @@ fun CrearPaqueteScreen(
             }
 
             // --- Fecha de registro ---
-            OutlinedTextField(
-                value = fechaRegistro.format(formatter),
-                onValueChange = {},
-                label = { Text("Fecha de registro") },
+            // --- Fecha de registro ---
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { mostrarDatePicker = true },
-                readOnly = true,
-                enabled = true,
-                singleLine = true
-            )
+                    .clickable { mostrarDatePicker = true }
+            ) {
+                OutlinedTextField(
+                    value = fechaRegistro.format(formatter),
+                    onValueChange = {},
+                    label = { Text("Fecha de registro") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    enabled = false, // 🔑 clave: el Box maneja el click
+                    singleLine = true
+                )
+            }
+
 
             // --- Producto especial ---
             Row(
@@ -394,18 +400,22 @@ fun CrearPaqueteScreen(
         }
 
         if (mostrarDatePicker) {
-            val state = rememberDatePickerState()
+            val state = rememberDatePickerState(
+                initialSelectedDateMillis = fechaRegistro
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+            )
+
             DatePickerDialog(
                 onDismissRequest = { mostrarDatePicker = false },
                 confirmButton = {
                     Button(onClick = {
-                        val millis = state.selectedDateMillis
-                        val fechaSeleccionada = millis?.let { m ->
-                            Instant.ofEpochMilli(m)
+                        state.selectedDateMillis?.let { millis ->
+                            fechaRegistro = Instant.ofEpochMilli(millis)
                                 .atZone(ZoneId.systemDefault())
                                 .toLocalDate()
-                        } ?: LocalDate.now()
-                        fechaRegistro = fechaSeleccionada
+                        }
                         mostrarDatePicker = false
                     }) {
                         Text("Aceptar")
@@ -420,5 +430,6 @@ fun CrearPaqueteScreen(
                 DatePicker(state = state)
             }
         }
+
     }
 }

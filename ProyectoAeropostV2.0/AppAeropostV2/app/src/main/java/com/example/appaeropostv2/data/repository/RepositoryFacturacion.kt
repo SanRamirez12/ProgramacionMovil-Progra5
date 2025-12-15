@@ -1,8 +1,8 @@
 package com.example.appaeropostv2.data.repository
 
 import com.example.appaeropostv2.data.local.dao.DaoFacturacion
-import com.example.appaeropostv2.data.mappers.toDomain
-import com.example.appaeropostv2.data.mappers.toEntity
+import com.example.appaeropostv2.data.local.mappers.toDomain
+import com.example.appaeropostv2.data.local.mappers.toEntity
 import com.example.appaeropostv2.domain.model.Facturacion
 import com.example.appaeropostv2.interfaces.InterfaceFacturacion
 import kotlinx.coroutines.flow.Flow

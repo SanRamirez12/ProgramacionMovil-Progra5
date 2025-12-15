@@ -1,4 +1,4 @@
-package com.example.appaeropostv2.data.mappers
+package com.example.appaeropostv2.data.local.mappers
 
 import com.example.appaeropostv2.data.local.entity.EntityCliente
 import com.example.appaeropostv2.domain.model.Cliente

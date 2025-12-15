@@ -46,7 +46,6 @@ dependencies {
     // BOM de Compose
     implementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    debugImplementation(platform(libs.androidx.compose.bom))
 
     // Base AndroidX
     implementation(libs.androidx.core.ktx)
@@ -59,12 +58,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui.text)
-
-    // Íconos
-    implementation(libs.compose.material.icons)
-
-    // Navigation Compose
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
 
     // Material & Splash
@@ -79,9 +73,7 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    // ------------------------------
-    // Networking: Retrofit + OkHttp
-    // ------------------------------
+    // Networking
     implementation(libs.retrofit.core)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
@@ -89,6 +81,11 @@ dependencies {
     // JSON (Kotlinx Serialization)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.kotlinx.serialization)
+
+    // Google Maps + Location (esto arregla todos tus "Unresolved reference")
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+    implementation(libs.google.maps.compose)
 
     // Debug tooling
     debugImplementation(libs.androidx.compose.ui.tooling)
@@ -98,5 +95,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
-    // androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }
+
