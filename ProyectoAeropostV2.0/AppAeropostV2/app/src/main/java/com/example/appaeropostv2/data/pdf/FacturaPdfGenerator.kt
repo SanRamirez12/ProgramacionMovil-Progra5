@@ -224,7 +224,7 @@ class FacturaPdfGenerator(
 
             FileProvider.getUriForFile(
                 context,
-                context.packageName + ".provider",
+                "${context.packageName}.fileprovider",
                 archivo
             )
         }

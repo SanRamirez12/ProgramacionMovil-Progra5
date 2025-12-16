@@ -312,6 +312,17 @@ class FacturacionViewModel(
             )
 
             try {
+                // ✅ FIX: si ya existe factura con este tracking, NO insertar otra vez
+                val yaExiste = repoFacturacion.obtenerPorTracking(paquete.numeroTracking)
+                if (yaExiste != null) {
+                    _ui.value = _ui.value.copy(
+                        isGenerandoPdf = false,
+                        isEnviandoCorreo = false,
+                        errorMessage = "Este paquete ya fue facturado. Tracking: ${paquete.numeroTracking}"
+                    )
+                    return@launch
+                }
+
                 val factura = Facturacion(
                     idFacturacion = 0,
                     numeroTracking = paquete.numeroTracking,
