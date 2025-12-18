@@ -1,120 +1,107 @@
 # 📦 AeropostApp
 
-**AeropostApp** es una aplicación móvil desarrollada en **Kotlin** con **Jetpack Compose**, inspirada en la plataforma de logística y envíos **Aeropost**.  
-El proyecto busca replicar, optimizar y extender los procesos de **registro de clientes, paquetes y facturación**, además de integrar módulos de **tracking GPS, reportes y seguridad**, bajo una arquitectura moderna **MVVM (Model–View–ViewModel)**.
+**AeropostApp** is an Android mobile application developed in **Kotlin** using **Jetpack Compose**, designed to support the digitalization of logistics operations for small and medium-sized enterprises (SMEs).  
+The project is inspired by the Aeropost logistics model and focuses on the integrated management of clients, packages, users, billing, and operational reports through a modern and maintainable mobile architecture.
 
 ---
 
-## 🚀 Estado del Proyecto
+## 🚀 Project Status
 
-🟢 En desarrollo activo  
-📅 Meta de entrega: **Segunda semana de diciembre 2025**  
-📍 Curso: **Programación 5 – Universidad Latina de Costa Rica**  
-👨‍💻 Desarrollador principal: **Santiago Ramírez Elizondo**
+🟢 **Version 1.0 – Functional Release**  
+📍 Academic Project – *Programming V*  
+🏫 Universidad Latina de Costa Rica  
 
----
-
-## 🏗️ Arquitectura
-
-El proyecto sigue una **arquitectura limpia y modular** basada en **MVVM**, estructurada en capas:
-
-- /data → Repositorios, DAOs y fuentes de datos (Room / Retrofit)
-- /domain → Modelos, entidades y lógica de negocio
-- /ui → Pantallas Jetpack Compose, ViewModels y eventos de UI
-- /navigation → AppNav y rutas con BottomBar
-- /components → Reutilizables de interfaz (botones, inputs, scaffold)
-- /theme → Colores, tipografía y estilos globales Aeropost
-
-
-**Stack técnico principal:**
-- **Kotlin + Jetpack Compose**
-- **Room Database** (persistencia local)
-- **Retrofit + OkHttp** (consumo de APIs externas)
-- **Material 3 Design**
-- **Android ViewModel / LiveData / StateFlow**
-- **WorkManager** (tareas en segundo plano)
-- **BiometricPrompt + EncryptedSharedPreferences** (seguridad)
-- **MPAndroidChart** (gráficas)
-- **iText / PdfDocument** (PDFs)
-- **ZXing / ML Kit** (QR Scanner)
-- **TensorFlow Lite (opcional)** para IA ligera
+The application is fully functional at a local level, with offline persistence and complete business logic implemented. Future improvements are planned and documented.
 
 ---
 
-## ✨ Funcionalidades Principales
+## 🏗️ System Architecture
 
-| Módulo | Descripción |
-|---------|-------------|
-| 🔐 **Login y Seguridad** | Inicio de sesión local, hash de contraseña (Argon2/bcrypt), autenticación biométrica, registro de bitácora. |
-| 👥 **Clientes** | CRUD completo de clientes (nombre, cédula, correo, teléfono). Validación de identificación. |
-| 📦 **Paquetes** | Registro de paquetes asociados a clientes (peso, valor, tracking, tienda). Validaciones numéricas. |
-| 🧾 **Facturación** | Cálculo automático (peso × 12 + 13% IVA + 10% especial). Generación y exportación de factura en PDF. |
-| 💱 **Tipo de Cambio** | Consulta diaria vía API (Retrofit) y cache local. Muestra totales en CRC/USD. |
-| 📍 **Tracking** | Registro de pings GPS, mapa interactivo con ruta y timeline de eventos (Recibido, En Ruta, Entregado). |
-| 📊 **Reportes** | Totales mensuales por cliente y tracking, gráficas con MPAndroidChart y PDF de resumen. |
-| 🧠 **IA (opcional)** | Predicción de tiempo de entrega (ETA) y clasificación automática de paquetes especiales con TF-Lite. |
-| 🪄 **Extras / UX** | Widgets de acceso rápido, escáner QR para tracking, notificaciones de entrega y tema oscuro/claro. |
+AeropostApp follows a **clean MVVM architecture** combined with a **single-activity approach**, ensuring separation of concerns, scalability, and maintainability.
 
----
+### Layered structure:
+- **core/**  
+  Design system, security constants, session management, and network providers.
+- **data/**  
+  Room database entities, DAOs, repositories, mappers, and local/remote data sources.
+- **domain/**  
+  Business models, enums, interfaces, and core business logic.
+- **presentation/**  
+  Jetpack Compose screens, ViewModels, navigation graph, and reusable UI components.
 
-## 🧰 Tecnologías y Librerías
-
-| Categoría | Librerías |
-|------------|-----------|
-| UI | Jetpack Compose / Material 3 |
-| BD local | Room + SQLCipher (opcional) |
-| Networking | Retrofit + OkHttp |
-| Seguridad | Argon2 / BCrypt / EncryptedSharedPreferences / BiometricPrompt |
-| Mapas & GPS | Google Maps SDK / Fused Location Provider |
-| PDF | iText / PdfDocument |
-| Gráficas | MPAndroidChart |
-| Background | WorkManager |
-| ML / IA | TensorFlow Lite |
-| QR | ZXing / ML Kit |
+This structure prevents direct coupling between UI and persistence layers and allows future extension with external services.
 
 ---
 
-## 📱 Vista General (UI Preview)
+## 🧰 Tech Stack
 
-- **Pantalla de inicio:** Logo Aeropost + módulos principales  
-- **Clientes / Paquetes:** Formularios Compose scrollables y listas con LazyColumn  
-- **Facturación:** Totales dinámicos + botón de generar PDF  
-- **Tracking:** Mapa con marcadores y ruta histórica  
-- **Reportes:** Gráficas interactivas y exportación PDF  
-
-*(Sección con capturas y video demo se agregará al finalizar el desarrollo)*
-
----
-
-## 📊 Progreso y Planificación
-
-El avance del proyecto se gestiona mediante **Notion** en el siguiente tablero:  
-
-🔗 **Notion Roadmap:** [Abrir tablero de progreso](https://www.notion.so/Proyecto-AeropostApp-Roadmap-29112242305980c397f2d7f6d587ea5a?source=copy_link)
-
-El tablero incluye:
-- Checklist por módulo  
-- Estado de cada subproceso (Pendiente / En curso / Completado)  
-- Fechas de entrega y prioridad  
-- Vistas Kanban y Calendario  
+- **Kotlin**
+- **Jetpack Compose (Material 3)**
+- **Room (SQLite)** – local persistence
+- **MVVM + State management**
+- **PDF generation**
+- **CSV / ZIP report export**
+- **SMTP (Gmail) email delivery**
+- **Password hashing (PBKDF2 + salt + pepper)**
 
 ---
 
-## 🧩 Próximas metas
+## ✨ Implemented Features (v1.0)
 
-- Implementar tracking GPS en tiempo real  
-- Añadir autenticación biométrica completa  
-- Integrar gráficas MPAndroidChart y reportes PDF  
-- Añadir widget de acceso rápido y QR scanner  
-- Completar modelos IA ligeros (estimador de ETA)
+### 🔐 Authentication & Security
+- Local login system with hashed passwords (PBKDF2 with per-user salt and system pepper).
+- Session validation and basic access control.
+- No plaintext credential storage.
+
+### 👥 Client Management
+- Full CRUD operations for clients.
+- Field validation and duplicate prevention.
+- Search and filtering support.
+
+### 📦 Package Management
+- Package registration linked to clients.
+- Automatic tracking code generation based on store, date, and selected warehouse (casillero).
+- Status handling and traceability.
+
+### 🧾 Billing
+- Automatic invoice calculation based on:
+  - Package weight
+  - Declared value
+  - Taxes and special-product rules
+- PDF invoice generation.
+- Email delivery of invoices.
+
+### 📊 Reports
+- Client, package, and billing reports.
+- Export to CSV and compressed ZIP format.
+- Email delivery of generated reports.
 
 ---
 
-## 🧾 Licencia
+## 🧪 Testing & Validation
 
-Proyecto académico sin fines comerciales.  
-© 2025 – Santiago Ramírez Elizondo. Todos los derechos reservados.
+- Functional testing of all modules.
+- Integration testing between UI, ViewModels, and Room database.
+- Validation of business rules, navigation flow, and document generation.
+- Multiple issues related to navigation state, email delivery, and data consistency were identified and corrected.
 
 ---
 
+## 🔮 Future Improvements
 
+Planned extensions include:
+- Real-time GPS tracking with map visualization.
+- Cloud synchronization (Firebase).
+- External authentication (Google / Facebook).
+- Two-factor authentication (2FA).
+- Electronic invoicing integration with government APIs.
+- Improved exchange-rate API handling.
+- Advanced security algorithms (bcrypt / Argon2).
+- AI-assisted analytics and internal chatbot support.
+
+---
+
+## 📄 License
+
+Academic project developed for educational purposes.  
+© 2025 – Santiago Ramírez Elizondo
