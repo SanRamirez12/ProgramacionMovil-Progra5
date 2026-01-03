@@ -16,6 +16,8 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        val mapsKey = project.properties["MAPS_API_KEY"] as String? ?: ""
+        resValue("string", "google_maps_key", mapsKey)
     }
 
     buildFeatures {
