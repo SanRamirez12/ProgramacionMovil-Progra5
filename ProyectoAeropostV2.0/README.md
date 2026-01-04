@@ -1,107 +1,132 @@
-# 📦 AeropostApp
+# AeropostApp V2.0
 
-**AeropostApp** is an Android mobile application developed in **Kotlin** using **Jetpack Compose**, designed to support the digitalization of logistics operations for small and medium-sized enterprises (SMEs).  
-The project is inspired by the Aeropost logistics model and focuses on the integrated management of clients, packages, users, billing, and operational reports through a modern and maintainable mobile architecture.
-
----
-
-## 🚀 Project Status
-
-🟢 **Version 1.0 – Functional Release**  
-📍 Academic Project – *Programming V*  
-🏫 Universidad Latina de Costa Rica  
-
-The application is fully functional at a local level, with offline persistence and complete business logic implemented. Future improvements are planned and documented.
+**AeropostApp V2.0** is an Android mobile application developed in **Kotlin** using **Android Studio** and **Jetpack Compose**, created as the final project for the **Programming 5: Mobile Devices** course.  
+The application simulates a real-world logistics management system inspired by the **Aeropost** business model, focusing on modularity, clean architecture, and mobile-first design.
 
 ---
 
-## 🏗️ System Architecture
+## Academic Context
 
-AeropostApp follows a **clean MVVM architecture** combined with a **single-activity approach**, ensuring separation of concerns, scalability, and maintainability.
+- **Course:** Programming 5 – Mobile Devices  
+- **Institution:** Universidad Latina de Costa Rica  
+- **Project Type:** Final Academic Project  
+- **Development Mode:** Individual  
+- **Version:** 2.0 (Functional Academic Release)
 
-### Layered structure:
+This version represents a significant architectural and functional evolution over previous iterations.
+
+---
+
+## Project Objective
+
+The main objective of this project is to design and implement a **robust, scalable, and maintainable Android application** that applies advanced mobile development concepts, including:
+
+- Clean architecture and separation of concerns
+- Local data persistence
+- Secure user authentication
+- Business logic implementation
+- Document generation and reporting
+- Integration with external services
+
+---
+
+## Application Architecture
+
+AeropostApp V2.0 follows a **Clean MVVM architecture** combined with a **single-activity pattern**, ensuring clear separation between layers and long-term maintainability.
+
+### Architectural Layers
+
 - **core/**  
-  Design system, security constants, session management, and network providers.
+  Global configuration, security utilities, session handling, constants, and shared components.
+
 - **data/**  
-  Room database entities, DAOs, repositories, mappers, and local/remote data sources.
+  Room entities, DAOs, repositories, mappers, and local data sources.
+
 - **domain/**  
-  Business models, enums, interfaces, and core business logic.
-- **presentation/**  
+  Business models, enums, use cases, and core application rules.
+
+- **ui / presentation/**  
   Jetpack Compose screens, ViewModels, navigation graph, and reusable UI components.
 
-This structure prevents direct coupling between UI and persistence layers and allows future extension with external services.
+This structure avoids direct coupling between UI and data layers and allows future integration with remote services.
 
 ---
 
-## 🧰 Tech Stack
+## Technologies Used
 
 - **Kotlin**
+- **Android Studio**
 - **Jetpack Compose (Material 3)**
-- **Room (SQLite)** – local persistence
-- **MVVM + State management**
+- **Room (SQLite)**
+- **MVVM architecture**
+- **State management**
 - **PDF generation**
-- **CSV / ZIP report export**
-- **SMTP (Gmail) email delivery**
-- **Password hashing (PBKDF2 + salt + pepper)**
+- **CSV and ZIP export**
+- **SMTP email integration (Gmail)**
+- **Secure password hashing (PBKDF2 + salt + pepper)**
 
 ---
 
-## ✨ Implemented Features (v1.0)
+## Core Features Implemented
 
-### 🔐 Authentication & Security
-- Local login system with hashed passwords (PBKDF2 with per-user salt and system pepper).
+### Authentication & Security
+- Local authentication system.
+- Password hashing using PBKDF2 with per-user salt and system-level pepper.
 - Session validation and basic access control.
 - No plaintext credential storage.
 
-### 👥 Client Management
-- Full CRUD operations for clients.
-- Field validation and duplicate prevention.
-- Search and filtering support.
+### Client Management
+- Complete CRUD operations for clients.
+- Input validation and duplicate prevention.
+- Search and filtering capabilities.
 
-### 📦 Package Management
-- Package registration linked to clients.
-- Automatic tracking code generation based on store, date, and selected warehouse (casillero).
-- Status handling and traceability.
+### Package Management
+- Package registration associated with clients.
+- Automatic tracking code generation based on date, store, and warehouse.
+- Package status handling and traceability.
 
-### 🧾 Billing
+### Billing System
 - Automatic invoice calculation based on:
   - Package weight
   - Declared value
-  - Taxes and special-product rules
+  - Taxes and special handling rules
 - PDF invoice generation.
 - Email delivery of invoices.
 
-### 📊 Reports
+### Reports
 - Client, package, and billing reports.
-- Export to CSV and compressed ZIP format.
+- Export to CSV format.
+- Compression into ZIP files.
 - Email delivery of generated reports.
 
 ---
 
-## 🧪 Testing & Validation
+## Testing and Validation
 
 - Functional testing of all modules.
 - Integration testing between UI, ViewModels, and Room database.
-- Validation of business rules, navigation flow, and document generation.
-- Multiple issues related to navigation state, email delivery, and data consistency were identified and corrected.
+- Validation of business rules and navigation flow.
+- Multiple issues related to navigation state, data consistency, and email delivery were identified and resolved during development.
 
 ---
 
-## 🔮 Future Improvements
+## Future Enhancements
 
-Planned extensions include:
-- Real-time GPS tracking with map visualization.
-- Cloud synchronization (Firebase).
-- External authentication (Google / Facebook).
-- Two-factor authentication (2FA).
-- Electronic invoicing integration with government APIs.
-- Improved exchange-rate API handling.
-- Advanced security algorithms (bcrypt / Argon2).
-- AI-assisted analytics and internal chatbot support.
+Planned improvements include:
+
+- Real-time GPS tracking with map visualization
+- Cloud synchronization (Firebase)
+- External authentication providers (Google / Facebook)
+- Two-factor authentication (2FA)
+- Electronic invoicing integration
+- Improved exchange-rate API handling
+- Advanced security algorithms (bcrypt / Argon2)
+- AI-assisted analytics and internal chatbot support
 
 ---
 
-## 📄 License
+## License
 
-Academic project developed for educational purposes.  
+This project was developed **exclusively for educational purposes** as part of the **Programming 5: Mobile Devices** course.
+
 © 2025 – Santiago Ramírez Elizondo
